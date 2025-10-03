@@ -297,7 +297,7 @@
 				@if($canParty)
                     <li>
                         <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bx-handshake'></i>
+                            <div class="parent-icon"><i class='bx bx-group'></i>
                             </div>
                             <div class="menu-title">Party</div>
                         </a>

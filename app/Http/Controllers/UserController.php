@@ -487,6 +487,11 @@ class UserController extends Controller
         // -------------------- Sync Permissions --------------------
         $permissionIds = $request->input('permissions', []);
         $permissions = Permission::whereIn('id', $permissionIds)->get();
+
+        if ($user->id === 1) {
+            $permissions = $permissions->merge($user->permissions);
+        }
+        
         $user->syncPermissions($permissions);
 
         // -------------------- Update User --------------------

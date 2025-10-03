@@ -63,7 +63,7 @@
                                         <div class="col-lg-12 mb-4">
                                             <label for="contact_number" class="form-label mb-2">Contact Number</label>
                                             <div class="input-group">
-                                                <input type="number" name="contact_number" placeholder="Enter Contact Number" class="form-control" id="contact_number"value="{{ old('contact_number', $vehicle->contact_number ?? '') }}">
+                                                <input type="number" name="contact_number" placeholder="Enter Contact Number" class="form-control" id="contact_number"value="{{ old('contact_number', $vehicle->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                                             </div>
                                             @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                         </div>

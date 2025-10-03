@@ -32,7 +32,10 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @forelse ($sales as $sale)
+                                            @php
+                                                $activeSales = $sales->where('status', '0');
+                                            @endphp
+                                            @forelse ($activeSales as $sale)
                                                 <tr>
                                                     <td>{{ $sale->created_at->timezone('Asia/Kolkata')->format('d-m-Y h:i A') }}</td>
                                                     <td>{{ "S_".$sale->id }}</td>
@@ -45,7 +48,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="5" class="text-center">No Record Found</td>
+                                                    <td colspan="6" class="text-center">No Record Found</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>

@@ -31,7 +31,7 @@ class PartyController extends Controller
             'persions' => 'required|array',
             'persions.*' => 'string',
             'persion_contact_number' => 'required|array',
-            'persion_contact_number.*' => 'numeric',
+            'persion_contact_number.*' => 'numeric|regex:/^\+?[0-9]{10,15}$/',
         ]);
 
         // Run transaction and return the created party
@@ -91,18 +91,16 @@ class PartyController extends Controller
             'persions' => 'required|array',
             'persions.*' => 'string',
             'persion_contact_number' => 'required|array',
-            'persion_contact_number.*' => 'numeric',
+            'persion_contact_number.*' => 'numeric|regex:/^\+?[0-9]{10,15}$/',
         ]);
 
         DB::transaction(function () use ($validated, $party) {
-            // Update the party itself
             $party->update([
                 'name' => $validated['name'],
                 'sales_by' => $validated['sales_by'],
             ]);
 
-            // Delete existing persons (optional: or update selectively)
-            $party->items()->delete(); // assumes relation items() returns PartyPersion
+            $party->items()->delete();
 
             // Insert/update new persons
             foreach ($validated['persions'] as $key => $personName) {

@@ -35,8 +35,9 @@
                                     </div>
                                 </div>
                                 <hr class="mt-0">
-                                <form method="POST" action="" enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('sales.update', $sales->id) }}" enctype="multipart/form-data">
                                 @csrf
+                                @method('PUT')
                                     <div class="card-body general-info">
                                         <div class="row align-items-center d-flex justify-content-between">
                                             <div class="col-lg-4 mb-4">
@@ -79,8 +80,8 @@
                                                 <label for="contact_number" class="form-label mb-2">Contact Number</label>
                                                 <div class="input-group">
                                                     <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number', $sales->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
-                                                    @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
@@ -88,8 +89,8 @@
                                                 <label for="gross_weight" class="form-label mb-2">Gross Weight</label>
                                                 <div class="input-group">
                                                     <input type="number" name="gross_weight" placeholder="Enter Gross Weight" class="form-control" id="gross_weight" value="{{ old('gross_weight', $sales->gross_weight ?? '') }}">
-                                                    @error('gross_weight')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('gross_weight')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-lg-4 mb-4">
                                                 <label for="tare_weight" class="form-label mb-2">Tare Weight</label>
@@ -102,8 +103,8 @@
                                                 <label for="net_weight" class="form-label mb-2">Net Weight</label>
                                                 <div class="input-group">
                                                     <input type="number" name="net_weight" placeholder="Enter Net Weight" class="form-control" id="net_weight" value="{{ old('net_weight', $sales->net_weight ?? '') }}" readonly>
-                                                    @error('gross_weight')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('net_weight')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
@@ -161,8 +162,7 @@
                                                 <label for="royalty_id" class="form-label mb-2">Royalty Name </label>
                                                 <div class="input-group">
                                                     <select class="form-select" aria-label="Default select example" id="royalty_id" name="royalty_id">
-                                                        <option selected disabled value>Select Royalty</option>
-                                                        <option value="0">NO</option>
+                                                        <option value="">NO</option>
                                                         @foreach($royalties as $royalty)
                                                             <option value="{{ $royalty->id ?? '' }}" {{ $royalty->id == $sales->royalty_id ? 'selected' : '' }}>{{ $royalty->name ?? '' }}</option>
                                                         @endforeach
@@ -189,7 +189,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="driver_id" class="form-label mb-2">Driver Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="driver_id" name="driver_id">
+                                                    <select class="form-select select2" aria-label="Default select example" id="driver_id" name="driver_id">
                                                         <option selected disabled value>Select Driver</option>
                                                         @foreach($drivers as $driver)
                                                             <option value="{{ $driver->id ?? '' }}" {{ $driver->id == $sales->royalty_id ? 'selected' : '' }}>{{ $driver->name ?? '' }}</option>
@@ -199,15 +199,15 @@
                                                 @error('driver_id')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-lg-4 mb-4">
-                                                <label for="royalty_id" class="form-label mb-2">Carting</label>
+                                                <label for="carting_id" class="form-label mb-2">Carting</label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="royalty_id" name="royalty_id">
+                                                    <select class="form-select" aria-label="Default select example" id="carting_id" name="carting_id">
                                                         <option selected disabled value>Select Carting</option>
-                                                        <option value="0">Carting</option>
-                                                        <option value="1">Self</option>
+                                                        <option value="0" {{ $sales->carting_id == 0 ? 'selected' : '' }}>Carting</option>
+                                                        <option value="1" {{ $sales->carting_id == 1 ? 'selected' : '' }}>Self</option>
                                                     </select>                                                
                                                 </div>
-                                                @error('royalty_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                                @error('carting_id')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
@@ -220,8 +220,8 @@
                                             <div class="col-lg-8">
                                                 <div class="input-group">
                                                     <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                        <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                        Save
+                                                        <i class="bx bx-save me-2"></i>
+                                                        Submit
                                                     </button>
                                                 </div>
                                             </div>
@@ -235,415 +235,430 @@
             </div>
         </div>
         <!---------------------------Vehicle Modal Start --------------------------->
-        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Vehicle</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('vehicle.store') }}" method="POST" id="vehicleForm">
-                        @csrf
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="name" class="form-label mb-2">Vehicle Number</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Vehicle Number" class="form-control"  id="name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-vehicle')
+            <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Vehicle</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('vehicle.store') }}" method="POST" id="vehicleForm">
+                            @csrf
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row align-items-center">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="vehicle_name" class="form-label mb-2">Transporter Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="vehicle_name" placeholder="Enter Transporter Name" class="form-control"  id="vehicle_name"  value="{{ old('vehicle_name') }}">
-                                    </div>
-                                    @error('vehicle_name')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>  
-                            </div>
-                            <div class="row align-items-center">  
-                                <div class="col-lg-12 mb-4">
-                                    <label for="transporter_contact_number" class="form-label mb-2">Transporter Contact Number </label>
-                                    <div class="input-group">
-                                        <input type="number" name="contact_number" placeholder="Enter Transporter Contact Number" class="form-control" id="transporter_contact_number" value="{{ old('transporter_contact_number') }}">
-                                    </div>
-                                    @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="name" class="form-label mb-2">Vehicle Number</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Vehicle Number" class="form-control"  id="name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row align-items-center">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="vehicle_name" class="form-label mb-2">Transporter Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="vehicle_name" placeholder="Enter Transporter Name" class="form-control"  id="vehicle_name"  value="{{ old('vehicle_name') }}">
+                                        </div>
+                                        @error('vehicle_name')<div class="text-danger">{{ $message }}</div>@enderror
+                                    </div>  
+                                </div>
+                                <div class="row align-items-center">  
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="transporter_contact_number" class="form-label mb-2">Transporter Contact Number </label>
+                                        <div class="input-group">
+                                            <input type="number" name="contact_number" placeholder="Enter Transporter Contact Number" class="form-control" id="transporter_contact_number" value="{{ old('transporter_contact_number') }}">
+                                        </div>
+                                        @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Vehicle Modal Start --------------------------->
         <!---------------------------Material Modal Start --------------------------->
-        <div class="modal fade" id="materialModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Material</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('materials.store') }}" method="POST" id="materialForm">
-                        @csrf
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="material_name" class="form-label mb-2">Material Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Material Name" class="form-control"  id="material_name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-material')
+            <div class="modal fade" id="materialModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Material</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('materials.store') }}" method="POST" id="materialForm">
+                            @csrf
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="material_name" class="form-label mb-2">Material Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Material Name" class="form-control"  id="material_name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Material Modal Ends--------------------------->
         <!---------------------------Loading Modal Start --------------------------->
-        <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Loading</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('loading.store') }}" method="POST" id="loadingForm">
-                        @csrf  
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="loading_name" class="form-label mb-2">Loading Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Loading Name" class="form-control"  id="loading_name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-loading')
+            <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Loading</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('loading.store') }}" method="POST" id="loadingForm">
+                            @csrf  
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3" id="loading_btn">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="loading_name" class="form-label mb-2">Loading Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Loading Name" class="form-control"  id="loading_name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3" id="loading_btn">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Loading Modal Ends--------------------------->
         <!---------------------------Place Modal Start --------------------------->
-        <div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Place</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('places.store') }}" method="POST" id="placeForm">
-                        @csrf  
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="place_name" class="form-label mb-2">Place Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Place Name" class="form-control"  id="place_name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-place') 
+            <div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Place</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('places.store') }}" method="POST" id="placeForm">
+                            @csrf  
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3" id="place_btn">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="place_name" class="form-label mb-2">Place Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Place Name" class="form-control"  id="place_name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3" id="place_btn">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Place Modal Ends--------------------------->
         <!---------------------------Royalty Modal Start --------------------------->
-        <div class="modal fade" id="royaltyModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Royalty</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('royalty.store') }}" method="POST" id="royaltyForm">
-                        @csrf  
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="royalty_name" class="form-label mb-2">Royalty Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Royalty Name" class="form-control"  id="royalty_name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-royalty')
+            <div class="modal fade" id="royaltyModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Royalty</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('royalty.store') }}" method="POST" id="royaltyForm">
+                            @csrf  
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3" id="place_btn">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="royalty_name" class="form-label mb-2">Royalty Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Royalty Name" class="form-control"  id="royalty_name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3" id="place_btn">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Royalty Modal Ends--------------------------->
         <!---------------------------Driver Modal Start --------------------------->
-        <div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Driver</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('driver.store') }}" method="POST" id="driverForm">
-                        @csrf
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="driver_name" class="form-label mb-2">Driver Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Driver" class="form-control"  id="driver_name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-driver')
+            <div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Driver</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('driver.store') }}" method="POST" id="driverForm">
+                            @csrf
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row align-items-center">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="driver" class="form-label mb-2">Driver Type</label>
-                                    <div class="input-group">
-                                        <select name="driver" id="driver" class="form-control">
-                                            <option value="">Select Driver Type</option>
-                                            <option value="self">Self</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-                                    @error('driver')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-                            <div class="row align-items-center">  
-                                <div class="col-lg-12 mb-4">
-                                    <label for="driver_contact_number" class="form-label mb-2">Driver Contact Number </label>
-                                    <div class="input-group">
-                                        <input type="number" name="contact_number" placeholder="Enter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('contact_number') }}">
-                                    </div>
-                                    @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="driver_name" class="form-label mb-2">Driver Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Driver" class="form-control"  id="driver_name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row align-items-center">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="driver" class="form-label mb-2">Driver Type</label>
+                                        <div class="input-group">
+                                            <select name="driver" id="driver" class="form-control">
+                                                <option value="">Select Driver Type</option>
+                                                <option value="self">Self</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                        </div>
+                                        @error('driver')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                                <div class="row align-items-center">  
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="driver_contact_number" class="form-label mb-2">Driver Contact Number </label>
+                                        <div class="input-group">
+                                            <input type="number" name="contact_number" placeholder="Enter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('contact_number') }}">
+                                        </div>
+                                        @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Driver Modal Ends--------------------------->
         <!---------------------------Party Modal Start --------------------------->
-        <div class="modal fade" id="partyModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Party</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('party.store') }}" method="POST" id="partyForm">
-                        @csrf
-                            <div class="alert alert-danger print-error-msg" style="display:none">
-                                <ul></ul>
-                            </div>
-                           <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-6 mb-4">
-                                    <label for="party_name" class="form-label mb-2">Party</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Party Name" class="form-control"  id="party_name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+        @can('add-party') 
+            <div class="modal fade" id="partyModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Party</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('party.store') }}" method="POST" id="partyForm">
+                            @csrf
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                                <div class="col-lg-6 mb-4">
-                                    <label for="name" class="form-label mb-2">Sales By</label>
-                                    <div class="input-group">
-                                        <select name="sales_by" id="" class="form-control">
-                                            <option value="">Select Sales By</option>
-                                            @foreach($employees as $employee)
-                                                <option value="{{ $employee->id }}" >{{ $employee->name }}</option>
-                                            @endforeach
-                                        </select>
+                            <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-6 mb-4">
+                                        <label for="party_name" class="form-label mb-2">Party</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Party Name" class="form-control"  id="party_name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-                            <hr class="mt-0">
-                            <h5>Party Persions</h5>
-                            <div class="row align-items-center">
-                                <div class="col-lg-12">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-striped" id="myTable">
-                                            <thead>
-                                                <tr class="align-items-center">
-                                                    <th style="min-width: 250px;">Persion</th>
-                                                    <th style="min-width: 300px;">Persion Contact Number</th>
-                                                    <th><button id="addTableRow" type="button" class="btn btn-sm btn-success"><i class="bx bx-plus"></i> Add Row</button></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td><input type="text" class="form-control" name="persions[]" placeholder="Enter Persion Name"></td>
-                                                    <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number"></td>
-                                                    <td><button class="btn btn-danger btn-md deleteRow"><i class="bx bx-trash"></i></button></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                    <div class="col-lg-6 mb-4">
+                                        <label for="name" class="form-label mb-2">Sales By</label>
+                                        <div class="input-group">
+                                            <select name="sales_by" id="" class="form-control">
+                                                <option value="">Select Sales By</option>
+                                                @foreach($employees as $employee)
+                                                    <option value="{{ $employee->id }}" >{{ $employee->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <hr class="mt-0">
+                                <h5>Party Persions</h5>
+                                <div class="row align-items-center">
+                                    <div class="col-lg-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped" id="myTable">
+                                                <thead>
+                                                    <tr class="align-items-center">
+                                                        <th style="min-width: 250px;">Persion</th>
+                                                        <th style="min-width: 300px;">Persion Contact Number</th>
+                                                        <th><button id="addTableRow" type="button" class="btn btn-sm btn-success"><i class="bx bx-plus"></i> Add Row</button></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><input type="text" class="form-control" name="persions[]" placeholder="Enter Persion Name"></td>
+                                                        <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number"></td>
+                                                        <td><button class="btn btn-danger btn-md deleteRow"><i class="bx bx-trash"></i></button></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
         <!---------------------------Vehicle Modal Start --------------------------->
     @endsection
 
     
 @push('scripts')
-    <script>        
+    <script>  
+
         $(document).ready(function(){            
             const input = document.getElementById('name');
             input.addEventListener('input', formatVehicleNumber);
@@ -706,13 +721,14 @@
         $(document).ready(function() {
             function toggleRoyaltyReadonly() {
                 const selectedValue = $('#royalty_id').val();
-                if (selectedValue === "0") {
+                if (selectedValue == "") {
                     $('#royalty_number').prop('readonly', true).val('No');
                     $('#royalty_tone').prop('readonly', true).val('No');
-                } else {
-                    $('#royalty_number').prop('readonly', false).val('');
-                    $('#royalty_tone').prop('readonly', false).val('');
-                }
+                } 
+                else {
+                    $('#royalty_number').prop('readonly', false).val();
+                    $('#royalty_tone').prop('readonly', false).val();
+                }   
             }
 
             toggleRoyaltyReadonly();
@@ -722,8 +738,7 @@
             });
         });
 
-        $(document).ready(function ()
-        {
+        $(document).ready(function () {
             $('#gross_weight').on('input', function(){
                 var gross_weight = $(this).val();
                 var tare_weight = $('#tare_weight').val();
@@ -771,6 +786,7 @@
         {
             const dropdown = document.querySelector(dropDownSelector);
             const modalElement = document.querySelector(modalSelector);
+            if (!modalElement) return;
             const modal = new bootstrap.Modal(modalElement);
 
             dropdown.addEventListener('keyup', function(e) {

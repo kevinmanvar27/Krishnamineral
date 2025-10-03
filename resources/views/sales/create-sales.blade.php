@@ -96,8 +96,8 @@
                                             <div class="col-lg-8">
                                                 <div class="input-group">
                                                     <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                        <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                        Save
+                                                        <i class="bx bx-save me-2"></i>
+                                                        Submit
                                                     </button>
                                                 </div>
                                             </div>
@@ -110,66 +110,73 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="shortcutModalLabel">Vehicle</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('vehicle.store') }}" method="POST">
-                        @csrf
-                            <div class="row align-items-center d-flex justify-content-between">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="name" class="form-label mb-2">Vehicle Number</label>
-                                    <div class="input-group">
-                                        <input type="text" name="name" placeholder="Enter Vehicle Number" class="form-control"  id="name"  value="{{ old('name') }}">
-                                    </div>
-                                    @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+
+        @can('add-vehicle')
+            <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="shortcutModalLabel">Vehicle</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('vehicle.store') }}" method="POST" id="vehicleForm">
+                            @csrf
+                                <div class="alert alert-danger print-error-msg" style="display:none">
+                                    <ul></ul>
                                 </div>
-                            </div>
-                            <div class="row align-items-center">
-                                <div class="col-lg-12 mb-4">
-                                    <label for="vehicle_name" class="form-label mb-2">Transporter Name</label>
-                                    <div class="input-group">
-                                        <input type="text" name="vehicle_name" placeholder="Enter Transporter Name" class="form-control"  id="vehicle_name"  value="{{ old('vehicle_name') }}">
-                                    </div>
-                                    @error('vehicle_name')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>  
-                            </div>
-                            <div class="row align-items-center">  
-                                <div class="col-lg-12 mb-4">
-                                    <label for="transporter_contact_number" class="form-label mb-2">Transporter Contact Number </label>
-                                    <div class="input-group">
-                                        <input type="number" name="contact_number" placeholder="Enter Transporter Contact Number" class="form-control" id="transporter_contact_number" value="{{ old('transporter_contact_number') }}">
-                                    </div>
-                                    @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
-                                </div>
-                            </div>
-                            <div class="row justify-content-between">
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>
-                                            Save
-                                        </button>
+                                <div class="row align-items-center d-flex justify-content-between">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="name" class="form-label mb-2">Vehicle Number</label>
+                                        <div class="input-group">
+                                            <input type="text" name="name" placeholder="Enter Vehicle Number" class="form-control"  id="name"  value="{{ old('name') }}">
+                                        </div>
+                                        @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                        <i class="fa-solid fa-close me-2"></i>
-                                            Close
-                                        </button>
+                                <div class="row align-items-center">
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="vehicle_name" class="form-label mb-2">Transporter Name</label>
+                                        <div class="input-group">
+                                            <input type="text" name="vehicle_name" placeholder="Enter Transporter Name" class="form-control"  id="vehicle_name"  value="{{ old('vehicle_name') }}">
+                                        </div>
+                                        @error('vehicle_name')<div class="text-danger">{{ $message }}</div>@enderror
+                                    </div>  
+                                </div>
+                                <div class="row align-items-center">  
+                                    <div class="col-lg-12 mb-4">
+                                        <label for="transporter_contact_number" class="form-label mb-2">Transporter Contact Number </label>
+                                        <div class="input-group">
+                                            <input type="number" name="contact_number" placeholder="Enter Transporter Contact Number" class="form-control" id="transporter_contact_number" value="{{ old('transporter_contact_number') }}">
+                                        </div>
+                                        @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
-                            </div>
-                        </form>
+                                <div class="row justify-content-between">
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="submit" class="btn btn-primary mt-2 mb-3">
+                                                <i class="fa-solid fa-floppy-disk me-2"></i>
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="input-group">
+                                            <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
+                                            <i class="fa-solid fa-close me-2"></i>
+                                                Close
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endcan
+        
     @endsection
 
     
@@ -199,7 +206,6 @@
                 event.target.value = formattedValue.trim();
             }
         });
-
         
         $(document).ready(function(){
             $('#vehicle_id').change(function() {
@@ -210,7 +216,7 @@
                     $.ajax({
                         url: url,
                         type: 'POST',
-                        data: { id: selectedValue }, // no need to add _token manually
+                        data: { id: selectedValue },
                         dataType: 'json',
                         success: function(data){
                             $('#transporter').val(data.vehicle_name);
@@ -234,17 +240,75 @@
             
             dateTimeInput.value = now.toISOString().slice(0, 16);
         })
-        
-        $(document).ready(function(){
-            const dropdown = document.getElementById('vehicle_id');
-            const myModal = new bootstrap.Modal(document.getElementById('myModal'));
-            
+
+        function modalDropdown({ dropDownSelector, modalSelector, formSelector, fields, labelField = 'name' })
+        {
+            const dropdown = document.querySelector(dropDownSelector);
+            const modalElement = document.querySelector(modalSelector);
+            if (!modalElement) return;
+            const modal = new bootstrap.Modal(modalElement);
+
             dropdown.addEventListener('keyup', function(e) {
-            if (e.key === 'Insert' || (e.key.toLowerCase() === 'i' && e.ctrlKey)) {
-                e.preventDefault();
-                setTimeout(() => myModal.show(), 10);
-            }
+                if (e.key === 'Insert' || (e.key.toLowerCase() === 'i' && e.ctrlKey)) {
+                    e.preventDefault();
+                    modal.show();
+                }
             });
+
+            $(document).on('submit', formSelector, function(e) { 
+                e.preventDefault();
+
+                const form = $(this);
+                const url = form.attr('action');
+                const formData = new FormData(this);
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) { 
+                        for(const [responseKey, selector] of Object.entries(fields)){
+                            if (response[responseKey] !== undefined)
+                            {
+                                const element = $(selector);
+                                if (element.is('select'))
+                                {
+                                    const label = labelField ? (response[labelField] ?? response[responseKey]) : response[responseKey];
+                                    element.append(`<option value="${response[responseKey]}">${label}</option>`);
+                                    element.val(response[responseKey]);
+                                }
+                                else
+                                {
+                                    element.val(response[responseKey]);
+                                }
+                            }
+                        }
+                        modal.hide();
+                        form[0].reset();
+                    },
+                    error: function(response){
+                        $(formSelector).find(".print-error-msg").find("ul").html('');
+                        $(formSelector).find(".print-error-msg").css('display','block');
+                        $.each( response.responseJSON.errors, function( key, value ) {
+                            $(formSelector).find(".print-error-msg").find("ul").append('<li>'+value+'</li>');
+                        });
+                    },
+                });
+            });
+        }
+
+        modalDropdown({
+            dropDownSelector: '#vehicle_id',
+            modalSelector: '#myModal',
+            formSelector: '#vehicleForm',
+            fields: {
+                id : '#vehicle_id',
+                vehicle_name: '#transporter',
+                contact_number: '#contact_number',
+            },
+            labelField: 'name',
         })
     </script>
     

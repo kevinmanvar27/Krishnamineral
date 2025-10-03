@@ -79,14 +79,14 @@
                                                             @foreach($party->items as $index => $item)
                                                                 <tr>
                                                                     <td><input type="text" class="form-control" name="persions[]" placeholder="Enter Persion Name" value="{{ $item->persions }}"></td>
-                                                                    <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number" value="{{ $item->persion_contact_number }}"></td>
+                                                                    <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number" value="{{ $item->persion_contact_number }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"></td>
                                                                     <td><button class="btn btn-danger btn-md deleteRow"><i class="bx bx-trash"></i></button></td>
                                                                 </tr>
                                                             @endforeach
                                                         @else
                                                             <tr>
                                                                 <td><input type="text" class="form-control" name="persions[]" placeholder="Enter Persion Name"></td>
-                                                                <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number"></td>
+                                                                <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"></td>
                                                                 <td><button class="btn btn-danger btn-md deleteRow"><i class="bx bx-trash"></i></button></td>
                                                             </tr>
                                                         @endif
@@ -124,7 +124,7 @@
             let newRow = `
                 <tr>
                     <td><input type="text" class="form-control" name="persions[]" placeholder="Enter Persion Name"></td>
-                    <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number"></td>
+                    <td><input type="text" class="form-control" name="persion_contact_number[]" placeholder="Enter Persion Contact Number" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"></td>
                     <td><button class="btn btn-danger btn-md deleteRow"><i class="bx bx-trash"></i></button></td>
                     
                 </tr>
