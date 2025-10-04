@@ -44,7 +44,7 @@
                                         <div class="col-lg-6 mb-4">
                                             <label for="name" class="form-label mb-2">Place</label>
                                             <div class="input-group">
-                                                <input type="text" name="name" placeholder="Enter Place" class="form-control"  id="name"  value="{{ old('name', $materials->name ?? '') }}">
+                                                <input type="text" name="name" placeholder="Enter Place" class="form-control"  id="name"  value="{{ old('name', $places->name ?? '') }}">
                                             </div>
                                             @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                         </div>

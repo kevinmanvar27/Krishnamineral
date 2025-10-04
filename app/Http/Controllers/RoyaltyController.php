@@ -9,8 +9,28 @@ class RoyaltyController extends Controller
 {
     public function index(Request $request)
     {
-        $royalties = Royalty::latest()->paginate(5);
-        return view('royalty.index', compact('royalties'))
+        $query = Royalty::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $royalties = $query->latest()->paginate(5);
+
+        $allNames = Royalty::select('name')->distinct()->pluck('name');
+        $allDates = Royalty::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+
+        if ($request->ajax()) {
+            return view('royalty.index', compact('royalties', 'allNames', 'allDates'))
+                ->with('i', ($royalties->currentPage() - 1) * $royalties->perPage());
+        }
+
+
+        return view('royalty.index', compact('royalties', 'allNames', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
@@ -64,8 +84,27 @@ class RoyaltyController extends Controller
 
     public function editIndex(Request $request)
     {
-        $royalties = Royalty::latest()->paginate(5);
-        return view('royalty.edit-index', compact('royalties'))
+        $query = Royalty::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $royalties = $query->latest()->paginate(5);
+
+        $allNames = Royalty::select('name')->distinct()->pluck('name');
+        $allDates = Royalty::select('updated_at')->distinct()->get()->map(fn($d) => $d->updated_at->format('Y-m-d'));
+
+        if ($request->ajax()) {
+            return view('royalty.edit-index', compact('royalties', 'allNames', 'allDates'))
+                ->with('i', ($royalties->currentPage() - 1) * $royalties->perPage());
+        }
+
+        return view('royalty.edit-index', compact('royalties', 'allNames', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 }

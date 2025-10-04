@@ -9,15 +9,53 @@ class PlacesController extends Controller
 {
     public function index(Request $request)
     {
-        $places = Places::latest()->paginate(5);
-        return view('places.index', compact('places'))
+        $query = Places::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $places = $query->latest()->paginate(5);
+
+        $allNames = Places::select('name')->distinct()->pluck('name');
+        $allDates = Places::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+
+        if ($request->ajax()) {
+            return view('places.index', compact('places', 'allNames', 'allDates'))
+                ->with('i', ($places->currentPage() - 1) * $places->perPage());
+        }
+
+        return view('places.index', compact('places', 'allNames', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function editIndex(Request $request)
     {
-        $places = Places::latest()->paginate(5);
-        return view('places.edit-index' , compact('places'))
+        $query = Places::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $places = $query->latest()->paginate(5);
+
+        $allNames = Places::select('name')->distinct()->pluck('name');
+        $allDates = Places::select('updated_at')->distinct()->get()->map(fn($d) => $d->updated_at->format('Y-m-d'));
+
+        if ($request->ajax()) {
+            return view('places.edit-index', compact('places', 'allNames', 'allDates'))
+                ->with('i', ($places->currentPage() - 1) * $places->perPage());
+        }
+
+        return view('places.edit-index' , compact('places', 'allNames', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

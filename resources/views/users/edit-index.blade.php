@@ -45,8 +45,37 @@
                                                     <th>Last Login</th>
                                                     <th>Action</th>
                                                 </tr>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>
+                                                        <select id="searchName" class="form-select js-select2">
+                                                            <option value="">All Names</option>
+                                                            @foreach($allNames as $name)
+                                                                <option value="{{ $name }}" {{ old('name') == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th>
+                                                        <select id="searchEmail" class="form-select js-select2">
+                                                            <option value="">All Emails</option>
+                                                            @foreach($allEmails as $email)
+                                                                <option value="{{ $email }}" {{ old('email') == $email ? 'selected' : '' }}>{{ $email }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th>
+                                                        <select id="searchDate" class="form-select js-select2">
+                                                            <option value="">All Dates</option>
+                                                            @foreach($allDates->unique() as $date)
+                                                                <option value="{{ $date }}" {{ old('date') == $date ? 'selected' : '' }}>{{ $date }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th></th>
+                                                </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="tableData">
+                                                @php $i = $i ?? 0; @endphp
                                                 @forelse($data as $user)
                                                     @if($user)
                                                         <tr>
@@ -61,7 +90,7 @@
                                                     @endif
                                                 @empty
                                                     <tr>
-                                                        <td colspan="5">No Record Found</td>
+                                                        <td colspan="5" class="text-center">No Record Found</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
@@ -70,7 +99,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <div class="d-flex justify-content-start">
+                                <div class="d-flex justify-content-start" id="paginationLinks">
                                     {!! $data->links() !!}
                                 </div>
                             </div>
@@ -82,3 +111,42 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+
+    <script>
+        $(document).ready(function () {
+
+            function fetch_data(page = 1) {
+                $.ajax({
+                    url: "{{ route('users.editIndex') }}",
+                    type: "GET",
+                    data: {
+                        page: page,
+                        name: $('#searchName').val(),
+                        email: $('#searchEmail').val(),
+                        date: $('#searchDate').val()
+                    },
+                    success: function (response) {
+                        let newBody = $(response).find('#tableData').html();
+                        $('#tableData').html(newBody);
+
+                        let newPagination = $(response).find('#paginationLinks').html();
+                        $('#paginationLinks').html(newPagination);
+                    }
+                });
+            }
+
+            $('#searchName, #searchEmail, #searchDate').on('change', function () {
+                fetch_data();
+            });
+
+            $(document).on('click', '#paginationLinks .pagination a', function (e) {
+                e.preventDefault();
+                let page = $(this).attr('href').split('page=')[1];
+                fetch_data(page);
+            });
+        });
+    </script>
+
+@endpush

@@ -95,7 +95,7 @@
       <td>Material : {{ $material }}</td>
     </tr>
   </table>
-
+  <span>Signature : __________________________________</span>
   <hr style="margin: 20px 0;">
 
 

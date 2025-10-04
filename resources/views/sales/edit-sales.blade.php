@@ -277,18 +277,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>
@@ -326,18 +326,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>
@@ -375,18 +375,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3" id="loading_btn">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>
@@ -424,18 +424,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3" id="place_btn">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>
@@ -473,18 +473,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3" id="place_btn">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal" >
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>
@@ -544,18 +544,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>
@@ -629,18 +629,18 @@
                                     </div>
                                 </div>
                                 <div class="row justify-content-between">
-                                    <div class="col-lg-3">
+                                    <div class="col-lg-6">
                                         <div class="input-group">
                                             <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                <i class="fa-solid fa-floppy-disk me-2"></i>
-                                                Save
+                                                <i class="bx bx-save me-2"></i>
+                                                Submit
                                             </button>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="input-group">
                                             <button type="button" class="btn btn-secondary mt-2 mb-3" data-bs-dismiss="modal">
-                                            <i class="fa-solid fa-close me-2"></i>
+                                            <i class="bx bx-x me-1"></i>
                                                 Close
                                             </button>
                                         </div>

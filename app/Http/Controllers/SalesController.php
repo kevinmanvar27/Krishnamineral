@@ -14,19 +14,100 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Vehicle;
 
 class SalesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sales::latest()->paginate(5);
-        return view('sales.index', compact('sales'));    
+        $query = Sales::query();
+
+        if ($request->transporter) {
+            $query->where('transporter', 'like', '%' . $request->transporter . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->date_from && $request->date_to) {
+            $query->whereBetween('created_at', [
+                $request->date_from . ' 00:00:00',
+                $request->date_to . ' 23:59:59'
+            ]);
+        } elseif ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        } elseif ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $sales = $query->latest()->paginate(5);
+
+        $allDates = Sales::select('created_at')
+            ->distinct()
+            ->get()
+            ->map(fn($d) => $d->created_at->format('Y-m-d'));
+        $allTransporters = Sales::select('transporter')->distinct()->pluck('transporter');
+        $allContacts = Sales::select('contact_number')->distinct()->pluck('contact_number');
+
+        if ($request->ajax()) {
+            return view('sales.index', compact('sales', 'allTransporters', 'allDates', 'allContacts'))
+                ->with('i', ($sales->currentPage() - 1) * $sales->perPage());
+        }
+
+        return view('sales.index', compact('sales', 'allTransporters', 'allDates', 'allContacts'));    
     }
 
     public function editIndex(Request $request)
     {
-        $sales = Sales::with('vehicle')->latest()->paginate(5);
-        return view('sales.edit-index', compact('sales'))
+        $query = Sales::query();
+
+        if ($request->transporter) {
+            $query->where('transporter', 'like', '%' . $request->transporter . '%');
+        }
+
+        if ($request->challan) {
+            $query->where('id', 'like', '%' . $request->challan . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->vehicle) {
+            $query->where('vehicle_id', 'like', '%' . $request->vehicle . '%');
+        }
+
+        if ($request->date_from && $request->date_to) {
+            $query->whereBetween('created_at', [
+                $request->date_from . ' 00:00:00',
+                $request->date_to . ' 23:59:59'
+            ]);
+        } elseif ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        } elseif ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $sales = $query->with('vehicle')
+            ->where('status', 1)
+            ->latest()
+            ->paginate(5);
+
+        $allDates = Sales::select('created_at')
+            ->distinct()
+            ->get()
+            ->map(fn($d) => $d->created_at->format('Y-m-d'));   
+        $allTransporters = Sales::where('status', 1)->select('transporter')->distinct()->pluck('transporter');
+        $allContacts = Sales::where('status', 1)->select('contact_number')->distinct()->pluck('contact_number');
+        $allChallans = Sales::where('status', 1)->select('id')->distinct()->pluck('id');
+        $allVehicles = Vehicle::whereIn('id', Sales::where('status', 1)->distinct()->pluck('vehicle_id'))->get();
+
+        if ($request->ajax()) {
+            return view('sales.edit-index', compact('sales', 'allTransporters', 'allDates', 'allContacts', 'allChallans', 'allVehicles'))
+                ->with('i', ($sales->currentPage() - 1) * $sales->perPage());
+        }
+        return view('sales.edit-index', compact('sales', 'allTransporters', 'allDates', 'allContacts', 'allChallans', 'allVehicles'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
         
     }
@@ -51,10 +132,58 @@ class SalesController extends Controller
             ->with('success', 'Sales created successfully.');
     }
 
-    public function pendingLoad()
+    public function pendingLoad(Request $request)
     {
-        $sales = Sales::with('vehicle')->latest()->paginate(5);
-        return view('sales.pendingLoad-sales', compact('sales'));
+        $query = Sales::query();
+
+        if ($request->transporter) {
+            $query->where('transporter', 'like', '%' . $request->transporter . '%');
+        }
+
+        if ($request->challan) {
+            $query->where('id', 'like', '%' . $request->challan . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->vehicle) {
+            $query->where('vehicle_id', 'like', '%' . $request->vehicle . '%');
+        }
+
+        if ($request->date_from && $request->date_to) {
+            $query->whereBetween('created_at', [
+                $request->date_from . ' 00:00:00',
+                $request->date_to . ' 23:59:59'
+            ]);
+        } elseif ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        } elseif ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+
+        $sales = $query->with('vehicle')
+            ->where('status', 0)
+            ->latest()
+            ->paginate(5);
+
+        $allDates = Sales::select('created_at')
+            ->distinct()
+            ->get()
+            ->map(fn($d) => $d->created_at->format('Y-m-d'));   
+        $allTransporters = Sales::where('status', 0)->select('transporter')->distinct()->pluck('transporter');
+        $allContacts = Sales::where('status', 0)->select('contact_number')->distinct()->pluck('contact_number');
+        $allChallans = Sales::where('status', 0)->select('id')->distinct()->pluck('id');
+        $allVehicles = Vehicle::whereIn('id', Sales::where('status', 0)->distinct()->pluck('vehicle_id'))->get();
+
+        if ($request->ajax()) {
+            return view('sales.pendingLoad-sales', compact('sales', 'allTransporters', 'allDates', 'allContacts', 'allChallans', 'allVehicles'))
+                ->with('i', ($sales->currentPage() - 1) * $sales->perPage());
+        }
+
+        return view('sales.pendingLoad-sales', compact('sales', 'allTransporters', 'allDates', 'allContacts', 'allChallans', 'allVehicles'));
     }
 
     public function show($id)

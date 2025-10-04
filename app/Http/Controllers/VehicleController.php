@@ -16,15 +16,73 @@ class VehicleController extends Controller
 {
     public function index(Request $request): View
     {
-        $vehicles = Vehicle::latest()->paginate(5);
-        return view('vehicle.index', compact('vehicles'))
+        $query = Vehicle::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->vehicle_name) {
+            $query->where('vehicle_name', 'like', '%' . $request->vehicle_name . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $vehicles = $query->latest()->paginate(5);
+
+        $allNames = Vehicle::select('name')->distinct()->pluck('name');
+        $allDates = Vehicle::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+        $allVehicles = Vehicle::select('vehicle_name')->distinct()->pluck('vehicle_name');
+        $allContacts = Vehicle::select('contact_number')->distinct()->pluck('contact_number');
+        
+        if ($request->ajax()) {
+            return view('vehicle.index', compact('vehicles', 'allNames', 'allVehicles', 'allContacts', 'allDates'))
+                ->with('i', ($vehicles->currentPage() - 1) * $vehicles->perPage());
+        }
+
+        return view('vehicle.index', compact('vehicles', 'allNames', 'allVehicles', 'allContacts', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function editIndex(Request $request)
     {
-        $vehicles = Vehicle::latest()->paginate(5);
-        return view('vehicle.edit-index' , compact('vehicles'))
+        $query = Vehicle::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->vehicle_name) {
+            $query->where('vehicle_name', 'like', '%' . $request->vehicle_name . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $vehicles = $query->latest()->paginate(5);
+
+        $allNames = Vehicle::select('name')->distinct()->pluck('name');
+        $allDates = Vehicle::select('updated_at')->distinct()->get()->map(fn($d) => $d->updated_at->format('Y-m-d'));
+        $allVehicles = Vehicle::select('vehicle_name')->distinct()->pluck('vehicle_name');
+        $allContacts = Vehicle::select('contact_number')->distinct()->pluck('contact_number');
+        
+        if ($request->ajax()) {
+            return view('vehicle.edit-index', compact('vehicles', 'allNames', 'allVehicles', 'allContacts', 'allDates'))
+                ->with('i', ($vehicles->currentPage() - 1) * $vehicles->perPage());
+        }
+
+        return view('vehicle.edit-index' , compact('vehicles', 'allNames', 'allVehicles', 'allContacts', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

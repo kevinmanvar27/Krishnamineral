@@ -31,8 +31,29 @@
                                                     <th>Created AT</th>
                                                     <th>Action</th>
                                                 </tr>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>
+                                                        <select id="searchName" class="form-select js-select2">
+                                                            <option value="">All Names</option>
+                                                            @foreach($allNames as $name)
+                                                                <option value="{{ $name }}" {{ old('name') == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th>
+                                                        <select id="searchDate" class="form-select js-select2">
+                                                            <option value="">All Dates</option>
+                                                            @foreach($allDates->unique() as $date)
+                                                                <option value="{{ $date }}" {{ old('date') == $date ? 'selected' : '' }}>{{ $date }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th></th>
+                                                </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="tableData">
+                                                @php $i = $i ?? 0; @endphp
                                                 @forelse ($parties as $key => $party)
                                                     <tr>
                                                         <td>{{ ++$i }}</td>
@@ -55,7 +76,8 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <div class="d-flex justify-content-start">
+                                <div class="d-flex justify-content-start" id="paginationLinks">
+                                    {!! $parties->links() !!}
                                 </div>
                             </div>
                         </div>
@@ -67,3 +89,41 @@
     </div>
     
 @endsection
+
+@push('scripts')
+
+    <script>
+        $(document).ready(function () {
+
+            function fetch_data(page = 1) {
+                $.ajax({
+                    url: "{{ route('party.index') }}",
+                    type: "GET",
+                    data: {
+                        page: page,
+                        name: $('#searchName').val(),
+                        date: $('#searchDate').val()
+                    },
+                    success: function (response) {
+                        let newBody = $(response).find('#tableData').html();
+                        $('#tableData').html(newBody);
+
+                        let newPagination = $(response).find('#paginationLinks').html();
+                        $('#paginationLinks').html(newPagination);
+                    }
+                });
+            }
+
+            $('#searchName, #searchDate').on('change', function () {
+                fetch_data();
+            });
+
+            $(document).on('click', '#paginationLinks .pagination a', function (e) {
+                e.preventDefault();
+                let page = $(this).attr('href').split('page=')[1];
+                fetch_data(page);
+            });
+        });
+    </script>
+
+@endpush

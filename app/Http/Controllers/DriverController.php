@@ -9,8 +9,37 @@ class DriverController extends Controller
 {
     public function index(Request $request)
     {
-        $drivers = Driver::latest()->paginate(5);
-        return view('driver.index', compact('drivers'))
+        $query = Driver::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->driver) {
+            $query->where('driver', 'like', '%' . $request->driver . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $drivers = $query->latest()->paginate(5);
+
+        $allNames = Driver::select('name')->distinct()->pluck('name');
+        $allDates = Driver::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+        $allDrivers = Driver::select('driver')->distinct()->pluck('driver');
+        $allContacts = Driver::select('contact_number')->distinct()->pluck('contact_number');
+        
+        if ($request->ajax()) {
+            return view('driver.index', compact('drivers', 'allNames', 'allDrivers', 'allContacts', 'allDates'))
+                ->with('i', ($drivers->currentPage() - 1) * $drivers->perPage());
+        }
+
+        return view('driver.index', compact('drivers', 'allNames', 'allDrivers', 'allContacts', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
@@ -48,8 +77,37 @@ class DriverController extends Controller
 
     public function editIndex(Request $request)
     {
-        $drivers = Driver::latest()->paginate(5);
-        return view('driver.edit-index', compact('drivers'))
+        $query = Driver::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->driver) {
+            $query->where('driver', 'like', '%' . $request->driver . '%');
+        }
+
+        if ($request->contact_number) {
+            $query->where('contact_number', 'like', '%' . $request->contact_number . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $drivers = $query->latest()->paginate(5);
+
+        $allNames = Driver::select('name')->distinct()->pluck('name');
+        $allDates = Driver::select('updated_at')->distinct()->get()->map(fn($d) => $d->updated_at->format('Y-m-d'));
+        $allDrivers = Driver::select('driver')->distinct()->pluck('driver');
+        $allContacts = Driver::select('contact_number')->distinct()->pluck('contact_number');
+        
+        if ($request->ajax()) {
+            return view('driver.edit-index', compact('drivers', 'allNames', 'allDrivers', 'allContacts', 'allDates'))
+                ->with('i', ($drivers->currentPage() - 1) * $drivers->perPage());
+        }
+    
+        return view('driver.edit-index', compact('drivers', 'allNames', 'allDrivers', 'allContacts', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

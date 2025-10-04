@@ -21,17 +21,64 @@ class UserController extends Controller
 {
     public function index(Request $request): View
     {
-        $data = User::latest()->paginate(5);
-        return view('users.index', compact('data'))
+        $query = User::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->email) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $data = $query->latest()->paginate(5);
+
+        $allNames = User::select('name')->distinct()->pluck('name');
+        $allDates = User::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+        $allEmails = User::select('email')->distinct()->pluck('email');
+
+        if ($request->ajax()) {
+            return view('users.index', compact('data', 'allNames', 'allDates', 'allEmails'))
+                ->with('i', ($data->currentPage() - 1) * $data->perPage());
+        }
+
+        return view('users.index', compact('data', 'allNames', 'allDates', 'allEmails'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
 
     public function editIndex(Request $request)
     {
-        $data = User::latest()->paginate(5);
+        $query = User::query();
 
-        return view('users.edit-index', compact('data'))
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->email) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $data = $query->latest()->paginate(5);
+
+        $allNames = User::select('name')->distinct()->pluck('name');
+        $allDates = User::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+        $allEmails = User::select('email')->distinct()->pluck('email');
+
+        if ($request->ajax()) {
+            return view('users.edit-index', compact('data', 'allNames', 'allDates', 'allEmails'))
+                ->with('i', ($data->currentPage() - 1) * $data->perPage());
+        }
+
+        return view('users.edit-index', compact('data', 'allNames', 'allDates', 'allEmails'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

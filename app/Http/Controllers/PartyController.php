@@ -12,8 +12,27 @@ class PartyController extends Controller
 {
     public function index(Request $request)
     {
-        $parties = Party::latest()->paginate(5);
-        return view('party.index', compact('parties'))
+        $query = Party::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $parties = $query->latest()->paginate(5);
+
+        $allNames = Party::select('name')->distinct()->pluck('name');
+        $allDates = Party::select('created_at')->distinct()->get()->map(fn($d) => $d->created_at->format('Y-m-d'));
+
+        if ($request->ajax()) {
+            return view('party.index', compact('parties', 'allNames', 'allDates'))
+                ->with('i', ($parties->currentPage() - 1) * $parties->perPage());
+        }
+
+        return view('party.index', compact('parties', 'allNames', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
     
@@ -130,8 +149,28 @@ class PartyController extends Controller
 
     public function editIndex(Request $request)
     {
-        $parties = Party::latest()->paginate(5);
-        return view('party.edit-index' , compact('parties'))
+        $query = Party::query();
+
+        if ($request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->date) {
+            $query->whereDate('updated_at', $request->date);
+        }
+
+        $parties = $query->latest()->paginate(5);
+
+        $allNames = Party::select('name')->distinct()->pluck('name');
+        $allDates = Party::select('updated_at')->distinct()->get()->map(fn($d) => $d->updated_at->format('Y-m-d'));
+
+        if ($request->ajax()) {
+            return view('party.edit-index', compact('parties', 'allNames', 'allDates'))
+                ->with('i', ($parties->currentPage() - 1) * $parties->perPage());
+        }
+
+
+        return view('party.edit-index' , compact('parties', 'allNames', 'allDates'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

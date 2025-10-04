@@ -18,6 +18,8 @@
 	<script src="{{ asset('build/assets/js/pace.min.js')}}"></script>
 	<!-- Bootstrap CSS -->
 	<link href="{{ asset('build/assets/css/bootstrap.min.css') }}" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 	<link href="{{ asset('build/assets/css/bootstrap-extended.css') }}" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 	<link href="{{ asset('build/assets/css/app.css') }}" rel="stylesheet">
@@ -141,6 +143,7 @@
 	<!--end switcher-->
 	<!-- Bootstrap JS -->
 	<script src="{{ asset('build/assets/js/jquery.min.js')}}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 	<script src="{{ asset('build/assets/js/bootstrap.bundle.min.js')}}"></script>
 	<!--plugins-->
 	<script src="{{ asset('build/assets/plugins/simplebar/js/simplebar.min.js')}}"></script>
@@ -163,6 +166,12 @@
             }
         });
 		
+		$(document).ready(function () {
+			$('.js-select2').select2({
+				theme: 'bootstrap-5',
+				width: '100%',
+			});
+		});
     </script>
 
     @stack('scripts')

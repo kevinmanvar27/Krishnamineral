@@ -18,9 +18,13 @@
                                 </div>
                             @endsession
                             <div class="card stretch stretch-full">
-                                <div class="card-header">
-                                    <h5 class="card-title">Sales</h5>
-                                </div>  
+                                <div class="card-header d-flex align-items-center justify-content-between">
+                                    <h5 class="card-title mb-0">Sales</h5>
+                                    <div class="d-flex gap-2">
+                                        <input type="date" id="searchDateFrom" class="form-control" placeholder="From Date">
+                                        <input type="date" id="searchDateTo" class="form-control" placeholder="To Date">
+                                    </div>
+                                </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table id="example" class="table table-striped table-bordered" style="width:100%">
@@ -32,8 +36,30 @@
                                                     <th>Created AT</th>
                                                     <th>Action</th>
                                                 </tr>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>
+                                                        <select id="searchName" class="form-select js-select2">
+                                                            <option value="">All Transporters</option>
+                                                            @foreach($allTransporters as $name)
+                                                                <option value="{{ $name }}" {{ old('name') == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th>
+                                                        <select id="searchContact" class="form-select js-select2">
+                                                            <option value="">All Contact Numbers</option>
+                                                            @foreach($allContacts->unique() as $contact)
+                                                                <option value="{{ $contact }}" {{ old('contact_number') == $contact ? 'selected' : '' }}>{{ $contact }}</option>
+                                                                @endforeach
+                                                        </select>
+                                                    </th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="tableData">
+                                                @php $i = $i ?? 0; @endphp
                                                 @forelse ($sales as $key => $sale)
                                                     <tr>
                                                         <td>{{ ++$i }}</td>
@@ -57,7 +83,8 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <div class="d-flex justify-content-start">
+                                <div class="d-flex justify-content-start" id="paginationLinks">
+                                    {!! $sales->links() !!}
                                 </div>
                             </div>
                         </div>
@@ -69,3 +96,44 @@
     </div>
     
 @endsection
+
+
+@push('scripts')
+
+    <script>
+        $(document).ready(function () {
+
+            function fetch_data(page = 1) {
+                $.ajax({
+                    url: "{{ route('sales.index') }}",
+                    type: "GET",
+                    data: {
+                        page: page,
+                        transporter: $('#searchName').val(),
+                        contact_number: $('#searchContact').val(),
+                        date_from: $('#searchDateFrom').val(),
+                        date_to: $('#searchDateTo').val()
+                    },
+                    success: function (response) {
+                        let newBody = $(response).find('#tableData').html();
+                        $('#tableData').html(newBody);
+
+                        let newPagination = $(response).find('#paginationLinks').html();
+                        $('#paginationLinks').html(newPagination);
+                    }
+                });
+            }
+
+            $('#searchName, #searchDateFrom, #searchDateTo, #searchContact').on('change', function () {
+                fetch_data();
+            });
+
+            $(document).on('click', '#paginationLinks .pagination a', function (e) {
+                e.preventDefault();
+                let page = $(this).attr('href').split('page=')[1];
+                fetch_data(page);
+            });
+        });
+    </script>
+
+@endpush
