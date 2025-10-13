@@ -15,6 +15,14 @@ use App\Http\Controllers\RoyaltyController;
 use App\Http\Controllers\LoadingController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\PartyController;
+use App\Http\Controllers\PurchaseMaterialsController;
+use App\Http\Controllers\PurchaseDriverController;
+use App\Http\Controllers\PurchaseLoadingController;
+use App\Http\Controllers\PurchaseVehicleController;
+use App\Http\Controllers\PurchaseQuarryController;
+use App\Http\Controllers\PurchaseReceiverController;
+use App\Http\Controllers\PurchaseQuarryReceiverController;
+use App\Http\Controllers\PurchaseController;
 
 // Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
@@ -44,6 +52,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/loading/editindex', [LoadingController::class, 'editIndex'])->name('loading.editIndex');
     Route::get('/driver/editindex', [DriverController::class, 'editIndex'])->name('driver.editIndex');
     Route::get('/party/editindex', [PartyController::class, 'editIndex'])->name('party.editIndex');
+    Route::get('/purchaseMaterials/editindex', [PurchaseMaterialsController::class, 'editIndex'])->name('purchaseMaterials.editIndex');
+    Route::get('/purchaseDriver/editindex', [PurchaseDriverController::class, 'editIndex'])->name('purchaseDriver.editIndex');
+    Route::get('/purchaseLoading/editindex', [PurchaseLoadingController::class, 'editIndex'])->name('purchaseLoading.editIndex');
+    Route::get('/purchaseVehicle/editindex', [PurchaseVehicleController::class, 'editIndex'])->name('purchaseVehicle.editIndex');
+    Route::get('/purchaseQuarry/editindex', [PurchaseQuarryController::class, 'editIndex'])->name('purchaseQuarry.editIndex');
+    Route::get('/purchaseReceiver/editindex', [PurchaseReceiverController::class, 'editIndex'])->name('purchaseReceiver.editIndex');
+    Route::get('/purchase/editindex', [PurchaseController::class, 'editIndex'])->name('purchase.editIndex');
 
     Route::get('/sales/pendingLoads', [SalesController::class, 'pendingLoad'])->name('sales.pendingLoad');
 
@@ -57,6 +72,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('loading', LoadingController::class);
     Route::resource('driver', DriverController::class);
     Route::resource('party', PartyController::class);
+    Route::resource('purchaseMaterials', PurchaseMaterialsController::class);
+    Route::resource('purchaseDriver', PurchaseDriverController::class);
+    Route::resource('purchaseLoading', PurchaseLoadingController::class);
+    Route::resource('purchaseVehicle', PurchaseVehicleController::class);
+    Route::resource('purchaseQuarry', PurchaseQuarryController::class);
+    Route::resource('purchaseReceiver', PurchaseReceiverController::class);
+    Route::resource('purchase', PurchaseController::class);
+
 
     Route::post('/vehicle/fetch-details', [VehicleController::class, 'fetchDetails'])->name('vehicle.details');
 
@@ -70,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/users/{user}/credentials-pdf', [UserController::class, 'streamPdf'])->name('users.credentials-pdf');
     Route::get('/sales/{id}/sales-pdf', [SalesController::class, 'salesPdf'])->name('sales.sales-pdf');
+    Route::get('/purchase/{id}/purchase-pdf', [PurchaseController::class, 'purchasePdf'])->name('purchase.purchase-pdf');
 
 });
 

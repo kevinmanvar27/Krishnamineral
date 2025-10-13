@@ -18,6 +18,8 @@ class VehicleController extends Controller
     {
         $query = Vehicle::query();
 
+        $query->where('table_type', 'sales');
+
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
@@ -53,6 +55,8 @@ class VehicleController extends Controller
     public function editIndex(Request $request)
     {
         $query = Vehicle::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -105,13 +109,15 @@ class VehicleController extends Controller
                 'string',
                 'max:15',
                 'regex:/^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$/',
-                Rule::unique('vehicles', 'name'),
+                Rule::unique('vehicles')->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
             ],
             'vehicle_name' => 'required|string|max:255',
             'vehicle_tare_weight' => 'nullable|numeric',
             'contact_number' => 'required|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
         ]);
-    
+        $validated['table_type'] = 'sales';
         $vehicles = Vehicle::create($validated);
 
         if ($request->ajax()) {
@@ -148,13 +154,15 @@ class VehicleController extends Controller
                 'string',
                 'max:15',
                 'regex:/^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$/',
-                Rule::unique('vehicles', 'name')->ignore($vehicle->id),
+                Rule::unique('vehicles')->ignore($vehicle)->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
             ],
             'vehicle_name' => 'required|string|max:255',
             'vehicle_tare_weight' => 'nullable|numeric',
             'contact_number' => 'required|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
         ]);
-    
+        $validated['table_type'] = 'sales';
         $vehicle->update($validated);
     
         return redirect()->route('vehicles.editIndex')->with('success', 'Vehicle Updated Successfully');

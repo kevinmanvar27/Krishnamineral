@@ -61,6 +61,15 @@
                                             @error('name')<div class="text-danger">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
+                                    <div class="row align-items-center d-flex justify-content-between">
+                                        <div class="col-lg-6 mb-4">
+                                            <label for="contact_number" class="form-label mb-2">Party</label>
+                                            <div class="input-group">
+                                                <input type="number" name="contact_number" placeholder="Enter Party Contact Number" class="form-control"  id="contact_number"  value="{{ old('contact_number', $party->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                            </div>
+                                            @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
                                     <hr class="mt-0">
                                     <h5>Party Persions</h5>
                                     <div class="row align-items-center">

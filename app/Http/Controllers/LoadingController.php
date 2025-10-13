@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Loading;
 
@@ -10,6 +11,8 @@ class LoadingController extends Controller
     public function index(Request $request)
     {
         $query = Loading::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -41,11 +44,18 @@ class LoadingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:loadings',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('loadings')->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
         ], [
             'name.required' => 'Loading name is required',
         ]);
-
+        $validated['table_type'] = 'sales';
         $loading = Loading::create($validated);
 
         if ($request->ajax()) {
@@ -70,10 +80,18 @@ class LoadingController extends Controller
     public function update(Request $request, $id)
     {
         $loading = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('loadings')->ignore($id)->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
         ],[
             'name.required' => 'Loading name is required',
         ]);
+        $loading['table_type'] = 'sales';
         Loading::find($id)->update($loading);
         return redirect()->route('loading.editIndex')->with('success', 'Loading updated successfully');
     }
@@ -87,6 +105,8 @@ class LoadingController extends Controller
     public function editIndex(Request $request)
     {
         $query = Loading::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');

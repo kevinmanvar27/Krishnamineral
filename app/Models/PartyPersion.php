@@ -12,7 +12,7 @@ class PartyPersion extends Model
         'persions',
         'persion_contact_number',
     ];
-
+    
     public function party()
     {
         return $this->belongsTo(Party::class, 'party_id');

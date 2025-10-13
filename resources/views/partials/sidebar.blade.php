@@ -93,230 +93,463 @@
                                     <a href="{{ route('sales.pendingLoad') }}"><i class='bx bx-radio-circle'></i>Pending Loads</a>
                                 </li>
                             @endcan
+                            <li>
+                                @php
+                                    $canMaterials = auth()->user()->can('view-materials') ||
+                                                    auth()->user()->can('add-material') ||
+                                                    auth()->user()->can('edit-materials');
+
+                                    $canPlaces = auth()->user()->can('view-places') ||
+                                                    auth()->user()->can('add-place') ||
+                                                    auth()->user()->can('edit-places');
+
+                                    $canVehicles = auth()->user()->can('view-vehicles') ||
+                                                    auth()->user()->can('add-vehicle') ||
+                                                    auth()->user()->can('edit-vehicles');
+
+                                    $canLoading = auth()->user()->can('view-loading') ||
+                                                    auth()->user()->can('add-loading') ||
+                                                    auth()->user()->can('edit-loading');
+
+                                    $canRoyalty = auth()->user()->can('view-royalty') ||
+                                                    auth()->user()->can('add-royalty') ||
+                                                    auth()->user()->can('edit-royalty');
+                                                    
+                                    $canDriver = auth()->user()->can('view-driver') ||
+                                                    auth()->user()->can('add-driver') ||
+                                                    auth()->user()->can('edit-driver');
+                                                    
+                                    $canParty = auth()->user()->can('view-party') ||
+                                                    auth()->user()->can('add-party') ||
+                                                    auth()->user()->can('edit-party');
+                                @endphp
+                                @if($canMaterials || $canPlaces || $canVehicles || $canLoading || $canRoyalty || $canDriver || $canParty)
+                                    <a href="javascript:;" class="has-arrow">
+                                        <div class="parent-icon"><i class='bx bx-brain'></i>
+                                        </div>
+                                        <div class="menu-title">Master Tables</div>
+                                    </a>
+                                    <ul>
+                                        @if($canMaterials)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-circle'></i>
+                                                    </div>
+                                                    <div class="menu-title">Materials</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-materials')
+                                                        <li> 
+                                                            <a href="{{ route('materials.index') }}"><i class='bx bx-radio-circle'></i>View Materials</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-material')
+                                                        <li>
+                                                            <a href="{{ route('materials.create') }}"><i class='bx bx-radio-circle'></i>Add Material</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-materials')
+                                                        <li>
+                                                            <a href="{{ route('materials.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Materials</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canPlaces)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-map'></i>
+                                                    </div>
+                                                    <div class="menu-title">Places</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-places')
+                                                        <li> 
+                                                            <a href="{{ route('places.index') }}"><i class='bx bx-radio-circle'></i>View Places</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-place')
+                                                        <li>
+                                                            <a href="{{ route('places.create') }}"><i class='bx bx-radio-circle'></i>Add Place</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-places')
+                                                        <li>
+                                                            <a href="{{ route('places.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Places</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canVehicles)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                                    </div>
+                                                    <div class="menu-title">Vehicles</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-vehicles')
+                                                        <li> 
+                                                            <a href="{{ route('vehicle.index') }}"><i class='bx bx-radio-circle'></i>View Vehicles</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-vehicle')
+                                                        <li>
+                                                            <a href="{{ route('vehicle.create') }}"><i class='bx bx-radio-circle'></i>Add Vehicle</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-vehicles')
+                                                        <li>
+                                                            <a href="{{ route('vehicles.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Vehicles</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canRoyalty)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-crown'></i>
+                                                    </div>
+                                                    <div class="menu-title">Royalty</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-royalty')
+                                                        <li> 
+                                                            <a href="{{ route('royalty.index') }}"><i class='bx bx-radio-circle'></i>View Royalty</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-royalty')
+                                                        <li>
+                                                            <a href="{{ route('royalty.create') }}"><i class='bx bx-radio-circle'></i>Add Royalty</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-royalty')
+                                                        <li>
+                                                            <a href="{{ route('royalty.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Royalty</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canLoading)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-package'></i>
+                                                    </div>
+                                                    <div class="menu-title">Loading</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-loading')
+                                                        <li> 
+                                                            <a href="{{ route('loading.index') }}"><i class='bx bx-radio-circle'></i>View Loading</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-loading')
+                                                        <li>
+                                                            <a href="{{ route('loading.create') }}"><i class='bx bx-radio-circle'></i>Add Loading</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-loading')
+                                                        <li>
+                                                            <a href="{{ route('loading.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Loading</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canDriver)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                                    </div>
+                                                    <div class="menu-title">Driver</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-driver')
+                                                        <li> 
+                                                            <a href="{{ route('driver.index') }}"><i class='bx bx-radio-circle'></i>View Driver</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-driver')
+                                                        <li>
+                                                            <a href="{{ route('driver.create') }}"><i class='bx bx-radio-circle'></i>Add Driver</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-driver')
+                                                        <li>
+                                                            <a href="{{ route('driver.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Driver</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canParty)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-group'></i>
+                                                    </div>
+                                                    <div class="menu-title">Party</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-party')
+                                                        <li> 
+                                                            <a href="{{ route('party.index') }}"><i class='bx bx-radio-circle'></i>View Party</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-party')
+                                                        <li>
+                                                            <a href="{{ route('party.create') }}"><i class='bx bx-radio-circle'></i>Add Party</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-party')
+                                                        <li>
+                                                            <a href="{{ route('party.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Party</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                @endif
+                            </li>
                         </ul>
                     </li>
 				@endif
 
 				@php
-					$canMaterials = auth()->user()->can('view-materials') ||
-									auth()->user()->can('add-material') ||
-									auth()->user()->can('edit-materials');
+					$canPurchase = auth()->user()->can('view-purchase') ||
+									auth()->user()->can('add-purchase') ||
+									auth()->user()->can('edit-purchase');
 				@endphp
-				@if($canMaterials)
+				@if($canPurchase)
                     <li>
                         <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bx-circle'></i>
+                            <div class="parent-icon"><i class='bx bx-cart'></i>
                             </div>
-                            <div class="menu-title">Materials</div>
+                            <div class="menu-title">Purchase</div>
                         </a>
                         <ul>
-                            @can('view-materials')
+                            @can('view-purchase')
                                 <li> 
-                                    <a href="{{ route('materials.index') }}"><i class='bx bx-radio-circle'></i>View Materials</a>
+                                    <a href="{{ route('purchase.index') }}"><i class='bx bx-radio-circle'></i>View Purchase</a>
                                 </li>
                             @endcan
-                            @can('add-material')
+                            @can('add-purchase')
                                 <li>
-                                    <a href="{{ route('materials.create') }}"><i class='bx bx-radio-circle'></i>Add Material</a>
+                                    <a href="{{ route('purchase.create') }}"><i class='bx bx-radio-circle'></i>Add Purchase</a>
                                 </li>
                             @endcan
-                            @can('edit-materials')
+                            @can('edit-purchase')
                                 <li>
-                                    <a href="{{ route('materials.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Materials</a>
+                                    <a href="{{ route('purchase.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Purchase</a>
                                 </li>
                             @endcan
-                        </ul>
-                    </li>
-				@endif
+                            <li>
+                                @php
+                                    $canPurchaseMaterials = auth()->user()->can('view-purchaseMaterials') ||
+                                                    auth()->user()->can('add-purchaseMaterials') ||
+                                                    auth()->user()->can('edit-purchaseMaterials');
 
-				@php
-					$canPlaces = auth()->user()->can('view-places') ||
-									auth()->user()->can('add-place') ||
-									auth()->user()->can('edit-places');
-				@endphp
-				@if($canPlaces)
-                    <li>
-                        <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bx-map'></i>
-                            </div>
-                            <div class="menu-title">Places</div>
-                        </a>
-                        <ul>
-                            @can('view-places')
-                                <li> 
-                                    <a href="{{ route('places.index') }}"><i class='bx bx-radio-circle'></i>View Places</a>
-                                </li>
-                            @endcan
-                            @can('add-place')
-                                <li>
-                                    <a href="{{ route('places.create') }}"><i class='bx bx-radio-circle'></i>Add Place</a>
-                                </li>
-                            @endcan
-                            @can('edit-places')
-                                <li>
-                                    <a href="{{ route('places.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Places</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </li>
-				@endif
+                                    $canPurchaseQuarry = auth()->user()->can('view-purchaseQuarry') ||
+                                                    auth()->user()->can('add-purchaseQuarry') ||
+                                                    auth()->user()->can('edit-purchaseQuarry');
 
-				@php
-					$canVehicles = auth()->user()->can('view-vehicles') ||
-									auth()->user()->can('add-vehicle') ||
-									auth()->user()->can('edit-vehicles');
-				@endphp
-				@if($canVehicles)
-                    <li>
-                        <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bxs-truck'></i>
-                            </div>
-                            <div class="menu-title">Vehicles</div>
-                        </a>
-                        <ul>
-                            @can('view-vehicles')
-                                <li> 
-                                    <a href="{{ route('vehicle.index') }}"><i class='bx bx-radio-circle'></i>View Vehicles</a>
-                                </li>
-                            @endcan
-                            @can('add-vehicle')
-                                <li>
-                                    <a href="{{ route('vehicle.create') }}"><i class='bx bx-radio-circle'></i>Add Vehicle</a>
-                                </li>
-                            @endcan
-                            @can('edit-vehicles')
-                                <li>
-                                    <a href="{{ route('vehicles.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Vehicles</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </li>
-				@endif
+                                    $canPurchaseVehicles = auth()->user()->can('view-purchaseVehicles') ||
+                                                    auth()->user()->can('add-purchaseVehicles') ||
+                                                    auth()->user()->can('edit-purchaseVehicles');
 
-				@php
-					$canRoyalty = auth()->user()->can('view-royalty') ||
-									auth()->user()->can('add-royalty') ||
-									auth()->user()->can('edit-royalty');
-				@endphp
-				@if($canRoyalty)
-                    <li>
-                        <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bx-crown'></i>
-                            </div>
-                            <div class="menu-title">Royalty</div>
-                        </a>
-                        <ul>
-                            @can('view-royalty')
-                                <li> 
-                                    <a href="{{ route('royalty.index') }}"><i class='bx bx-radio-circle'></i>View Royalty</a>
-                                </li>
-                            @endcan
-                            @can('add-royalty')
-                                <li>
-                                    <a href="{{ route('royalty.create') }}"><i class='bx bx-radio-circle'></i>Add Royalty</a>
-                                </li>
-                            @endcan
-                            @can('edit-royalty')
-                                <li>
-                                    <a href="{{ route('royalty.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Royalty</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </li>
-				@endif
+                                    $canPurchaseLoading = auth()->user()->can('view-purchaseLoading') ||
+                                                    auth()->user()->can('add-purchaseLoading') ||
+                                                    auth()->user()->can('edit-purchaseLoading');
 
-				@php
-					$canLoading = auth()->user()->can('view-loading') ||
-									auth()->user()->can('add-loading') ||
-									auth()->user()->can('edit-loading');
-				@endphp
-				@if($canLoading)
-                    <li>
-                        <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bx-package'></i>
-                            </div>
-                            <div class="menu-title">Loading</div>
-                        </a>
-                        <ul>
-                            @can('view-loading')
-                                <li> 
-                                    <a href="{{ route('loading.index') }}"><i class='bx bx-radio-circle'></i>View Loading</a>
-                                </li>
-                            @endcan
-                            @can('add-loading')
-                                <li>
-                                    <a href="{{ route('loading.create') }}"><i class='bx bx-radio-circle'></i>Add Loading</a>
-                                </li>
-                            @endcan
-                            @can('edit-loading')
-                                <li>
-                                    <a href="{{ route('loading.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Loading</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </li>
-				@endif
+                                    $canPurchaseReceiver = auth()->user()->can('view-purchaseReceiver') ||
+                                                    auth()->user()->can('add-purchaseReceiver') ||
+                                                    auth()->user()->can('edit-purchaseReceiver');
 
-				@php
-					$canDriver = auth()->user()->can('view-driver') ||
-									auth()->user()->can('add-driver') ||
-									auth()->user()->can('edit-driver');
-				@endphp
-				@if($canDriver)
-                    <li>
-                        <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bxs-truck'></i>
-                            </div>
-                            <div class="menu-title">Driver</div>
-                        </a>
-                        <ul>
-                            @can('view-driver')
-                                <li> 
-                                    <a href="{{ route('driver.index') }}"><i class='bx bx-radio-circle'></i>View Driver</a>
-                                </li>
-                            @endcan
-                            @can('add-driver')
-                                <li>
-                                    <a href="{{ route('driver.create') }}"><i class='bx bx-radio-circle'></i>Add Driver</a>
-                                </li>
-                            @endcan
-                            @can('edit-driver')
-                                <li>
-                                    <a href="{{ route('driver.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Driver</a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </li>
-				@endif
+                                    $canPurchaseDriver = auth()->user()->can('view-purchaseDriver') ||
+                                                    auth()->user()->can('add-purchaseDriver') ||
+                                                    auth()->user()->can('edit-purchaseDriver');
+                                @endphp
+                                @if($canPurchaseMaterials || $canPurchaseQuarry || $canPurchaseVehicles || $canPurchaseLoading || $canPurchaseReceiver || $canPurchaseDriver)
+                                    <a href="javascript:;" class="has-arrow">
+                                        <div class="parent-icon"><i class='bx bx-brain'></i>
+                                        </div>
+                                        <div class="menu-title">Master Tables</div>
+                                    </a>
+                                    <ul>
+                                        @if($canPurchaseMaterials)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-circle'></i>
+                                                    </div>
+                                                    <div class="menu-title">Materials</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-purchaseMaterials')
+                                                        <li> 
+                                                            <a href="{{ route('purchaseMaterials.index') }}"><i class='bx bx-radio-circle'></i>View Materials</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-purchaseMaterials')
+                                                        <li>
+                                                            <a href="{{ route('purchaseMaterials.create') }}"><i class='bx bx-radio-circle'></i>Add Material</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-purchaseMaterials')
+                                                        <li>
+                                                            <a href="{{ route('purchaseMaterials.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Materials</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
 
-				@php
-					$canParty = auth()->user()->can('view-party') ||
-									auth()->user()->can('add-party') ||
-									auth()->user()->can('edit-party');
-				@endphp
-				@if($canParty)
-                    <li>
-                        <a href="javascript:;" class="has-arrow">
-                            <div class="parent-icon"><i class='bx bx-group'></i>
-                            </div>
-                            <div class="menu-title">Party</div>
-                        </a>
-                        <ul>
-                            @can('view-party')
-                                <li> 
-                                    <a href="{{ route('party.index') }}"><i class='bx bx-radio-circle'></i>View Party</a>
-                                </li>
-                            @endcan
-                            @can('add-party')
-                                <li>
-                                    <a href="{{ route('party.create') }}"><i class='bx bx-radio-circle'></i>Add Party</a>
-                                </li>
-                            @endcan
-                            @can('edit-party')
-                                <li>
-                                    <a href="{{ route('party.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Party</a>
-                                </li>
-                            @endcan
+                                        @if($canPurchaseQuarry)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-circle'></i>
+                                                    </div>
+                                                    <div class="menu-title">Quarry Name</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-purchaseQuarry')
+                                                        <li> 
+                                                            <a href="{{ route('purchaseQuarry.index') }}"><i class='bx bx-radio-circle'></i>View Quarries</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-purchaseQuarry')
+                                                        <li>
+                                                            <a href="{{ route('purchaseQuarry.create') }}"><i class='bx bx-radio-circle'></i>Add Quarry</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-purchaseQuarry')
+                                                        <li>
+                                                            <a href="{{ route('purchaseQuarry.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Quarries</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canPurchaseVehicles)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                                    </div>
+                                                    <div class="menu-title">Vehicles</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-purchaseVehicles')
+                                                        <li> 
+                                                            <a href="{{ route('purchaseVehicle.index') }}"><i class='bx bx-radio-circle'></i>View Vehicles</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-purchaseVehicles')
+                                                        <li>
+                                                            <a href="{{ route('purchaseVehicle.create') }}"><i class='bx bx-radio-circle'></i>Add Vehicle</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-purchaseVehicles')
+                                                        <li>
+                                                            <a href="{{ route('purchaseVehicle.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Vehicles</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canPurchaseLoading)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bx-package'></i>
+                                                    </div>
+                                                    <div class="menu-title">Loading</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-purchaseLoading')
+                                                        <li> 
+                                                            <a href="{{ route('purchaseLoading.index') }}"><i class='bx bx-radio-circle'></i>View Loading</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-purchaseLoading')
+                                                        <li>
+                                                            <a href="{{ route('purchaseLoading.create') }}"><i class='bx bx-radio-circle'></i>Add Loading</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-purchaseLoading')
+                                                        <li>
+                                                            <a href="{{ route('purchaseLoading.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Loading</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canPurchaseReceiver)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                                    </div>
+                                                    <div class="menu-title">Receiver</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-purchaseReceiver')
+                                                        <li> 
+                                                            <a href="{{ route('purchaseReceiver.index') }}"><i class='bx bx-radio-circle'></i>View Receivers</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-purchaseReceiver')
+                                                        <li>
+                                                            <a href="{{ route('purchaseReceiver.create') }}"><i class='bx bx-radio-circle'></i>Add Receiver</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-purchaseReceiver')
+                                                        <li>
+                                                            <a href="{{ route('purchaseReceiver.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Receivers</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+
+                                        @if($canPurchaseDriver)
+                                            <li>
+                                                <a href="javascript:;" class="has-arrow">
+                                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                                    </div>
+                                                    <div class="menu-title">Driver</div>
+                                                </a>
+                                                <ul>
+                                                    @can('view-purchaseDriver')
+                                                        <li> 
+                                                            <a href="{{ route('purchaseDriver.index') }}"><i class='bx bx-radio-circle'></i>View Driver</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('add-purchaseDriver')
+                                                        <li>
+                                                            <a href="{{ route('purchaseDriver.create') }}"><i class='bx bx-radio-circle'></i>Add Driver</a>
+                                                        </li>
+                                                    @endcan
+                                                    @can('edit-purchaseDriver')
+                                                        <li>
+                                                            <a href="{{ route('purchaseDriver.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Driver</a>
+                                                        </li>
+                                                    @endcan
+                                                </ul>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                @endif
+                            </li>
                         </ul>
                     </li>
 				@endif

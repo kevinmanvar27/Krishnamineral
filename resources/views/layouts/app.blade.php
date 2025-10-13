@@ -169,7 +169,7 @@
 		$(document).ready(function () {
 			$('.js-select2').select2({
 				theme: 'bootstrap-5',
-				width: '100%',
+				width: '100%'
 			});
 		});
     </script>

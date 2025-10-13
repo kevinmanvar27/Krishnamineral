@@ -8,7 +8,9 @@ class Party extends Model
 {
     protected $fillable = [
         'name',
+        'contact_number',
         'sales_by',
+        'table_type'
     ];
 
     public function items()

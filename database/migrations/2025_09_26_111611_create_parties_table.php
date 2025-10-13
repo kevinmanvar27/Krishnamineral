@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('parties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('contact_number');
             $table->string('sales_by');
+            $table->string('table_type');
             $table->timestamps();
         });
     }

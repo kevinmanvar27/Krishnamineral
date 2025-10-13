@@ -14,6 +14,8 @@ class PartyController extends Controller
     {
         $query = Party::query();
 
+        $query->where('table_type', 'sales');
+
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
@@ -46,6 +48,7 @@ class PartyController extends Controller
     { 
         $validated = $request->validate([
             'name' => 'required',
+            'contact_number' => 'required|regex:/^\+?[0-9]{10,15}$/',
             'sales_by' => 'required',
             'persions' => 'required|array',
             'persions.*' => 'string',
@@ -59,7 +62,7 @@ class PartyController extends Controller
                 'persions',
                 'persion_contact_number'
             ])->toArray();
-
+            $partyData['table_type'] = 'sales';
             $party = Party::create($partyData);
 
             foreach ($validated['persions'] as $key => $personName) {
@@ -105,6 +108,7 @@ class PartyController extends Controller
         // Validate input
         $validated = $request->validate([
             'name' => 'required|string',
+            'contact_number' => 'required|regex:/^\+?[0-9]{10,15}$/',
             'sales_by' => 'required|integer',
 
             'persions' => 'required|array',
@@ -116,7 +120,9 @@ class PartyController extends Controller
         DB::transaction(function () use ($validated, $party) {
             $party->update([
                 'name' => $validated['name'],
+                'contact_number' => $validated['contact_number'],
                 'sales_by' => $validated['sales_by'],
+                'table_type' => 'sales',
             ]);
 
             $party->items()->delete();
@@ -150,6 +156,8 @@ class PartyController extends Controller
     public function editIndex(Request $request)
     {
         $query = Party::query();
+        
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');

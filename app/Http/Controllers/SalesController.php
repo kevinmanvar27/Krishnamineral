@@ -12,8 +12,6 @@ use App\Models\Royalty;
 use App\Models\Driver;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Vehicle;
 
 class SalesController extends Controller
@@ -115,7 +113,8 @@ class SalesController extends Controller
     public function create(Sales $sales)
     {
         $sales = Sales::latest('id')->first();
-        return view('sales.create-sales', compact('sales'));    
+        $vehicles = Vehicle::where('table_type', 'sales')->get();
+        return view('sales.create-sales', compact('sales', 'vehicles'));    
     }
 
     public function store(Request $request)
@@ -125,7 +124,8 @@ class SalesController extends Controller
             'vehicle_id' => 'required',
             'transporter' => 'required',
             'tare_weight' => 'required',
-            'contact_number' => 'required',
+            'contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
+            'driver_contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
         ]);
         Sales::create($request->all());
         return redirect()->route('sales.index')
@@ -195,19 +195,26 @@ class SalesController extends Controller
     public function edit($id)
     {
         $sales = Sales::findOrFail($id);
-        $materials = Materials::all();
-        $loadings = Loading::all();
-        $places = Places::all();
-        $parties = Party::all();
-        $royalties = Royalty::all();
-        $drivers  = Driver::all();
+        $vehicles = Vehicle::where('table_type', 'sales')->get();
+        $materials = Materials::where('table_type', 'sales')->get();
+        $loadings = Loading::where('table_type', 'sales')->get();
+        $places = Places::where('table_type', 'sales')->get();
+        $parties = Party::where('table_type', 'sales')->get();
+        $royalties = Royalty::where('table_type', 'sales')->get();
+        $drivers  = Driver::where('table_type', 'sales')->get();
         $employees = User::all();
-        return view('sales.edit-sales', compact('sales', 'materials', 'loadings', 'places', 'parties', 'royalties', 'drivers', 'employees'));    
+        return view('sales.edit-sales', compact('sales', 'vehicles', 'materials', 'loadings', 'places', 'parties', 'royalties', 'drivers', 'employees'));    
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
+            'date_time' => 'required',
+            'vehicle_id' => 'required',
+            'transporter' => 'required',
+            'tare_weight' => 'required',
+            'contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
+            'driver_contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'gross_weight' => 'required',
             'tare_weight' => 'required',
             'net_weight' => 'required',
@@ -218,9 +225,9 @@ class SalesController extends Controller
             'royalty_id' => 'nullable|exists:royalties,id',
             'royalty_number' => 'required',
             'royalty_tone' => 'required',
-            'driver_id' => 'nullable|exists:drivers,id',
+            'driver_id' => 'required|exists:drivers,id',
             'carting_id' => 'required',
-            'note' => 'nullable',
+            'note' => 'required',
         ]);
 
         if ($validated['gross_weight'] <= $validated['tare_weight']) {

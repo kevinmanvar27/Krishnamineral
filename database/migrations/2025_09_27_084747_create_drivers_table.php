@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('driver');
             $table->string('contact_number');
+            $table->string('table_type');
             $table->timestamps();
         });
     }

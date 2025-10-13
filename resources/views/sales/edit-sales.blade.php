@@ -57,10 +57,10 @@
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
-                                            <div class="col-lg-4 mb-4">
+                                            <div class="col-lg-6 mb-4">
                                                 <label for="vehicle_id" class="form-label mb-2">Vehicle Number </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('vehicle.details') }}">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('vehicle.details') }}">
                                                         <option selected disabled value>Select Vehicle</option>
                                                         @foreach($vehicles as $vehicle)
                                                             <option value="{{ $vehicle->id ?? '' }}" {{ $vehicle->id == $sales->vehicle_id ? 'selected' : '' }}>{{ $vehicle->name ?? '' }}</option>
@@ -69,19 +69,28 @@
                                                 </div>
                                                 @error('vehicle_id')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
-                                            <div class="col-lg-4 mb-4">
+                                            <div class="col-lg-6 mb-4">
                                                 <label for="transporter" class="form-label mb-2">Transporter Name</label>
                                                 <div class="input-group">   
                                                     <input type="text" name="transporter" placeholder="Transporter Name" class="form-control"  id="transporter"  value="{{ old('transporter', $sales->transporter ?? '') }}" readonly>
                                                 </div>
                                                 @error('transporter')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>  
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="contact_number" class="form-label mb-2">Contact Number</label>
+                                        </div>
+                                        <div class="row align-items-center">
+                                            <div class="col-lg-6 mb-4">
+                                                <label for="contact_number" class="form-label mb-2">Owner Contact Number</label>
                                                 <div class="input-group">
-                                                    <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number', $sales->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                                    <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Owner Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number', $sales->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                                                 </div>
                                                 @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="col-lg-6 mb-4">
+                                                <label for="driver_contact_number" class="form-label mb-2">Driver Contact Number</label>
+                                                <div class="input-group">
+                                                    <input type="number" name="driver_contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('driver_contact_number', $sales->driver_contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                                </div>
+                                                @error('driver_contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
@@ -111,7 +120,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="material_id" class="form-label mb-2">Material Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="material_id" name="material_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="material_id" name="material_id">
                                                         <option selected disabled value>Select Material</option>
                                                         @foreach($materials as $material)
                                                             <option value="{{ $material->id ?? '' }}" {{ $material->id == $sales->material_id ? 'selected' : '' }}>{{ $material->name ?? '' }}</option>
@@ -123,7 +132,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="loading_id" class="form-label mb-2">Loading Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="loading_id" name="loading_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="loading_id" name="loading_id">
                                                         <option selected disabled value>Select Loading</option>
                                                         @foreach($loadings as $loading)
                                                             <option value="{{ $loading->id ?? '' }}" {{ $loading->id == $sales->loading_id ? 'selected' : '' }}>{{ $loading->name ?? '' }}</option>
@@ -135,7 +144,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="place_id" class="form-label mb-2">Place Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="place_id" name="place_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="place_id" name="place_id">
                                                         <option selected disabled value>Select Place</option>
                                                         @foreach($places as $place)
                                                             <option value="{{ $place->id ?? '' }}" {{ $place->id == $sales->place_id ? 'selected' : '' }}>{{ $place->name ?? '' }}</option>
@@ -149,7 +158,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="party_id" class="form-label mb-2">Party Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="party_id" name="party_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="party_id" name="party_id">
                                                         <option selected disabled value>Select Party</option>
                                                         @foreach($parties as $party)
                                                             <option value="{{ $party->id ?? '' }}" {{ $party->id == $sales->party_id ? 'selected' : '' }}>{{ $party->name ?? '' }}</option>
@@ -161,7 +170,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="royalty_id" class="form-label mb-2">Royalty Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="royalty_id" name="royalty_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="royalty_id" name="royalty_id">
                                                         <option value="">NO</option>
                                                         @foreach($royalties as $royalty)
                                                             <option value="{{ $royalty->id ?? '' }}" {{ $royalty->id == $sales->royalty_id ? 'selected' : '' }}>{{ $royalty->name ?? '' }}</option>
@@ -189,10 +198,10 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="driver_id" class="form-label mb-2">Driver Name </label>
                                                 <div class="input-group">
-                                                    <select class="form-select select2" aria-label="Default select example" id="driver_id" name="driver_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="driver_id" name="driver_id">
                                                         <option selected disabled value>Select Driver</option>
                                                         @foreach($drivers as $driver)
-                                                            <option value="{{ $driver->id ?? '' }}" {{ $driver->id == $sales->royalty_id ? 'selected' : '' }}>{{ $driver->name ?? '' }}</option>
+                                                            <option value="{{ $driver->id ?? '' }}" {{ $driver->id == $sales->driver_id ? 'selected' : '' }}>{{ $driver->name ?? '' }}</option>
                                                         @endforeach
                                                     </select>                                                
                                                 </div>
@@ -201,7 +210,7 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="carting_id" class="form-label mb-2">Carting</label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="carting_id" name="carting_id">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="carting_id" name="carting_id">
                                                         <option selected disabled value>Select Carting</option>
                                                         <option value="0" {{ $sales->carting_id == 0 ? 'selected' : '' }}>Carting</option>
                                                         <option value="1" {{ $sales->carting_id == 1 ? 'selected' : '' }}>Self</option>
@@ -709,25 +718,26 @@
         
         $(document).ready(function(){
             const dateTimeInput = document.getElementById('date');
-            const now = new Date();
 
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            now.setSeconds(0);
-            now.setMilliseconds(0);
-            
-            dateTimeInput.value = now.toISOString().slice(0, 16);
+            if (!dateTimeInput.value) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                now.setSeconds(0);
+                now.setMilliseconds(0);
+                dateTimeInput.value = now.toISOString().slice(0, 16);
+            }
         })
 
         $(document).ready(function() {
             function toggleRoyaltyReadonly() {
                 const selectedValue = $('#royalty_id').val();
                 if (selectedValue == "") {
-                    $('#royalty_number').prop('readonly', true).val('No');
-                    $('#royalty_tone').prop('readonly', true).val('No');
+                    $('#royalty_number').prop('disabled', true).val();
+                    $('#royalty_tone').prop('disabled', true).val();
                 } 
                 else {
-                    $('#royalty_number').prop('readonly', false).val();
-                    $('#royalty_tone').prop('readonly', false).val();
+                    $('#royalty_number').prop('disabled', false).val();
+                    $('#royalty_tone').prop('disabled', false).val();
                 }   
             }
 
@@ -789,8 +799,14 @@
             if (!modalElement) return;
             const modal = new bootstrap.Modal(modalElement);
 
-            dropdown.addEventListener('keyup', function(e) {
-                if (e.key === 'Insert' || (e.key.toLowerCase() === 'i' && e.ctrlKey)) {
+            $(dropDownSelector).select2();
+
+            $(document).on('keydown', function(e) {
+                const activeElement = document.activeElement;
+                const select2Container = document.querySelector(`${dropDownSelector} + .select2-container .select2-selection`);
+                const isFocused = activeElement === select2Container;
+
+                if (isFocused && (e.key === 'Insert' || (e.key.toLowerCase() === 'i' && e.ctrlKey))) {
                     e.preventDefault();
                     modal.show();
                 }

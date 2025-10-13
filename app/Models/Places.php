@@ -8,5 +8,6 @@ class Places extends Model
 {
     protected $fillable = [
         'name',
+        'table_type',
     ];
 }

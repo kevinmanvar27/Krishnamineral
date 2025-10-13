@@ -88,10 +88,19 @@ class UserController extends Controller
         $roles = Role::pluck('name', 'id')->all();
         $permissions = Permission::all(); // Get all permissions for user-specific assignment
 
+        // $groupedPermissions = $permissions->groupBy(function ($item) {
+        //     $parts = explode('-', $item->name);
+        //     $group = Str::plural(end($parts));
+        //     return ucfirst($group);
+        // });
+
         $groupedPermissions = $permissions->groupBy(function ($item) {
             $parts = explode('-', $item->name);
-            $group = Str::plural(end($parts));
-            return ucfirst($group);
+            $lastPart = end($parts);
+
+            $readable = preg_replace('/(?<!^)([A-Z])/', ' $1', $lastPart);
+
+            return ucfirst(Str::plural($readable));
         });
 
         $lastUser = User::latest('id')->first();
@@ -344,12 +353,21 @@ class UserController extends Controller
         $user = User::find($id);
         $roles = Role::pluck('name', 'id')->all();
 
-        $permissions = Permission::all(); // Get all permissions for user-specific assignment
+        $permissions = Permission::all();
             
+        // $groupedPermissions = $permissions->groupBy(function ($item) {
+        //     $parts = explode('-', $item->name);
+        //     $group = Str::plural(end($parts)); 
+        //     return ucfirst($group);
+        // });
+        
         $groupedPermissions = $permissions->groupBy(function ($item) {
             $parts = explode('-', $item->name);
-            $group = Str::plural(end($parts)); 
-            return ucfirst($group);
+            $lastPart = end($parts);
+
+            $readable = preg_replace('/(?<!^)([A-Z])/', ' $1', $lastPart);
+
+            return ucfirst(Str::plural($readable));
         });
 
         $userRole = $user->roles->pluck('id')->first();

@@ -59,7 +59,7 @@
                                             <div class="col-lg-6 mb-4">
                                                 <label for="vehicle_id" class="form-label mb-2">Vehicle Number </label>
                                                 <div class="input-group">
-                                                    <select class="form-select" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('vehicle.details') }}">
+                                                    <select class="form-select js-select2" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('vehicle.details') }}">
                                                         <option selected disabled value>Select Vehicle</option>
                                                         @foreach($vehicles as $vehicle)
                                                             <option value="{{ $vehicle->id ?? '' }}">{{ $vehicle->name ?? '' }}</option>
@@ -77,14 +77,21 @@
                                             </div>  
                                         </div>
                                         <div class="row align-items-center">
-                                            <div class="col-lg-6 mb-4">
-                                                <label for="contact_number" class="form-label mb-2">Contact Number</label>
+                                            <div class="col-lg-4 mb-4">
+                                                <label for="contact_number" class="form-label mb-2">Owner Contact Number</label>
                                                 <div class="input-group">
-                                                    <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                                    <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Owner Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                                                     @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
                                             </div>
-                                            <div class="col-lg-6 mb-4">
+                                            <div class="col-lg-4 mb-4">
+                                                <label for="driver_contact_number" class="form-label mb-2">Transporter Contact Number</label>
+                                                <div class="input-group">
+                                                    <input type="number" name="driver_contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('driver_contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                                    @error('driver_contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 mb-4">
                                                 <label for="tare_weight" class="form-label mb-2">Tare Weight</label>
                                                 <div class="input-group">
                                                     <input type="number" name="tare_weight" placeholder="Enter Tare Weight" class="form-control" id="tare_weight" value="{{ old('tare_weight') }}">
@@ -247,9 +254,15 @@
             const modalElement = document.querySelector(modalSelector);
             if (!modalElement) return;
             const modal = new bootstrap.Modal(modalElement);
+            
+            $(dropDownSelector).select2();
 
-            dropdown.addEventListener('keyup', function(e) {
-                if (e.key === 'Insert' || (e.key.toLowerCase() === 'i' && e.ctrlKey)) {
+            $(document).on('keydown', function(e) {
+                const activeElement = document.activeElement;
+                const select2Container = document.querySelector(`${dropDownSelector} + .select2-container .select2-selection`);
+                const isFocused = activeElement === select2Container;
+
+                if (isFocused && (e.key === 'Insert' || (e.key.toLowerCase() === 'i' && e.ctrlKey))) {
                     e.preventDefault();
                     modal.show();
                 }

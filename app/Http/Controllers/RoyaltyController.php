@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Royalty;
 
@@ -10,6 +11,8 @@ class RoyaltyController extends Controller
     public function index(Request $request)
     {
         $query = Royalty::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -42,10 +45,18 @@ class RoyaltyController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:royalties',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('royalties')->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
         ],[
             'name.required' => 'Royalty name is required',
         ]);
+        $validated['table_type'] = 'sales';
         $royalty = Royalty::create($validated);
 
         if ($request->ajax()) {
@@ -68,10 +79,18 @@ class RoyaltyController extends Controller
     public function update(Request $request, $id)
     {
         $royalty = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('royalties')->ignore($id)->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
         ],[
-            'name.required' => 'Place name is required',
+            'name.required' => 'Royalty name is required',
         ]);
+        $royalty['table_type'] = 'sales';
         Royalty::find($id)->update($royalty);
         return redirect()->route('royalty.editIndex')->with('success', 'Royalty updated successfully');
     }
@@ -85,6 +104,8 @@ class RoyaltyController extends Controller
     public function editIndex(Request $request)
     {
         $query = Royalty::query();
+        
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');

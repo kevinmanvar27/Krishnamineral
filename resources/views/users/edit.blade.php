@@ -429,7 +429,7 @@
                                                                                         value="{{ $permission->id }}"
                                                                                         {{ in_array($permission->id, $userPermissions) ? 'checked' : '' }}>
                                                                                     <label class="form-check-label" for="perm_{{ $permission->id }}">
-                                                                                        {{ ucwords(str_replace('-', ' ', $permission->name)) }}
+                                                                                        {{ ucwords(preg_replace('/(?<!^)([A-Z])/', ' $1', str_replace('-', ' ', $permission->name))) }}
                                                                                     </label>
                                                                                 </div>
                                                                             </div>

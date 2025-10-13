@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Driver;
 
@@ -10,6 +11,8 @@ class DriverController extends Controller
     public function index(Request $request)
     {
         $query = Driver::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -51,7 +54,14 @@ class DriverController extends Controller
     public function store(Request $request)
     { 
         $validated = $request->validate([
-            'name' => 'required',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('drivers')->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
             'driver' => 'required',
             'contact_number' => 'required|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
         ],[
@@ -59,6 +69,8 @@ class DriverController extends Controller
             'driver.required' => 'Driver Type is required',
             'contact_number.required' => 'Contact Number is required'
         ]);
+        $validated['table_type'] = 'sales';
+        
         $drivers = Driver::create($validated);
 
         if ($request->ajax()) {
@@ -78,6 +90,8 @@ class DriverController extends Controller
     public function editIndex(Request $request)
     {
         $query = Driver::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -127,6 +141,7 @@ class DriverController extends Controller
             'name.required' => 'Driver Name is required',
             'driver.required' => 'Driver Type is required',
         ]);
+        $validated['table_type'] = 'sales';
         Driver::find($id)->update($validated);
         return redirect()->route('driver.editIndex')
             ->with('success', 'Driver updated successfully');

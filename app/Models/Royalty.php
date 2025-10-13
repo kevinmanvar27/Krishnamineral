@@ -8,5 +8,6 @@ class Royalty extends Model
 {
     protected $fillable = [
         'name',
+        'table_type',
     ];
 }

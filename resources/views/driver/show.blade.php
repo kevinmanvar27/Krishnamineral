@@ -28,7 +28,7 @@
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $drivers->driver ?? '-' }}</a></div>
                             </div>
                             <div class="row mb-4">
-                                <div class="col-lg-4 fw-medium">Contact NO</div>
+                                <div class="col-lg-4 fw-medium">Contact Number</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $drivers->contact_number ?? '-' }}</a></div>
                             </div>
                         </div>

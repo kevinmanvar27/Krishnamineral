@@ -62,7 +62,7 @@
                                     </div>
                                     <div class="row align-items-center d-flex justify-content-between">
                                         <div class="col-lg-6 mb-4">
-                                            <label for="contact_number" class="form-label mb-2">Contact NO</label>
+                                            <label for="contact_number" class="form-label mb-2">Contact Number</label>
                                             <div class="input-group">
                                                 <input type="number" name="contact_number" placeholder="Enter Contact Number" class="form-control"  id="contact_number" maxlength="10" minlength="10" value="{{ old('contact_number', $drivers->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                                             </div>

@@ -10,5 +10,6 @@ class Driver extends Model
         'name',
         'driver',
         'contact_number',
+        'table_type',
     ];
 }

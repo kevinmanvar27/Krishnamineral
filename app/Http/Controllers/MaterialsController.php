@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Materials;
 
@@ -10,6 +11,8 @@ class MaterialsController extends Controller
     public function index(Request $request)
     {
         $query = Materials::query();
+
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -36,6 +39,8 @@ class MaterialsController extends Controller
     public function editIndex(Request $request)
     {
         $query = Materials::query();
+        
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -73,11 +78,18 @@ class MaterialsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:materials',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('materials')->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
         ],[
             'name.required' => "Material is required",
         ]);
-
+        $validated['table_type'] = 'sales';
         $material = Materials::create($validated);
 
         if ($request->ajax()) {
@@ -90,7 +102,6 @@ class MaterialsController extends Controller
         return redirect()->route('materials.index')->with('success', 'Material added successfully');
     }
 
-
     public function edit($id)
     {
         $materials = Materials::find($id);
@@ -100,10 +111,18 @@ class MaterialsController extends Controller
     public function update(Request $request, $id)
     {
         $materials = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('materials')->ignore($id)->where(function ($query) {
+                    $query->where('table_type', 'sales');
+                }),
+            ],
         ],[
             'name.required' => 'Material is required',
         ]);
+        $materials['table_type'] = 'sales';
         Materials::find($id)->update($materials);
         return redirect()->route('materials.editIndex')->with('success', 'Materials updated successfully');
     }

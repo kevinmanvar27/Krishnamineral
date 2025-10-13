@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
             $table->string('transporter');
             $table->string('contact_number');
+            $table->string('driver_contact_number');
             $table->integer('gross_weight')->nullable();
             $table->integer('tare_weight');
             $table->integer('net_weight')->nullable();

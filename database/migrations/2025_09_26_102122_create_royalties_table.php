@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('royalties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('table_type');
             $table->timestamps();
         });
     }

@@ -42,6 +42,28 @@ class PermissionTableSeeder extends Seeder
             'view-driver',
             'add-driver',
             'edit-driver',
+            'view-purchase',
+            'add-purchase',
+            'edit-purchase',
+            'view-purchaseQuarry',
+            'add-purchaseQuarry',
+            'edit-purchaseQuarry',
+            'view-purchaseMaterials',
+            'add-purchaseMaterials',
+            'edit-purchaseMaterials',
+            'view-purchaseVehicles',
+            'add-purchaseVehicles',
+            'edit-purchaseVehicles',
+            'view-purchaseLoading',
+            'add-purchaseLoading',
+            'edit-purchaseLoading',
+            'view-purchaseReceiver',
+            'add-purchaseReceiver',
+            'edit-purchaseReceiver',
+            'view-purchaseDriver',
+            'add-purchaseDriver',
+            'edit-purchaseDriver',
+
 
         ];
 

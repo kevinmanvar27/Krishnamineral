@@ -8,5 +8,6 @@ class Materials extends Model
 {
     protected $fillable = [
         'name',
+        'table_type',
     ];
 }

@@ -11,6 +11,8 @@ class PlacesController extends Controller
     {
         $query = Places::query();
 
+        $query->where('table_type', 'sales');
+
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }
@@ -36,6 +38,8 @@ class PlacesController extends Controller
     public function editIndex(Request $request)
     {
         $query = Places::query();
+        
+        $query->where('table_type', 'sales');
 
         if ($request->name) {
             $query->where('name', 'like', '%' . $request->name . '%');
@@ -77,6 +81,7 @@ class PlacesController extends Controller
         ],[
             'name.required' => 'Place name is required',
         ]);
+        $validated['table_type'] = 'sales';
         $places = Places::create($validated);
 
         if ($request->ajax()) {
@@ -102,6 +107,7 @@ class PlacesController extends Controller
         ],[
             'name.required' => 'Place name is required',
         ]);
+        $places['table_type'] = 'sales';
         Places::find($id)->update($places);
         return redirect()->route('places.editIndex')->with('success', 'Places updated successfully');
     }

@@ -12,6 +12,7 @@ class Sales extends Model
         'transporter',
         'tare_weight',
         'contact_number',
+        'driver_contact_number',
         'gross_weight',
         'net_weight',
         'material_id',
