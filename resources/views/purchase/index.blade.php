@@ -12,18 +12,6 @@
                         @endphp
                         <!-- [Leads] start -->
                         <div class="col-xxl-12">
-                            @if(session('auto_download_pdf') && session('pdf_purchase_id'))
-                                <script>
-                                    window.addEventListener('DOMContentLoaded', function () {
-                                        const pdfUrl = "{{ route('purchase.purchase-pdf', session('pdf_purchase_id')) }}";
-                                        // Open in new tab so the current page stays available
-                                        window.open(pdfUrl, '_blank');
-                                    });
-                                </script>
-                                @php
-                                    session()->forget(['auto_download_pdf', 'pdf_purchase_id']);
-                                @endphp
-                            @endif
                             @session('success')
                                 <div class="alert alert-success" role="alert"> 
                                     {{ session('success') }}

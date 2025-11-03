@@ -52,7 +52,7 @@
       <td>Gross Weight : {{ $gross_weight }}</td>
     </tr>
     <tr>
-      <td rowspan="2">{{ $royalty_number !== "No" ? 'Royalty Number : '.$royalty_number : '' }}</td>
+      <td rowspan="2">{{ isset($royalty_number) ? 'Royalty Number : '.$royalty_number : '' }}</td>
       <td>Tare Weight : {{ $tare_weight }}</td>
     </tr>
     <tr>

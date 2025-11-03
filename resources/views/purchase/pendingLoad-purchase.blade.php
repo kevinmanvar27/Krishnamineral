@@ -12,20 +12,6 @@
                     @endphp
                     <!-- [Leads] start -->
                     <div class="col-xxl-12">
-                        @if(session('auto_download_pdf') && session('pdf_purchase_id'))
-                            <script>
-                                window.addEventListener('DOMContentLoaded', function () {
-                                    const pdfPurchaseId = "{{ session('pdf_purchase_id') }}";
-                                    if (pdfPurchaseId) {
-                                        const pdfUrl = "{{ url('purchase') }}/" + pdfPurchaseId + "/purchase-pdf";
-                                        window.open(pdfUrl, '_blank');
-                                    }
-                                });
-                            </script>
-                            @php
-                                session()->forget(['auto_download_pdf', 'pdf_purchase_id']);
-                            @endphp
-                        @endif
                         @session('success')
                             <div class="alert alert-success" role="alert"> 
                                 {{ $value }}
@@ -33,7 +19,7 @@
                         @endsession
                         <div class="card stretch stretch-full">
                             <div class="card-header d-flex align-items-center justify-content-between">
-                                <h5 class="card-title">Purchase Edit</h5>
+                                <h5 class="card-title">Pending Loads</h5>
                                 <div class="d-flex gap-2">
                                     <input type="date" id="searchDateFrom" class="form-control" placeholder="From Date">
                                     <input type="date" id="searchDateTo" class="form-control" placeholder="To Date">
@@ -134,7 +120,7 @@
 
             function fetch_data(page = 1) {
                 $.ajax({
-                    url: "{{ route('purchase.editIndex') }}",
+                    url: "{{ route('purchase.pendingLoad') }}",
                     type: "GET",
                     data: {
                         page: page,

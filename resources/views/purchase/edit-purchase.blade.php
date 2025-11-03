@@ -1,241 +1,221 @@
-    @extends('layouts.app')
+@extends('layouts.app')
 
-    @section('content')
+@section('content')
 
-        <div class="wrapper">
-            <div class="page-wrapper">
-                <!-- [ Main Content ] start -->
-                <div class="page-content">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            @if (count($errors) > 0)
-                                <div class="alert alert-danger">
-                                <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                </div>
-                            @endif
-                            @session('success')
-                                <div class="alert alert-success" role="alert"> 
-                                    {{ $value }}
-                                </div>
-                            @endsession
-                            <div class="card stretch stretch-full">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title">Purchase</h5>
-                                    <div class="card-header-action">
-                                        <div class="card-header-btn">         
-                                            <a class="btn btn-sm btn-primary" href="{{ isset($purchase) ? route('purchase.editIndex') : route('purchase.index') }}">
-                                                <i class="bx bx-arrow-to-left"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="mt-0">
-                                <form method="POST" action="{{ isset($purchase) ? route('purchase.update', $purchase->id) : route('purchase.store') }}" enctype="multipart/form-data">
-                                @csrf
-                                @if(isset($purchase))
-                                    @method('PUT')
-                                @endif
-                                    <div class="card-body general-info">
-                                        <div class="row align-items-center d-flex justify-content-between">
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="challan_number" class="form-label mb-2">Challan Number </label>
-                                                <div class="input-group">
-                                                    <div class="input-group-text">P_</div>
-                                                    <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('challan_number', isset($purchase) ? $purchase->id : ($latestPurchase ? $latestPurchase->id + 1 : 1)) }}" readonly>
-                                                    @error('id')<div class="text-danger">{{ $message }}</div>@enderror
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="date_time" class="form-label mb-2">Date</label> 
-                                                <div class="input-group">
-                                                    <input type="datetime-local" name="date_time" class="form-control"  id="date"  value="{{ old('date_time', $purchase->date_time ?? '') }}" readonly>
-                                                    @error('date_time')<div class="text-danger">{{ $message }}</div>@enderror
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-6 mb-4">
-                                                <label for="vehicle_id" class="form-label mb-2">Vehicle Number </label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('vehicle.details') }}">
-                                                        <option selected disabled value>Select Vehicle</option>
-                                                        @foreach($vehicles as $vehicle)
-                                                            <option value="{{ $vehicle->id ?? '' }}" 
-                                                                @if(isset($purchase) && $purchase->vehicle_id == $vehicle->id) selected @endif>
-                                                                {{ $vehicle->name ?? '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>                                                
-                                                </div>
-                                                @error('vehicle_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-6 mb-4">
-                                                <label for="transporter" class="form-label mb-2">Transporter Name</label>
-                                                <div class="input-group">   
-                                                    <input type="text" name="transporter" placeholder="Transporter Name" class="form-control"  id="transporter"  value="{{ old('transporter', isset($purchase->transporter) ? $purchase->transporter : '') }}" readonly>
-                                                </div>
-                                                @error('transporter')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>  
-                                        </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-6 mb-4">
-                                                <label for="contact_number" class="form-label mb-2">Owner Contact Number</label>
-                                                <div class="input-group">
-                                                    <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Owner Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number', isset($purchase->contact_number) ? $purchase->contact_number : '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
-                                                </div>
-                                                @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-6 mb-4">
-                                                <label for="driver_contact_number" class="form-label mb-2">Driver Contact Number</label>
-                                                <div class="input-group">
-                                                    <input type="number" name="driver_contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('driver_contact_number', isset($purchase->driver_contact_number) ? $purchase->driver_contact_number : '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
-                                                </div>
-                                                @error('driver_contact_number')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                        </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="gross_weight" class="form-label mb-2">Gross Weight</label>
-                                                <div class="input-group">
-                                                    <input type="number" name="gross_weight" placeholder="Enter Gross Weight" class="form-control" id="gross_weight" value="{{ old('gross_weight', isset($purchase->gross_weight) ? $purchase->gross_weight : '') }}">
-                                                </div>
-                                                @error('gross_weight')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="tare_weight" class="form-label mb-2">Tare Weight</label>
-                                                <div class="input-group">
-                                                    <input type="number" name="tare_weight" placeholder="Enter Tare Weight" class="form-control" id="tare_weight" value="{{ old('tare_weight', isset($purchase->tare_weight) ? $purchase->tare_weight : '') }}">
-                                                </div>
-                                                @error('tare_weight')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="net_weight" class="form-label mb-2">Net Weight</label>
-                                                <div class="input-group">
-                                                    <input type="number" name="net_weight" placeholder="Enter Net Weight" class="form-control" id="net_weight" value="{{ old('net_weight', isset($purchase->net_weight) ? $purchase->net_weight : '') }}" readonly>
-                                                </div>
-                                                @error('net_weight')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                        </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="material_id" class="form-label mb-2">Material Name </label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="material_id" name="material_id">
-                                                        <option selected disabled value>Select Material</option>
-                                                        @foreach($materials as $material)
-                                                            <option value="{{ $material->id ?? '' }}" 
-                                                            @if(isset($purchase->material_id) && $purchase->material_id == $material->id) selected @endif>
-                                                                {{ $material->name ?? '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>                                                
-                                                </div>
-                                                @error('material_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="loading_id" class="form-label mb-2">Loading Name </label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="loading_id" name="loading_id">
-                                                        <option selected disabled value>Select Loading</option>
-                                                        @foreach($loadings as $loading)
-                                                            <option value="{{ $loading->id ?? '' }}" 
-                                                            @if(isset($purchase->loading_id) && $purchase->loading_id == $loading->id) selected @endif>
-                                                                {{ $loading->name ?? '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>                                                
-                                                </div>
-                                                @error('loading_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="quarry_id" class="form-label mb-2">Quarry Name </label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="quarry_id" name="quarry_id">
-                                                        <option selected disabled value>Select Place</option>
-                                                        @foreach($quarries as $quarry)
-                                                            <option value="{{ $quarry->id ?? '' }}" 
-                                                            @if(isset($purchase->quarry_id) && $purchase->quarry_id == $quarry->id) selected @endif>
-                                                                {{ $quarry->name ?? '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>                                                
-                                                </div>
-                                                @error('quarry_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                        </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="receiver_id" class="form-label mb-2">Receiver Name </label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="receiver_id" name="receiver_id">
-                                                        <option selected disabled value>Select Receiver</option>
-                                                        @foreach($purchaseReceivers as $receiver)
-                                                            <option value="{{ $receiver->id ?? '' }}" 
-                                                            @if(isset($purchase->receiver_id) && $purchase->receiver_id == $receiver->id) selected @endif>
-                                                                {{ $receiver->name ?? '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>                                                
-                                                </div>
-                                                @error('receiver_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="driver_id" class="form-label mb-2">Driver Name </label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="driver_id" name="driver_id">
-                                                        <option selected disabled value>Select Driver</option>
-                                                        @foreach($drivers as $driver)
-                                                            <option value="{{ $driver->id ?? '' }}" 
-                                                            @if(isset($purchase->driver_id) && $purchase->driver_id == $driver->id) selected @endif>
-                                                                {{ $driver->name ?? '' }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>                                                
-                                                </div>
-                                                @error('driver_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="col-lg-4 mb-4">
-                                                <label for="carting_id" class="form-label mb-2">Carting</label>
-                                                <div class="input-group">
-                                                    <select class="form-select js-select2" aria-label="Default select example" id="carting_id" name="carting_id">
-                                                        <option selected disabled value>Select Carting</option>
-                                                        <option value="0" @if(isset($purchase->carting_id) && $purchase->carting_id == 0) selected @endif>Carting</option>
-                                                        <option value="1" @if(isset($purchase->carting_id) && $purchase->carting_id == 1) selected @endif>Self</option>
-                                                    </select>                                                
-                                                </div>
-                                                @error('carting_id')<div class="text-danger">{{ $message }}</div>@enderror
-                                            </div>
-                                        </div>
-                                        <div class="row align-items-center">
-                                            <div class="col-lg-4 mb-4"> 
-                                                <label for="note">Note</label>
-                                                <textarea name="note" class="form-control" id="note" placeholder="Note..">{{ old('note', isset($purchase->note) ? $purchase->note : '') }}</textarea>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-4 align-items-center">
-                                            <div class="col-lg-8">
-                                                <div class="input-group">
-                                                    <button type="submit" class="btn btn-primary mt-2 mb-3">
-                                                        <i class="bx bx-save me-2"></i>
-                                                        Submit
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
+    <div class="wrapper">
+        <div class="page-wrapper">
+            <!-- [ Main Content ] start -->
+            <div class="page-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        @if (count($errors) > 0)
+                            <div class="alert alert-danger">
+                            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                             </div>
+                        @endif
+                        @session('success')
+                            <div class="alert alert-success" role="alert"> 
+                                {{ $value }}
+                            </div>
+                        @endsession
+                        <div class="card stretch stretch-full">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title">Purchase</h5>
+                                <div class="card-header-action">
+                                    <div class="card-header-btn">         
+                                        <a class="btn btn-sm btn-primary" href="{{ $purchase->status == '1' ? route('purchase.editIndex') : route('purchase.pendingLoad') }}">
+                                            <i class="bx bx-arrow-to-left"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="mt-0">
+                            <form method="POST" action="{{ route('purchase.update', $purchase->id) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                                <div class="card-body general-info">
+                                    <div class="row align-items-center d-flex justify-content-between">
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="challan_number" class="form-label mb-2">Challan Number </label>
+                                            <div class="input-group">
+                                                <div class="input-group-text">P_</div>
+                                                <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('id', $purchase->id == '' ? 0+1 : $purchase->id+1) }}" readonly>
+                                                @error('id')<div class="text-danger">{{ $message }}</div>@enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="date_time" class="form-label mb-2">Date</label> 
+                                            <div class="input-group">
+                                                <input type="datetime-local" name="date_time" class="form-control"  id="date"  value="{{ old('date_time', $purchase->date_time ?? '') }}" readonly>
+                                            </div>
+                                            @error('date_time')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-6 mb-4">
+                                            <label for="vehicle_id" class="form-label mb-2">Vehicle Number </label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('purchaseVehicle.details') }}">
+                                                    <option selected disabled value>Select Vehicle</option>
+                                                    @foreach($vehicles as $vehicle)
+                                                        <option value="{{ $vehicle->id ?? '' }}" {{ $vehicle->id == $purchase->vehicle_id ? 'selected' : '' }}>{{ $vehicle->name ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('vehicle_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-6 mb-4">
+                                            <label for="transporter" class="form-label mb-2">Transporter Name</label>
+                                            <div class="input-group">   
+                                                <input type="text" name="transporter" placeholder="Transporter Name" class="form-control"  id="transporter"  value="{{ old('transporter', $purchase->transporter ?? '') }}" readonly>
+                                            </div>
+                                            @error('transporter')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>  
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-6 mb-4">
+                                            <label for="contact_number" class="form-label mb-2">Owner Contact Number</label>
+                                            <div class="input-group">
+                                                <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Owner Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number', $purchase->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                            </div>
+                                            @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-6 mb-4">
+                                            <label for="driver_contact_number" class="form-label mb-2">Driver Contact Number</label>
+                                            <div class="input-group">
+                                                <input type="number" name="driver_contact_number" maxlength="10" minlength="10"  placeholder="Enter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('driver_contact_number', $purchase->driver_contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                            </div>
+                                            @error('driver_contact_number')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="gross_weight" class="form-label mb-2">Gross Weight</label>
+                                            <div class="input-group">
+                                                <input type="number" name="gross_weight" placeholder="Enter Gross Weight" class="form-control" id="gross_weight" value="{{ old('gross_weight', $purchase->gross_weight ?? '') }}">
+                                            </div>
+                                            @error('gross_weight')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="tare_weight" class="form-label mb-2">Tare Weight</label>
+                                            <div class="input-group">
+                                                <input type="number" name="tare_weight" placeholder="Enter Tare Weight" class="form-control" id="tare_weight" value="{{ old('tare_weight', $purchase->tare_weight ?? '') }}" readonly>
+                                            </div>
+                                            @error('tare_weight')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="net_weight" class="form-label mb-2">Net Weight</label>
+                                            <div class="input-group">
+                                                <input type="number" name="net_weight" placeholder="Enter Net Weight" class="form-control" id="net_weight" value="{{ old('net_weight', $purchase->net_weight ?? '') }}" readonly>
+                                            </div>
+                                            @error('net_weight')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="material_id" class="form-label mb-2">Material Name </label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="material_id" name="material_id">
+                                                    <option selected disabled value>Select Material</option>
+                                                    @foreach($materials as $material)
+                                                        <option value="{{ $material->id ?? '' }}" {{ $material->id == $purchase->material_id ? 'selected' : '' }}>{{ $material->name ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('material_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="loading_id" class="form-label mb-2">Loading Name </label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="loading_id" name="loading_id">
+                                                    <option selected disabled value>Select Loading</option>
+                                                    @foreach($loadings as $loading)
+                                                        <option value="{{ $loading->id ?? '' }}" {{ $loading->id == $purchase->loading_id ? 'selected' : '' }}>{{ $loading->name ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('loading_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="quarry_id" class="form-label mb-2">Quarry Name </label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="quarry_id" name="quarry_id">
+                                                    <option selected disabled value>Select Quarry</option>
+                                                    @foreach($quarries as $quarry)
+                                                        <option value="{{ $quarry->id ?? '' }}" {{ $quarry->id == $purchase->quarry_id ? 'selected' : '' }}>{{ $quarry->name ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('quarry_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="receiver_id" class="form-label mb-2">Receiver Name </label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="receiver_id" name="receiver_id">
+                                                    <option selected disabled value>Select Receiver</option>
+                                                    @foreach($purchaseReceivers as $receiver)
+                                                        <option value="{{ $receiver->id ?? '' }}" {{ $receiver->id == $purchase->receiver_id ? 'selected' : '' }}>{{ $receiver->name ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('receiver_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="driver_id" class="form-label mb-2">Driver Name </label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="driver_id" name="driver_id">
+                                                    <option selected disabled value>Select Driver</option>
+                                                    @foreach($drivers as $driver)
+                                                        <option value="{{ $driver->id ?? '' }}" {{ $driver->id == $purchase->driver_id ? 'selected' : '' }}>{{ $driver->name ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('driver_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-lg-4 mb-4">
+                                            <label for="carting_id" class="form-label mb-2">Carting</label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Default select example" id="carting_id" name="carting_id">
+                                                    <option selected disabled value>Select Carting</option>
+                                                    <option value="0" {{ $purchase->carting_id == 0 ? 'selected' : '' }}>Carting</option>
+                                                    <option value="1" {{ $purchase->carting_id == 1 ? 'selected' : '' }}>Self</option>
+                                                </select>                                                
+                                            </div>
+                                            @error('carting_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-4 mb-4"> 
+                                            <label for="note">Note</label>
+                                            <textarea name="note" class="form-control" id="note" placeholder="Note..">{{ old('note', $purchase->note ?? '') }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-4 align-items-center">
+                                        <div class="col-lg-8">
+                                            <div class="input-group">
+                                                <button type="submit" class="btn btn-primary mt-2 mb-3">
+                                                    <i class="bx bx-save me-2"></i>
+                                                    Submit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!---------------------------Vehicle Modal Start --------------------------->
+    </div>
+    <!---------------------------Vehicle Modal Start --------------------------->
         @can('add-purchaseVehicles')
             <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -301,8 +281,8 @@
                 </div>
             </div>
         @endcan
-        <!---------------------------Vehicle Modal Start --------------------------->
-        <!---------------------------Material Modal Start --------------------------->
+    <!---------------------------Vehicle Modal Start --------------------------->
+    <!---------------------------Material Modal Start --------------------------->
         @can('add-purchaseMaterials')
             <div class="modal fade" id="materialModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -350,8 +330,8 @@
                 </div>
             </div>
         @endcan
-        <!---------------------------Material Modal Ends--------------------------->
-        <!---------------------------Loading Modal Start --------------------------->
+    <!---------------------------Material Modal Ends--------------------------->
+    <!---------------------------Loading Modal Start --------------------------->
         @can('add-purchaseLoading')
             <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -399,8 +379,8 @@
                 </div>
             </div>
         @endcan
-        <!---------------------------Loading Modal Ends--------------------------->
-        <!---------------------------Quarry Modal Start --------------------------->
+    <!---------------------------Loading Modal Ends--------------------------->
+    <!---------------------------Quarry Modal Start --------------------------->
         @can('add-purchaseQuarry') 
             <div class="modal fade" id="quarryModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -448,8 +428,8 @@
                 </div>
             </div>
         @endcan
-        <!---------------------------Quarry Modal Ends--------------------------->
-        <!---------------------------Driver Modal Start --------------------------->
+    <!---------------------------Quarry Modal Ends--------------------------->
+    <!---------------------------Driver Modal Start --------------------------->
         @can('add-purchaseDriver')
             <div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -519,8 +499,8 @@
                 </div>
             </div>
         @endcan
-        <!---------------------------Driver Modal Ends--------------------------->
-        <!---------------------------Receiver Modal Start --------------------------->
+    <!---------------------------Driver Modal Ends--------------------------->
+    <!---------------------------Receiver Modal Start --------------------------->
         @can('add-purchaseReceiver') 
             <div class="modal fade" id="receiverModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -613,12 +593,11 @@
                 </div>
             </div>
         @endcan
-        <!---------------------------Receiver Modal Ends--------------------------->
-    @endsection
-    
-@push('scripts')
-    <script>  
+    <!---------------------------Receiver Modal Ends--------------------------->
+@endsection
 
+@push('scripts')
+    <script>
         $(document).ready(function(){            
             const input = document.getElementById('name');
             input.addEventListener('input', formatVehicleNumber);
@@ -669,48 +648,15 @@
         
         $(document).ready(function(){
             const dateTimeInput = document.getElementById('date');
-            if (!dateTimeInput.value) {
-                const now = new Date();
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                now.setSeconds(0);
-                now.setMilliseconds(0);
-                dateTimeInput.value = now.toISOString().slice(0, 16);
-            }
-        });
+            const now = new Date();
 
-        $(document).ready(function() {
-            function toggleRoyaltyReadonly() {
-                const selectedValue = $('#royalty_id').val();
-                if (selectedValue == "") {
-                    $('#royalty_number').prop('disabled', true).val();
-                    $('#royalty_tone').prop('disabled', true).val();
-                } 
-                else {
-                    $('#royalty_number').prop('disabled', false).val();
-                    $('#royalty_tone').prop('disabled', false).val();
-                }   
-            }
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            now.setSeconds(0);
+            now.setMilliseconds(0);
+            
+            dateTimeInput.value = now.toISOString().slice(0, 16);
+        })
 
-            toggleRoyaltyReadonly();
-
-            $('#royalty_id').change(function() {
-                toggleRoyaltyReadonly();
-            });
-        });
-
-        $(document).ready(function () {
-            $('#gross_weight, #tare_weight').on('input', function() {
-                var gross_weight = parseFloat($('#gross_weight').val()) || 0;
-                var tare_weight = parseFloat($('#tare_weight').val()) || 0;
-
-                if ($('#gross_weight').val() === "") {
-                    $('#net_weight').val('');
-                } else {
-                    var net_weight = gross_weight - tare_weight;
-                    $('#net_weight').val(net_weight);
-                }
-            });
-        });
 
         $(document).ready(function() { 
 
@@ -746,7 +692,7 @@
             const modalElement = document.querySelector(modalSelector);
             if (!modalElement) return;
             const modal = new bootstrap.Modal(modalElement);
-
+            
             $(dropDownSelector).select2();
 
             $(document).on('keydown', function(e) {
@@ -803,6 +749,8 @@
                 });
             });
         }
+
+
         modalDropdown({
             dropDownSelector: '#material_id',
             modalSelector: '#materialModal',
@@ -861,6 +809,39 @@
             },
             labelField: 'name',
         })
+
+        // Calculate net weight + show error UNDER the field
+        $(document).ready(function() {
+            const $gross = $('#gross_weight');
+            const $tare = $('#tare_weight');
+            const $net = $('#net_weight');
+
+            // Create error div under the field (if not already)
+            if ($('#tare-error').length === 0) {
+                $tare.closest('.input-group').parent().append('<div id="tare-error" class="text-danger mt-1"></div>');
+            }
+
+            $('#gross_weight, #tare_weight').on('input', function() {
+                let grossWeight = parseFloat($gross.val()) || 0;
+                let tareWeight = parseFloat($tare.val()) || 0;
+
+                // Validation: Tare must be smaller than Gross
+                if (tareWeight >= grossWeight && grossWeight > 0) {
+                    $('#tare-error').text('Tare Weight must be smaller than Gross Weight');
+                    $gross.addClass('is-invalid');
+                } else {
+                    $('#tare-error').text('');
+                    $gross.removeClass('is-invalid');
+                }
+
+                // Auto-calculate Net Weight only if valid
+                if (grossWeight > 0 && tareWeight > 0 && tareWeight < grossWeight) {
+                    $net.val((grossWeight - tareWeight).toFixed(2));
+                } else {
+                    $net.val('');
+                }
+            });
+        });
+
     </script>
-    
 @endpush

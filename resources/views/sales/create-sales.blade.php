@@ -42,17 +42,17 @@
                                             <div class="col-lg-4 mb-4">
                                                 <label for="challan_number" class="form-label mb-2">Challan Number </label>
                                                 <div class="input-group">
-                                                    <div class="input-group-text">S_</div>
+                                                    <div class="input-group-text">P_</div>
                                                     <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('id', isset($sales->id) == '' ? 0+1 : $sales->id+1) }}" readonly>
-                                                    @error('id')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('id')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-lg-4 mb-4">
                                                 <label for="date_time" class="form-label mb-2">Date</label>
                                                 <div class="input-group">
                                                     <input type="datetime-local" name="date_time" class="form-control"  id="date"  value="{{ old('date_time') }}" readonly>
-                                                    @error('date_time')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('date_time')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
@@ -81,22 +81,22 @@
                                                 <label for="contact_number" class="form-label mb-2">Owner Contact Number</label>
                                                 <div class="input-group">
                                                     <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Owner Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
-                                                    @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-lg-4 mb-4">
                                                 <label for="driver_contact_number" class="form-label mb-2">Transporter Contact Number</label>
                                                 <div class="input-group">
                                                     <input type="number" name="driver_contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Driver Contact Number" class="form-control" id="driver_contact_number" value="{{ old('driver_contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
-                                                    @error('driver_contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('driver_contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-lg-4 mb-4">
                                                 <label for="tare_weight" class="form-label mb-2">Tare Weight</label>
                                                 <div class="input-group">
                                                     <input type="number" name="tare_weight" placeholder="Enter Tare Weight" class="form-control" id="tare_weight" value="{{ old('tare_weight') }}">
-                                                    @error('tare_weight')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
+                                                @error('tare_weight')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
                                         <div class="row mb-4 align-items-center">

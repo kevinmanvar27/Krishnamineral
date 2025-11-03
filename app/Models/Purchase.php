@@ -22,6 +22,7 @@ class Purchase extends Model
         'driver_id',
         'carting_id',
         'note',
+        'status'
     ];
     
     public function vehicle()

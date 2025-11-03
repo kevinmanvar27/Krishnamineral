@@ -63,7 +63,8 @@
 					$canSales = auth()->user()->can('view-sales') ||
 									auth()->user()->can('add-sale') ||
 									auth()->user()->can('edit-sales')||
-                                    auth()->user()->can('pending-load-sales');
+                                    auth()->user()->can('pending-load-sales') ||
+                                    auth()->user()->can('audit-sales');
 				@endphp
 				@if($canSales)
                     <li>
@@ -92,6 +93,11 @@
                                 <li>
                                     <a href="{{ route('sales.pendingLoad') }}"><i class='bx bx-radio-circle'></i>Pending Loads</a>
                                 </li>
+                            @endcan
+                            @can('audit-sales')
+                            <li>
+                                <a href="{{ route('sales.salesAudit') }}"><i class='bx bx-radio-circle'></i>Sales Audit</a>
+                            </li>
                             @endcan
                             <li>
                                 @php
@@ -328,7 +334,8 @@
 				@php
 					$canPurchase = auth()->user()->can('view-purchase') ||
 									auth()->user()->can('add-purchase') ||
-									auth()->user()->can('edit-purchase');
+									auth()->user()->can('edit-purchase') ||
+                                    auth()->user()->can('pending-load-purchase');
 				@endphp
 				@if($canPurchase)
                     <li>
@@ -351,6 +358,11 @@
                             @can('edit-purchase')
                                 <li>
                                     <a href="{{ route('purchase.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Purchase</a>
+                                </li>
+                            @endcan
+                            @can('pending-load-purchase')
+                                <li>
+                                    <a href="{{ route('purchase.pendingLoad') }}"><i class='bx bx-radio-circle'></i>Pending Loads</a>
                                 </li>
                             @endcan
                             <li>
@@ -565,13 +577,13 @@
 					</div>
 
 					  <div class="search-bar d-lg-block d-none" data-bs-toggle="modal" data-bs-target="#SearchModal">
-					     <a href="avascript:;" class="btn d-flex align-items-center"><i class='bx bx-search'></i>Search</a>
+					     <a href="javascript:;" class="btn d-flex align-items-center"><i class='bx bx-search'></i>Search</a>
 					  </div>
 
 					  <div class="top-menu ms-auto">
 						<ul class="navbar-nav align-items-center gap-1">
 							<li class="nav-item mobile-search-icon d-flex d-lg-none" data-bs-toggle="modal" data-bs-target="#SearchModal">
-								<a class="nav-link" href="avascript:;"><i class='bx bx-search'></i>
+								<a class="nav-link" href="javascript:;"><i class='bx bx-search'></i>
 								</a>
 							</li>
 

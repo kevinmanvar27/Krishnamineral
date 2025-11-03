@@ -51,7 +51,7 @@
                                         <div class="col-lg-6 mb-4">
                                             <label for="name" class="form-label mb-2">Sales By</label>
                                             <div class="input-group">
-                                                <select name="sales_by" id="" class="form-control">
+                                                <select name="sales_by" id="" class="form-control js-select2">
                                                     <option value="">Select Sales By</option>
                                                     @foreach($employees as $employee)
                                                         <option value="{{ $employee->id }}" {{ old('sales_by', $party->sales_by ?? '') == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>
@@ -63,7 +63,7 @@
                                     </div>
                                     <div class="row align-items-center d-flex justify-content-between">
                                         <div class="col-lg-6 mb-4">
-                                            <label for="contact_number" class="form-label mb-2">Party</label>
+                                            <label for="contact_number" class="form-label mb-2">Party Contact Number</label>
                                             <div class="input-group">
                                                 <input type="number" name="contact_number" placeholder="Enter Party Contact Number" class="form-control"  id="contact_number"  value="{{ old('contact_number', $party->contact_number ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                                             </div>

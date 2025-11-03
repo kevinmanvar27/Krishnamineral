@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 
@@ -21,6 +20,7 @@ class PermissionTableSeeder extends Seeder
             'add-sale',
             'edit-sales',
             'pending-load-sales',
+            'audit-sales',
             'view-materials',
             'add-material',
             'edit-materials',
@@ -45,6 +45,7 @@ class PermissionTableSeeder extends Seeder
             'view-purchase',
             'add-purchase',
             'edit-purchase',
+            'pending-load-purchase',
             'view-purchaseQuarry',
             'add-purchaseQuarry',
             'edit-purchaseQuarry',
@@ -63,15 +64,12 @@ class PermissionTableSeeder extends Seeder
             'view-purchaseDriver',
             'add-purchaseDriver',
             'edit-purchaseDriver',
-
-
         ];
 
         foreach ($permissions as $permission) {
-            // Check if the permission already exists before creating
-            if (!Permission::where('name', $permission)->exists()) {
-                Permission::create(['name' => $permission]);
-            }
+            Permission::firstOrCreate(
+                ['name' => $permission, 'guard_name' => 'web']
+            );
         }
     }
 }

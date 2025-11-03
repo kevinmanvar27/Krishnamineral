@@ -61,6 +61,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/editindex', [PurchaseController::class, 'editIndex'])->name('purchase.editIndex');
 
     Route::get('/sales/pendingLoads', [SalesController::class, 'pendingLoad'])->name('sales.pendingLoad');
+    Route::get('/purchase/pendingLoads', [PurchaseController::class, 'pendingLoad'])->name('purchase.pendingLoad');
+
+    Route::get('/sales/audit', [SalesController::class, 'salesAudit'])->name('sales.salesAudit');
+    Route::get('/sales/{id}/show-ajax', [SalesController::class, 'showAjax'])->name('sales.showAjax');
+    Route::post('/sales/{id}/update-party-weight', [SalesController::class, 'updatePartyWeight'])->name('sales.updatePartyWeight');
+
+    // Search route
+    Route::post('/search-challans', [SalesController::class, 'searchChallans'])->name('search.challans');
 
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
@@ -82,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::post('/vehicle/fetch-details', [VehicleController::class, 'fetchDetails'])->name('vehicle.details');
+    Route::post('/purchaseVehicle/fetch-details', [PurchaseVehicleController::class, 'fetchDetails'])->name('purchaseVehicle.details');
 
     Route::get('/settings/edit', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::post('/settings/update', [SettingsController::class, 'update'])->name('settings.update');
@@ -96,4 +105,3 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/{id}/purchase-pdf', [PurchaseController::class, 'purchasePdf'])->name('purchase.purchase-pdf');
 
 });
-

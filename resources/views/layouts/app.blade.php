@@ -176,5 +176,147 @@
 
     @stack('scripts')
 
+    <!-- Search Modal -->
+    <div class="modal fade" id="SearchModal" tabindex="-1" aria-labelledby="SearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="SearchModalLabel">Search Challans</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label for="searchModule">Select Module:</label>
+                                <select class="form-select" id="searchModule">
+                                    <option value="sales">Sales</option>
+                                    <option value="purchase">Purchase</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="searchType">Search By:</label>
+                                <select class="form-select" id="searchType">
+                                    <option value="challan">Challan Number</option>
+                                    <option value="transporter">Transporter</option>
+                                    <option value="vehicle">Vehicle Number</option>
+                                    <option value="date">Date</option>
+                                    <option value="date_range">Date Range</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-3" id="challanSearchGroup">
+                                <label for="challanNumber">Challan Number:</label>
+                                <input type="text" class="form-control" id="challanNumber" placeholder="Enter challan number">
+                            </div>
+                            
+                            <div class="form-group mb-3" id="transporterSearchGroup" style="display: none;">
+                                <label for="transporterName">Transporter Name:</label>
+                                <input type="text" class="form-control" id="transporterName" placeholder="Enter transporter name">
+                            </div>
+                            
+                            <div class="form-group mb-3" id="vehicleSearchGroup" style="display: none;">
+                                <label for="vehicleNumber">Vehicle Number:</label>
+                                <input type="text" class="form-control" id="vehicleNumber" placeholder="Enter vehicle number">
+                            </div>
+                            
+                            <div class="form-group mb-3" id="dateSearchGroup" style="display: none;">
+                                <label for="searchDate">Date:</label>
+                                <input type="date" class="form-control" id="searchDate">
+                            </div>
+                            
+                            <div class="form-group mb-3" id="dateRangeSearchGroup" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="dateFrom">From Date:</label>
+                                        <input type="date" class="form-control" id="dateFrom">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="dateTo">To Date:</label>
+                                        <input type="date" class="form-control" id="dateTo">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" id="searchBtn">Search</button>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div id="searchResults"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            // Handle search type change
+            $('#searchType').change(function() {
+                var searchType = $(this).val();
+                
+                // Hide all search groups
+                $('#challanSearchGroup, #transporterSearchGroup, #vehicleSearchGroup, #dateSearchGroup, #dateRangeSearchGroup').hide();
+                
+                // Show the relevant search group
+                if (searchType === 'challan') {
+                    $('#challanSearchGroup').show();
+                } else if (searchType === 'transporter') {
+                    $('#transporterSearchGroup').show();
+                } else if (searchType === 'vehicle') {
+                    $('#vehicleSearchGroup').show();
+                } else if (searchType === 'date') {
+                    $('#dateSearchGroup').show();
+                } else if (searchType === 'date_range') {
+                    $('#dateRangeSearchGroup').show();
+                }
+            });
+            
+            // Handle search button click
+            $('#searchBtn').click(function() {
+                var module = $('#searchModule').val();
+                var searchType = $('#searchType').val();
+                var searchData = {};
+                
+                // Get search data based on search type
+                if (searchType === 'challan') {
+                    searchData.challan = $('#challanNumber').val();
+                } else if (searchType === 'transporter') {
+                    searchData.transporter = $('#transporterName').val();
+                } else if (searchType === 'vehicle') {
+                    searchData.vehicle = $('#vehicleNumber').val();
+                } else if (searchType === 'date') {
+                    searchData.date = $('#searchDate').val();
+                } else if (searchType === 'date_range') {
+                    searchData.date_from = $('#dateFrom').val();
+                    searchData.date_to = $('#dateTo').val();
+                }
+                
+                // Perform AJAX search
+                $.ajax({
+                    url: '/search-challans',
+                    method: 'POST',
+                    data: {
+                        module: module,
+                        searchType: searchType,
+                        searchData: searchData
+                    },
+                    success: function(response) {
+                        $('#searchResults').html(response);
+                    },
+                    error: function(xhr) {
+                        $('#searchResults').html('<div class="alert alert-danger">Error occurred while searching.</div>');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

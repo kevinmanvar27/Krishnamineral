@@ -51,7 +51,7 @@
                                         <div class="col-lg-6 mb-4">
                                             <label for="name" class="form-label mb-2">Sales By</label>
                                             <div class="input-group">
-                                                <select name="sales_by" id="" class="form-control">
+                                                <select name="sales_by" id="" class="form-control js-select2">
                                                     <option value="">Select Sales By</option>
                                                     @foreach($employees as $employee)
                                                         <option value="{{ $employee->id }}" {{ old('sales_by', $purchaseReceiver->sales_by ?? '') == $employee->id ? 'selected' : '' }}>{{ $employee->name }}</option>

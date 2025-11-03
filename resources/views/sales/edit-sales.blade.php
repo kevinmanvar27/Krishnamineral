@@ -28,7 +28,7 @@
                                     <h5 class="card-title">Sales</h5>
                                     <div class="card-header-action">
                                         <div class="card-header-btn">         
-                                            <a class="btn btn-sm btn-primary" href="{{ route('sales.index') }}">
+                                            <a class="btn btn-sm btn-primary" href="{{ $sales->status == '1' ? route('sales.editIndex') : route('sales.pendingLoad') }}">
                                                 <i class="bx bx-arrow-to-left"></i>
                                             </a>
                                         </div>
@@ -183,8 +183,8 @@
                                                 <label for="royalty_number" class="form-label mb-2">Royalty Number </label>
                                                 <div class="input-group"> 
                                                     <input type="text" name="royalty_number" placeholder="Enter Royalty Number" class="form-control" id="royalty_number" value="{{ old('royalty_number', $sales->royalty_number ?? '') }}">
-                                                    @error('royalty_number')<div class="text-danger">{{ $message }}</div>@enderror                  
                                                 </div>
+                                                @error('royalty_number')<div class="text-danger">{{ $message }}</div>@enderror                  
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
@@ -192,8 +192,8 @@
                                                 <label for="royalty_tone" class="form-label mb-2">Royalty Tone</label>
                                                 <div class="input-group"> 
                                                     <input type="text" name="royalty_tone" placeholder="Enter Royalty Tone" class="form-control" id="royalty_tone" value="{{ old('royalty_tone', $sales->royalty_tone ?? '') }}">
-                                                    @error('royalty_tone')<div class="text-danger">{{ $message }}</div>@enderror                  
                                                 </div>
+                                                @error('royalty_tone')<div class="text-danger">{{ $message }}</div>@enderror                  
                                             </div>
                                             <div class="col-lg-4 mb-4">
                                                 <label for="driver_id" class="form-label mb-2">Driver Name </label>
@@ -592,7 +592,7 @@
                                 <div class="alert alert-danger print-error-msg" style="display:none">
                                     <ul></ul>
                                 </div>
-                            <div class="row align-items-center d-flex justify-content-between">
+                                <div class="row align-items-center d-flex justify-content-between">
                                     <div class="col-lg-6 mb-4">
                                         <label for="party_name" class="form-label mb-2">Party</label>
                                         <div class="input-group">
@@ -611,6 +611,15 @@
                                             </select>
                                         </div>
                                         @error('name')<div class="text-danger">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 mb-4">
+                                        <label for="contact_number" class="form-label mb-2">Party Contact Number</label>
+                                        <div class="input-group">
+                                            <input type="number" name="contact_number" placeholder="Enter Party Contact Number" class="form-control"  id="contact_number"  value="{{ old('contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                                        </div>
+                                        @error('contact_number')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
                                 <hr class="mt-0">
@@ -748,21 +757,21 @@
             });
         });
 
-        $(document).ready(function () {
-            $('#gross_weight').on('input', function(){
-                var gross_weight = $(this).val();
-                var tare_weight = $('#tare_weight').val();
-                var net_weight = $('#net_weight').val();
-                if (gross_weight == "")
-                {
-                    $('#net_weight').val('');
-                }
-                else
-                {
-                    $('#net_weight').val(gross_weight - tare_weight);
-                }
-            });
-        });
+        // $(document).ready(function () {
+        //     $('#gross_weight').on('input', function(){
+        //         var gross_weight = $(this).val();
+        //         var tare_weight = $('#tare_weight').val();
+        //         var net_weight = $('#net_weight').val();
+        //         if (gross_weight == "")
+        //         {
+        //             $('#net_weight').val('');
+        //         }
+        //         else
+        //         {
+        //             $('#net_weight').val(gross_weight - tare_weight);
+        //         }
+        //     });
+        // });
 
         $(document).ready(function() { 
 
@@ -923,6 +932,40 @@
             },
             labelField: 'name',
         })
+
+
+        // Calculate net weight + show error UNDER the field
+        $(document).ready(function() {
+            const $gross = $('#gross_weight');
+            const $tare = $('#tare_weight');
+            const $net = $('#net_weight');
+
+            // Create error div under the field (if not already)
+            if ($('#tare-error').length === 0) {
+                $tare.closest('.input-group').parent().append('<div id="tare-error" class="text-danger mt-1"></div>');
+            }
+
+            $('#gross_weight, #tare_weight').on('input', function() {
+                let grossWeight = parseFloat($gross.val()) || 0;
+                let tareWeight = parseFloat($tare.val()) || 0;
+
+                // Validation: Tare must be smaller than Gross
+                if (tareWeight >= grossWeight && grossWeight > 0) {
+                    $('#tare-error').text('Tare Weight must be smaller than Gross Weight');
+                    $gross.addClass('is-invalid');
+                } else {
+                    $('#tare-error').text('');
+                    $gross.removeClass('is-invalid');
+                }
+
+                // Auto-calculate Net Weight only if valid
+                if (grossWeight > 0 && tareWeight > 0 && tareWeight < grossWeight) {
+                    $net.val((grossWeight - tareWeight).toFixed(2));
+                } else {
+                    $net.val('');
+                }
+            });
+        });
     </script>
     
 @endpush

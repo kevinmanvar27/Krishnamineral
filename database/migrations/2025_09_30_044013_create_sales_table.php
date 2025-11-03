@@ -36,7 +36,7 @@ return new class extends Migration
             $table->decimal('carting_rate' , 10, 2)->nullable();
             $table->tinyInteger('carting_radio')->default(0);  
             $table->text('note')->nullable();
-            $table->tinyInteger('status')->default(0)->comment('0 for pending, 1 for completed');
+            $table->tinyInteger('status')->default(0)->comment('0 for pending, 1 for completed, 2 for completed after pending load (audit required)');
             $table->timestamps();
         });
     }   
