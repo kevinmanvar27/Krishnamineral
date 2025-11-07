@@ -48,6 +48,10 @@
                                 <div class="col-lg-4 fw-medium">Net Weight</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->net_weight ?? '-' }}</a></div>
                             </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Party Weight</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->party_weight ?? '-' }}</a></div>
+                            </div>
                             <hr class="mt-0">
                             <div class="row mb-4">
                                 <div class="col-lg-4 fw-medium">Material</div>

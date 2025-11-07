@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Purchase extends Model
 {
+    use LogsActivity;
+    
     protected $fillable = [
         'date_time',
         'vehicle_id',
@@ -24,6 +28,15 @@ class Purchase extends Model
         'note',
         'status'
     ];
+    
+    // Configure activity logging
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => "Purchase record {$eventName}");
+    }
     
     public function vehicle()
     {

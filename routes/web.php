@@ -23,6 +23,11 @@ use App\Http\Controllers\PurchaseQuarryController;
 use App\Http\Controllers\PurchaseReceiverController;
 use App\Http\Controllers\PurchaseQuarryReceiverController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\BlastingController;
+use App\Http\Controllers\BlasterNameController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\CartingController;
 
 // Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
@@ -59,13 +64,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchaseQuarry/editindex', [PurchaseQuarryController::class, 'editIndex'])->name('purchaseQuarry.editIndex');
     Route::get('/purchaseReceiver/editindex', [PurchaseReceiverController::class, 'editIndex'])->name('purchaseReceiver.editIndex');
     Route::get('/purchase/editindex', [PurchaseController::class, 'editIndex'])->name('purchase.editIndex');
+    Route::get('/blasting/editindex', [BlastingController::class, 'editIndex'])->name('blasting.editIndex');
+    Route::get('/blaster-name/editindex', [BlasterNameController::class, 'editIndex'])->name('blaster-name.editIndex');
+    
 
     Route::get('/sales/pendingLoads', [SalesController::class, 'pendingLoad'])->name('sales.pendingLoad');
     Route::get('/purchase/pendingLoads', [PurchaseController::class, 'pendingLoad'])->name('purchase.pendingLoad');
 
     Route::get('/sales/audit', [SalesController::class, 'salesAudit'])->name('sales.salesAudit');
+    Route::get('/sales/rate', [SalesController::class, 'rate'])->name('sales.rate');
     Route::get('/sales/{id}/show-ajax', [SalesController::class, 'showAjax'])->name('sales.showAjax');
     Route::post('/sales/{id}/update-party-weight', [SalesController::class, 'updatePartyWeight'])->name('sales.updatePartyWeight');
+    
+    // New routes for rate and GST updates
+    Route::post('/sales/{id}/update-rate', [SalesController::class, 'updateRate'])->name('sales.updateRate');
+    Route::post('/sales/bulk-update-rate', [SalesController::class, 'bulkUpdateRate'])->name('sales.bulkUpdateRate');
+
+    // Carting routes
+    Route::get('/carting', [CartingController::class, 'index'])->name('carting.index');
+    Route::post('/carting/{id}/update-carting', [CartingController::class, 'updateCarting'])->name('carting.updateCarting');
+    Route::post('/carting/bulk-update-carting', [CartingController::class, 'bulkUpdateCarting'])->name('carting.bulkUpdateCarting');
 
     // Search route
     Route::post('/search-challans', [SalesController::class, 'searchChallans'])->name('search.challans');
@@ -87,6 +105,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('purchaseQuarry', PurchaseQuarryController::class);
     Route::resource('purchaseReceiver', PurchaseReceiverController::class);
     Route::resource('purchase', PurchaseController::class);
+    Route::resource('blasting', BlastingController::class);
+    Route::resource('blaster-name', BlasterNameController::class);
 
 
     Route::post('/vehicle/fetch-details', [VehicleController::class, 'fetchDetails'])->name('vehicle.details');
@@ -104,4 +124,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/sales/{id}/sales-pdf', [SalesController::class, 'salesPdf'])->name('sales.sales-pdf');
     Route::get('/purchase/{id}/purchase-pdf', [PurchaseController::class, 'purchasePdf'])->name('purchase.purchase-pdf');
 
+    // Attendance routes
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/attendance/calendar', [AttendanceController::class, 'calendar'])->name('attendance.calendar');
+    Route::get('/attendance/print', [AttendanceController::class, 'print'])->name('attendance.print');
+    Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::put('/attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
+    Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
+    
+    // Activity Log routes
+    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+    Route::get('/activity-log/{id}', [ActivityLogController::class, 'show'])->name('activity-log.show');
 });

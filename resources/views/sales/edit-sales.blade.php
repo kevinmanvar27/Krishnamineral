@@ -44,7 +44,7 @@
                                                 <label for="challan_number" class="form-label mb-2">Challan Number </label>
                                                 <div class="input-group">
                                                     <div class="input-group-text">S_</div>
-                                                    <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('id', $sales->id == '' ? 0+1 : $sales->id+1) }}" readonly>
+                                                    <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('id', $sales->id == '' ? 0+1 : $sales->id) }}" readonly>
                                                     @error('id')<div class="text-danger">{{ $message }}</div>@enderror
                                                 </div>
                                             </div>
@@ -740,38 +740,24 @@
         $(document).ready(function() {
             function toggleRoyaltyReadonly() {
                 const selectedValue = $('#royalty_id').val();
+
                 if (selectedValue == "") {
-                    $('#royalty_number').prop('disabled', true).val();
-                    $('#royalty_tone').prop('disabled', true).val();
-                } 
-                else {
-                    $('#royalty_number').prop('disabled', false).val();
-                    $('#royalty_tone').prop('disabled', false).val();
-                }   
+                    // Disable and clear both fields
+                    $('#royalty_number').prop('disabled', true).val('');
+                    $('#royalty_tone').prop('disabled', true).val('');
+                } else {
+                    // Enable both fields (keep existing values)
+                    $('#royalty_number').prop('disabled', false);
+                    $('#royalty_tone').prop('disabled', false);
+                }
             }
 
+            // Run on page load
             toggleRoyaltyReadonly();
 
-            $('#royalty_id').change(function() {
-                toggleRoyaltyReadonly();
-            });
+            // Run when the select changes
+            $('#royalty_id').on('change', toggleRoyaltyReadonly);
         });
-
-        // $(document).ready(function () {
-        //     $('#gross_weight').on('input', function(){
-        //         var gross_weight = $(this).val();
-        //         var tare_weight = $('#tare_weight').val();
-        //         var net_weight = $('#net_weight').val();
-        //         if (gross_weight == "")
-        //         {
-        //             $('#net_weight').val('');
-        //         }
-        //         else
-        //         {
-        //             $('#net_weight').val(gross_weight - tare_weight);
-        //         }
-        //     });
-        // });
 
         $(document).ready(function() { 
 

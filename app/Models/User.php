@@ -5,10 +5,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, LogsActivity;
 
     protected $fillable = [
         'name', 
@@ -54,5 +56,13 @@ class User extends Authenticatable
         'password' => 'hashed',
         'last_login_at' => 'datetime',
     ];
-
+    
+    // Configure activity logging
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => "User {$eventName}");
+    }
 }

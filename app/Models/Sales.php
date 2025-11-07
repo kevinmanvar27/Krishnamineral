@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Sales extends Model
 {
+    use LogsActivity;
+    
     protected $fillable = [
         'date_time',
         'vehicle_id',
@@ -15,6 +19,7 @@ class Sales extends Model
         'driver_contact_number',
         'gross_weight',
         'net_weight',
+        'party_weight',
         'material_id',
         'loading_id',
         'place_id',
@@ -24,9 +29,21 @@ class Sales extends Model
         'royalty_tone',
         'driver_id',
         'carting_id',
+        'rate',
+        'gst',
+        'amount',
         'note',
         'status'
     ];
+    
+    // Configure activity logging
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => "Sales record {$eventName}");
+    }
     
     public function vehicle()
     {
@@ -62,5 +79,4 @@ class Sales extends Model
     {
         return $this->belongsTo(Driver::class);
     }
-
 }

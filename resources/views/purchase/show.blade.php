@@ -20,11 +20,11 @@
                             </div>
                             <hr class="mt-0">
                             <div class="row mb-4">
-                                <div class="col-lg-4 fw-medium">Sales Challan Number</div>
+                                <div class="col-lg-4 fw-medium">Purchase Challan Number</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ 'S_'.$purchases->id ?? '-' }}</a></div>
                             </div>
                             <div class="row mb-4">
-                                <div class="col-lg-4 fw-medium">Sales Date Time</div>
+                                <div class="col-lg-4 fw-medium">Purchase Date Time</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $purchases->date_time ?? '-' }}</a></div>
                             </div>
                             <hr class="mt-0">

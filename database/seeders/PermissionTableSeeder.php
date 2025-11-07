@@ -21,6 +21,9 @@ class PermissionTableSeeder extends Seeder
             'edit-sales',
             'pending-load-sales',
             'audit-sales',
+            'rate-sales',
+            'view-carting',
+            'edit-carting',
             'view-materials',
             'add-material',
             'edit-materials',
@@ -64,6 +67,9 @@ class PermissionTableSeeder extends Seeder
             'view-purchaseDriver',
             'add-purchaseDriver',
             'edit-purchaseDriver',
+            'view-attendance',
+            'add-attendance',
+            'view-activity-log'
         ];
 
         foreach ($permissions as $permission) {

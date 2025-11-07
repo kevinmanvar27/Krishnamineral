@@ -89,6 +89,11 @@
                                                             <a class="btn btn-info btn-sm me-2" href="{{ route('purchase.show',$purchase->id) }}">
                                                                 <i class="lni lni-eye text-white"></i>
                                                             </a>
+                                                            @if($purchase->status == '1')
+                                                                <a href="{{ route('purchase.purchase-pdf', $purchase->id) }}" target="_blank" class="btn btn-secondary btn-sm me-2">
+                                                                    <i class="lni lni-printer text-white"></i>
+                                                                </a>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @empty

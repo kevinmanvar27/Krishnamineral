@@ -30,14 +30,21 @@
                                         <table id="example" class="table table-striped table-bordered" style="width:100%">
                                             <thead>
                                                 <tr class="border-b">
-                                                    <th>No</th>
+                                                    <th>Challan Number</th>
                                                     <th>Transporter</th>
                                                     <th>Contact Number</th>
                                                     <th>Created AT</th>
                                                     <th>Action</th>
                                                 </tr>
                                                 <tr>
-                                                    <th></th>
+                                                    <th>
+                                                        <select id="searchChallan" class="form-select js-select2">
+                                                            <option value="">All Challans</option>
+                                                            @foreach($allChallans as $challan)
+                                                                <option value="{{ $challan }}">S_{{ $challan }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </th>
                                                     <th>
                                                         <select id="searchName" class="form-select js-select2">
                                                             <option value="">All Transporters</option>
@@ -62,7 +69,7 @@
                                                 @php $i = $i ?? 0; @endphp
                                                 @forelse ($sales as $key => $sale)
                                                     <tr>
-                                                        <td>{{ ++$i }}</td>
+                                                        <td>S_{{ $sale->id }}</td>
                                                         <td>{{ $sale->transporter }}</td>
                                                         <td>{{ $sale->contact_number }}</td>
                                                         <td>{{ $sale->created_at->timezone('Asia/Kolkata')->format('d-m-Y h:i A') }}</td>
@@ -70,6 +77,11 @@
                                                             <a class="btn btn-info btn-sm me-2" href="{{ route('sales.show',$sale->id) }}">
                                                                 <i class="lni lni-eye text-white"></i>
                                                             </a>
+                                                            @if($sale->status == '1')
+                                                                <a href="{{ route('sales.sales-pdf', $sale->id) }}" target="_blank" class="btn btn-secondary btn-sm me-2">
+                                                                    <i class="lni lni-printer text-white"></i>
+                                                                </a>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @empty
@@ -109,6 +121,7 @@
                     type: "GET",
                     data: {
                         page: page,
+                        challan: $('#searchChallan').val(),
                         transporter: $('#searchName').val(),
                         contact_number: $('#searchContact').val(),
                         date_from: $('#searchDateFrom').val(),
@@ -124,7 +137,7 @@
                 });
             }
 
-            $('#searchName, #searchDateFrom, #searchDateTo, #searchContact').on('change', function () {
+            $('#searchChallan, #searchName, #searchDateFrom, #searchDateTo, #searchContact').on('keyup change', function () {
                 fetch_data();
             });
 

@@ -6,21 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class Materials extends Model
+class Blasting extends Model
 {
     use LogsActivity;
-    
-    protected $fillable = [
-        'name',
-        'table_type',
-    ];
     
     // Configure activity logging
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logFillable()
+            ->logAll()
             ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "Material {$eventName}");
+            ->setDescriptionForEvent(fn(string $eventName) => "Blasting record {$eventName}");
     }
+    
+    // Add your model properties and methods here
 }

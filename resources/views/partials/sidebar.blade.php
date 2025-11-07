@@ -64,7 +64,8 @@
 									auth()->user()->can('add-sale') ||
 									auth()->user()->can('edit-sales')||
                                     auth()->user()->can('pending-load-sales') ||
-                                    auth()->user()->can('audit-sales');
+                                    auth()->user()->can('audit-sales') ||
+                                    auth()->user()->can('rate-sales');
 				@endphp
 				@if($canSales)
                     <li>
@@ -99,6 +100,11 @@
                                 <a href="{{ route('sales.salesAudit') }}"><i class='bx bx-radio-circle'></i>Sales Audit</a>
                             </li>
                             @endcan
+                            @can('rate-sales')
+                            <li>
+                                <a href="{{ route('sales.rate') }}"><i class='bx bx-radio-circle'></i>Sales Rate</a>
+                            </li>
+                            @endcan
                             <li>
                                 @php
                                     $canMaterials = auth()->user()->can('view-materials') ||
@@ -120,11 +126,11 @@
                                     $canRoyalty = auth()->user()->can('view-royalty') ||
                                                     auth()->user()->can('add-royalty') ||
                                                     auth()->user()->can('edit-royalty');
-                                                    
+                                    
                                     $canDriver = auth()->user()->can('view-driver') ||
                                                     auth()->user()->can('add-driver') ||
                                                     auth()->user()->can('edit-driver');
-                                                    
+                                    
                                     $canParty = auth()->user()->can('view-party') ||
                                                     auth()->user()->can('add-party') ||
                                                     auth()->user()->can('edit-party');
@@ -332,6 +338,27 @@
 				@endif
 
 				@php
+					$canCarting = auth()->user()->can('view-carting') ||
+									auth()->user()->can('edit-carting');
+				@endphp
+				@if($canCarting)
+					<li>
+						<a href="javascript:;" class="has-arrow">
+							<div class="parent-icon"><i class='bx bx-train'></i>
+							</div>
+							<div class="menu-title">Carting</div>
+						</a>
+						<ul>
+							@can('view-carting')
+								<li> 
+									<a href="{{ route('carting.index') }}"><i class='bx bx-radio-circle'></i>View Carting</a>
+								</li>
+							@endcan
+						</ul>
+					</li>
+				@endif
+
+				@php
 					$canPurchase = auth()->user()->can('view-purchase') ||
 									auth()->user()->can('add-purchase') ||
 									auth()->user()->can('edit-purchase') ||
@@ -509,7 +536,7 @@
                                         @if($canPurchaseReceiver)
                                             <li>
                                                 <a href="javascript:;" class="has-arrow">
-                                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                                    <div class="parent-icon"><i class='bx bx-group'></i>
                                                     </div>
                                                     <div class="menu-title">Receiver</div>
                                                 </a>
@@ -562,9 +589,78 @@
                                     </ul>
                                 @endif
                             </li>
+                            
                         </ul>
                     </li>
 				@endif
+                <!-- @php
+                    $attendancePermission = auth()->user()->can('view-attendance') ||
+                                            auth()->user()->can('add-attendance');
+                @endphp
+                @if($attendancePermission)
+                    <li>
+                        <a href="javascript:;" class="has-arrow">
+                            <div class="parent-icon"><i class='bx bx-calendar'></i>
+                            </div>
+                            <div class="menu-title">Attendance</div>
+                        </a>
+                        <ul>
+                            <li> 
+                                <a href="{{ route('attendance.calendar') }}"><i class='bx bx-radio-circle'></i>View Attendance</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif -->
+
+
+                <!-- <li>
+                    <a href="javascript:;" class="has-arrow">
+                        <div class="parent-icon"><i class='bx bx-bomb'></i>
+                        </div>
+                        <div class="menu-title">Blasting</div>
+                    </a>
+                    <ul>
+                            <li> 
+                                <a href="{{ route('blasting.index') }}"><i class='bx bx-radio-circle'></i>View Blasting</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('blasting.create') }}"><i class='bx bx-radio-circle'></i>Add Blasting</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('blasting.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Blasting</a>
+                            </li>
+                        <li>
+                            <li>
+                                <a href="javascript:;" class="has-arrow">
+                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                    </div>
+                                    <div class="menu-title">Blaster Name</div>
+                                </a>
+                                <ul>
+                                    <li> 
+                                        <a href="{{ route('blaster-name.index') }}"><i class='bx bx-radio-circle'></i>View Blaster Name</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('blaster-name.create') }}"><i class='bx bx-radio-circle'></i>Add Blaster Name</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('blaster-name.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Blaster Name</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </li>
+                    </ul>
+                </li> -->
+
+                @if(auth()->user()->can('view-activity-log'))
+                <li>
+                    <a href="{{ route('activity-log.index') }}">
+                        <div class="parent-icon"><i class='bx bx-history'></i>
+                        </div>
+                        <div class="menu-title">Activity Log</div>
+                    </a>
+                </li>
+                @endif
 			</ul>
 			<!--end navigation-->
 		</div>

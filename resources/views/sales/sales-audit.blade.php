@@ -46,18 +46,17 @@
                                     <table id="example" class="table table-striped table-bordered" style="width:100%">
                                         <thead>
                                             <tr class="border-b">
-                                                <th>Date & Time</th>
                                                 <th>Challan Number</th>
                                                 <th>Party</th>
                                                 <th>Net Weight</th>
                                                 <th>Party Weight</th>
                                                 <th>Material</th>
+                                                <th>Date & Time</th>
                                                 <th>Action</th>
                                             </tr>
                                             <tr>
-                                                <th></th>
                                                 <th>
-                                                    <select id="searchChallan" class="form-select">
+                                                    <select id="searchChallan" class="form-select js-select2">
                                                         <option value="">All Challans</option>
                                                         @foreach($allChallans as $challan)
                                                             <option value="{{ $challan }}">S_{{ $challan }}</option>
@@ -65,7 +64,7 @@
                                                     </select>
                                                 </th>
                                                 <th>
-                                                    <select id="searchParty" class="form-select">
+                                                    <select id="searchParty" class="form-select js-select2">
                                                         <option value="">All Parties</option>
                                                         @foreach($allParties as $party)
                                                             <option value="{{ $party->id }}">{{ $party->name }}</option>
@@ -75,7 +74,7 @@
                                                 <th></th>
                                                 <th></th>
                                                 <th>
-                                                    <select id="searchMaterial" class="form-select">
+                                                    <select id="searchMaterial" class="form-select js-select2">
                                                         <option value="">All Materials</option>
                                                         @foreach($allMaterials as $material)
                                                             <option value="{{ $material->id }}">{{ $material->name }}</option>
@@ -83,13 +82,13 @@
                                                     </select>
                                                 </th>
                                                 <th></th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody id="tableData">
                                             @php $i = $i ?? 0; @endphp
                                             @forelse ($sales as $sale)
                                                 <tr data-id="{{ $sale->id }}">
-                                                    <td>{{ $sale->created_at->timezone('Asia/Kolkata')->format('d-m-Y h:i A') }}</td>
                                                     <td>
                                                         <a href="javascript:void(0)" class="challan-link" data-sale-id="{{ $sale->id }}">
                                                             S_{{ $sale->id }}
@@ -103,6 +102,7 @@
                                                                placeholder="Enter party weight" min="0">
                                                     </td>
                                                     <td>{{ $sale->material->name ?? '-' }}</td>
+                                                    <td>{{ $sale->created_at->timezone('Asia/Kolkata')->format('d-m-Y h:i A') }}</td>
                                                     <td>
                                                         <button class="btn btn-success btn-sm update-party-weight">OK</button>
                                                     </td>
@@ -220,7 +220,8 @@
                 success: function (response) {
                     if (response.success) {
                         // Remove the row from the table since status is now 1
-                        alert('Party weight updated successfully');
+                        // alert('Party weight updated successfully');
+                        toastr.success('Sales records updated successfully');
                         row.remove();
                     } else {
                         alert('Error updating party weight: ' + response.message);

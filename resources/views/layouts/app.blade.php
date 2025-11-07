@@ -24,6 +24,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 	<link href="{{ asset('build/assets/css/app.css') }}" rel="stylesheet">
 	<link href="{{ asset('build/assets/css/icons.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 	<!-- Theme Style CSS -->
 	<link rel="stylesheet" href="{{ asset('build/assets/css/dark-theme.css') }}"/>
 	<link rel="stylesheet" href="{{ asset('build/assets/css/semi-dark.css') }}"/>
@@ -144,6 +145,7 @@
 	<!-- Bootstrap JS -->
 	<script src="{{ asset('build/assets/js/jquery.min.js')}}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 	<script src="{{ asset('build/assets/js/bootstrap.bundle.min.js')}}"></script>
 	<!--plugins-->
 	<script src="{{ asset('build/assets/plugins/simplebar/js/simplebar.min.js')}}"></script>

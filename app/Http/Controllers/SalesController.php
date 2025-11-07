@@ -21,6 +21,11 @@ class SalesController extends Controller
     {
         $query = Sales::query();
 
+        // Add challan (ID) filter
+        if ($request->challan) {
+            $query->where('id', 'like', '%' . $request->challan . '%');
+        }
+
         if ($request->transporter) {
             $query->where('transporter', 'like', '%' . $request->transporter . '%');
         }
@@ -48,13 +53,14 @@ class SalesController extends Controller
             ->map(fn($d) => $d->created_at->format('Y-m-d'));
         $allTransporters = Sales::select('transporter')->distinct()->pluck('transporter');
         $allContacts = Sales::select('contact_number')->distinct()->pluck('contact_number');
+        $allChallans = Sales::select('id')->distinct()->pluck('id');
 
         if ($request->ajax()) {
-            return view('sales.index', compact('sales', 'allTransporters', 'allDates', 'allContacts'))
+            return view('sales.index', compact('sales', 'allTransporters', 'allDates', 'allContacts', 'allChallans'))
                 ->with('i', ($sales->currentPage() - 1) * $sales->perPage());
         }
 
-        return view('sales.index', compact('sales', 'allTransporters', 'allDates', 'allContacts'));    
+        return view('sales.index', compact('sales', 'allTransporters', 'allDates', 'allContacts', 'allChallans'));    
     }
 
     public function editIndex(Request $request)
@@ -235,7 +241,10 @@ class SalesController extends Controller
             'royalty_tone' => 'required_with:royalty_id',
             'driver_id' => 'required|exists:drivers,id',
             'carting_id' => 'required',
-            'note' => 'required',
+            'rate' => 'nullable|numeric',
+            'gst' => 'nullable|numeric',
+            'amount' => 'nullable|numeric',
+            'note' => 'nullable',
         ]);
 
         if ($validated['gross_weight'] <= $validated['tare_weight']) {
@@ -376,7 +385,7 @@ class SalesController extends Controller
     public function updatePartyWeight(Request $request, $id)
     {
         $request->validate([
-            'party_weight' => 'required|numeric|min:0',
+            'party_weight' => 'nullable|numeric|min:0',
         ]);
 
         $sale = Sales::findOrFail($id);
@@ -394,5 +403,171 @@ class SalesController extends Controller
         $sale->save();
 
         return response()->json(['success' => true, 'message' => 'Party weight updated successfully']);
+    }
+
+    public function updateRate(Request $request, $id)
+    {
+        $request->validate([
+            'rate' => 'nullable|numeric|min:0',
+            'gst' => 'nullable|numeric|min:0',
+        ]);
+
+        $sale = Sales::findOrFail($id);
+        
+        if ($request->filled('rate')) {
+            $sale->rate = $request->rate;
+        }
+        
+        if ($request->filled('gst')) {
+            $sale->gst = $request->gst;
+        }
+        
+        // Calculate amount using party_weight if available, otherwise net_weight
+        $weight = !is_null($sale->party_weight) ? $sale->party_weight : $sale->net_weight;
+        $amount = 0;
+        
+        if (!is_null($sale->rate) && !is_null($weight)) {
+            $amount = $sale->rate * $weight;
+            if (!is_null($sale->gst)) {
+                $amount += ($amount * $sale->gst / 100);
+            }
+            $sale->amount = $amount;
+        }
+        
+        $sale->save();
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Sales record updated successfully',
+            'amount' => $amount
+        ]);
+    }
+
+    public function bulkUpdateRate(Request $request)
+    {
+        $request->validate([
+            'sales' => 'required|array',
+            'sales.*.id' => 'required|exists:sales,id',
+            'sales.*.rate' => 'nullable|numeric|min:0',
+            'sales.*.gst' => 'nullable|numeric|min:0',
+        ]);
+
+        foreach ($request->sales as $saleData) {
+            $sale = Sales::findOrFail($saleData['id']);
+            
+            if (!is_null($saleData['rate'])) {
+                $sale->rate = $saleData['rate'];
+            }
+            
+            if (!is_null($saleData['gst'])) {
+                $sale->gst = $saleData['gst'];
+            }
+            
+            // Calculate amount using party_weight if available, otherwise net_weight
+            $weight = !is_null($sale->party_weight) ? $sale->party_weight : $sale->net_weight;
+            $amount = 0;
+            
+            if (!is_null($sale->rate) && !is_null($weight)) {
+                $amount = $sale->rate * $weight;
+                if (!is_null($sale->gst)) {
+                    $amount += ($amount * $sale->gst / 100);
+                }
+                $sale->amount = $amount;
+            }
+            
+            $sale->save();
+        }
+
+        return response()->json(['success' => true, 'message' => 'Sales records updated successfully']);
+    }
+
+    public function rate(Request $request)
+    {
+        $query = Sales::query();
+
+        // Apply filters if provided
+        if ($request->challan) {
+            $query->where('id', 'like', '%' . $request->challan . '%');
+        }
+
+        if ($request->vehicle) {
+            $query->where('vehicle_id', $request->vehicle);
+        }
+
+        if ($request->net_weight) {
+            $query->where('net_weight', $request->net_weight);
+        }
+
+        if ($request->party_weight) {
+            $query->where('party_weight', $request->party_weight);
+        }
+
+        if ($request->material) {
+            $query->where('material_id', $request->material);
+        }
+
+        if ($request->place) {
+            $query->where('place_id', $request->place);
+        }
+
+        if ($request->party) {
+            $query->where('party_id', $request->party);
+        }
+
+        if ($request->royalty) {
+            $query->where('royalty_id', $request->royalty);
+        }
+
+        if ($request->rate) {
+            $query->where('rate', $request->rate);
+        }
+
+        if ($request->gst) {
+            $query->where('gst', $request->gst);
+        }
+
+        // Always filter for carting_id = 0 (carting records only)
+        $query->where('carting_id', 0);
+
+        if ($request->date_from && $request->date_to) {
+            $query->whereBetween('created_at', [
+                $request->date_from . ' 00:00:00',
+                $request->date_to . ' 23:59:59'
+            ]);
+        } elseif ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        } elseif ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Get all sales with their relationships where status = 1
+        $sales = $query->with(['party', 'material', 'vehicle', 'place', 'royalty'])
+            ->where('status', 1)
+            ->latest()
+            ->paginate(10);
+
+        $allDates = Sales::select('created_at')
+            ->where('status', 1)
+            ->where('carting_id', 0)
+            ->distinct()
+            ->get()
+            ->map(fn($d) => $d->created_at->format('Y-m-d'));
+
+        // Get all unique values for filters
+        $allChallans = Sales::where('status', 1)->where('carting_id', 0)->select('id')->distinct()->pluck('id');
+        $allVehicles = Vehicle::whereIn('id', Sales::where('status', 1)->where('carting_id', 0)->distinct()->pluck('vehicle_id'))->get();
+        $allNetWeights = Sales::where('status', 1)->where('carting_id', 0)->select('net_weight')->distinct()->pluck('net_weight');
+        $allPartyWeights = Sales::where('status', 1)->where('carting_id', 0)->select('party_weight')->distinct()->pluck('party_weight');
+        $allMaterials = Materials::whereIn('id', Sales::where('status', 1)->where('carting_id', 0)->distinct()->pluck('material_id'))->get();
+        $allPlaces = Places::whereIn('id', Sales::where('status', 1)->where('carting_id', 0)->distinct()->pluck('place_id'))->get();
+        $allParties = Party::whereIn('id', Sales::where('status', 1)->where('carting_id', 0)->distinct()->pluck('party_id'))->get();
+        $allRoyalties = Royalty::whereIn('id', Sales::where('status', 1)->where('carting_id', 0)->distinct()->pluck('royalty_id'))->get();
+
+        if ($request->ajax()) {
+            return view('sales.rate', compact('sales', 'allDates', 'allChallans', 'allVehicles', 'allNetWeights', 'allPartyWeights', 'allMaterials', 'allPlaces', 'allParties', 'allRoyalties'))
+                ->with('i', ($sales->currentPage() - 1) * $sales->perPage());
+        }
+
+        return view('sales.rate', compact('sales', 'allDates', 'allChallans', 'allVehicles', 'allNetWeights', 'allPartyWeights', 'allMaterials', 'allPlaces', 'allParties', 'allRoyalties'));
     }
 }

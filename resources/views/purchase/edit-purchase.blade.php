@@ -44,7 +44,7 @@
                                             <label for="challan_number" class="form-label mb-2">Challan Number </label>
                                             <div class="input-group">
                                                 <div class="input-group-text">P_</div>
-                                                <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('id', $purchase->id == '' ? 0+1 : $purchase->id+1) }}" readonly>
+                                                <input type="text" name="id" placeholder="Challan Number" class="form-control"  id="challan_number"  value="{{ old('id', $purchase->id == '' ? 0+1 : $purchase) }}" readonly>
                                                 @error('id')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>

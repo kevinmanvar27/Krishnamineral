@@ -1,0 +1,232 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Attendance;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+class AttendanceController extends Controller
+{
+    public function index(Request $request)
+    {
+        // Redirect to calendar view directly
+        $month = $request->get('month', date('m'));
+        $year = $request->get('year', date('Y'));
+        $userId = $request->get('user_id', null);
+        
+        // If no user_id is specified, get the first user by default
+        if (!$userId) {
+            $firstUser = User::orderBy('name')->first();
+            $userId = $firstUser ? $firstUser->id : null;
+        }
+        
+        return redirect()->route('attendance.calendar', [
+            'month' => $month,
+            'year' => $year,
+            'user_id' => $userId
+        ]);
+    }
+
+    public function calendar(Request $request)
+    {
+        $month = $request->get('month', date('m'));
+        $year = $request->get('year', date('Y'));
+        $userId = $request->get('user_id', null);
+        
+        // If no user_id is specified, get the first user by default
+        if (!$userId) {
+            $firstUser = User::orderBy('name')->first();
+            $userId = $firstUser ? $firstUser->id : null;
+        }
+        
+        // Get employees - if user_id is specified, get only that user, otherwise get first user
+        if ($userId) {
+            $employees = User::where('id', $userId)->orderBy('name')->get();
+        } else {
+            $employees = User::orderBy('name')->get();
+        }
+        
+        // Get the current user (first user in the list or the filtered user)
+        $currentUser = $employees->first();
+        
+        // Get all employees for the filter dropdown
+        $allEmployees = User::orderBy('name')->get();
+        
+        // Get roles for user type mapping
+        $roles = Role::pluck('name', 'id')->all();
+        
+        // Get attendance records for the selected month/year
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+        
+        $attendancesQuery = Attendance::whereBetween('date', [$startDate, $endDate]);
+        
+        // If user_id is specified, filter attendances for that user only
+        if ($userId) {
+            $attendancesQuery->where('employee_id', $userId);
+        }
+        
+        $attendances = $attendancesQuery->get();
+        
+        // Group attendances by employee
+        $employeeAttendances = [];
+        foreach ($employees as $employee) {
+            $employeeAttendances[$employee->id] = [
+                'employee' => $employee,
+                'records' => []
+            ];
+            
+            // Initialize records for each day of the month
+            $daysInMonth = $startDate->daysInMonth;
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $date = Carbon::createFromDate($year, $month, $day)->format('Y-m-d');
+                $employeeAttendances[$employee->id]['records'][$date] = null;
+            }
+            
+            // Fill in actual attendance records
+            $employeeRecords = $attendances->where('employee_id', $employee->id);
+            foreach ($employeeRecords as $record) {
+                $employeeAttendances[$employee->id]['records'][$record->date->format('Y-m-d')] = $record;
+            }
+        }
+        
+        return view('attendance.calendar', compact('employees', 'employeeAttendances', 'month', 'year', 'allEmployees', 'userId', 'currentUser', 'roles'));
+    }
+
+    public function print(Request $request)
+    {
+        $month = $request->get('month', date('m'));
+        $year = $request->get('year', date('Y'));
+        $userId = $request->get('user_id', null);
+        
+        // If no user_id is specified, get the first user by default
+        if (!$userId) {
+            $firstUser = User::orderBy('name')->first();
+            $userId = $firstUser ? $firstUser->id : null;
+        }
+        
+        // Get employees - if user_id is specified, get only that user, otherwise get first user
+        if ($userId) {
+            $employees = User::where('id', $userId)->orderBy('name')->get();
+        } else {
+            $employees = User::orderBy('name')->get();
+        }
+        
+        // Get the current user (first user in the list or the filtered user)
+        $currentUser = $employees->first();
+        
+        // Get all employees for the filter dropdown
+        $allEmployees = User::orderBy('name')->get();
+        
+        // Get roles for user type mapping
+        $roles = Role::pluck('name', 'id')->all();
+        
+        // Get attendance records for the selected month/year
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+        
+        $attendancesQuery = Attendance::whereBetween('date', [$startDate, $endDate]);
+        
+        // If user_id is specified, filter attendances for that user only
+        if ($userId) {
+            $attendancesQuery->where('employee_id', $userId);
+        }
+        
+        $attendances = $attendancesQuery->get();
+        
+        // Group attendances by employee
+        $employeeAttendances = [];
+        foreach ($employees as $employee) {
+            $employeeAttendances[$employee->id] = [
+                'employee' => $employee,
+                'records' => []
+            ];
+            
+            // Initialize records for each day of the month
+            $daysInMonth = $startDate->daysInMonth;
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $date = Carbon::createFromDate($year, $month, $day)->format('Y-m-d');
+                $employeeAttendances[$employee->id]['records'][$date] = null;
+            }
+            
+            // Fill in actual attendance records
+            $employeeRecords = $attendances->where('employee_id', $employee->id);
+            foreach ($employeeRecords as $record) {
+                $employeeAttendances[$employee->id]['records'][$record->date->format('Y-m-d')] = $record;
+            }
+        }
+        
+        // Load the PDF view with the same data
+        $pdf = Pdf::loadView('attendance.pdf', compact('employees', 'employeeAttendances', 'month', 'year', 'allEmployees', 'userId', 'currentUser', 'roles', 'startDate', 'endDate'));
+        
+        // Return the PDF as a download
+        return $pdf->download('Attendance_Calendar_' . $year . '_' . sprintf('%02d', $month) . '.pdf');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:users,id',
+            'date' => 'required|date',
+            'type_attendance' => 'required|in:1,2,3',
+            'extra_hours' => 'nullable|integer|min:0',
+            'driver_tuck_trip' => 'nullable|integer|min:0'
+        ]);
+
+        $attendance = Attendance::updateOrCreate(
+            [
+                'employee_id' => $request->employee_id,
+                'date' => $request->date
+            ],
+            [
+                'type_attendance' => $request->type_attendance,
+                'extra_hours' => $request->extra_hours ?? 0,
+                'driver_tuck_trip' => $request->driver_tuck_trip ?? 0,
+                'status' => 1
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance record saved successfully.'
+        ]);
+    }
+
+    public function update(Request $request, Attendance $attendance)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:users,id',
+            'date' => 'required|date',
+            'type_attendance' => 'required|in:1,2,3',
+            'extra_hours' => 'nullable|integer|min:0',
+            'driver_tuck_trip' => 'nullable|integer|min:0'
+        ]);
+
+        $attendance->update([
+            'employee_id' => $request->employee_id,
+            'date' => $request->date,
+            'type_attendance' => $request->type_attendance,
+            'extra_hours' => $request->extra_hours ?? 0,
+            'driver_tuck_trip' => $request->driver_tuck_trip ?? 0
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance record updated successfully.'
+        ]);
+    }
+
+    public function destroy(Attendance $attendance)
+    {
+        $attendance->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance record deleted successfully.'
+        ]);
+    }
+}
