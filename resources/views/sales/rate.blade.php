@@ -62,6 +62,7 @@
                                                 <th>GST</th>
                                                 <th>Amount</th>
                                                 <th>Carting Type</th>
+                                                <th>Action</th>
                                             </tr>
                                             <tr>
                                                 <th>
@@ -148,9 +149,7 @@
                                             @forelse ($sales as $sale)
                                                 <tr data-id="{{ $sale->id }}">
                                                     <td>
-                                                        <a href="javascript:void(0)" class="challan-link" data-sale-id="{{ $sale->id }}">
-                                                            S_{{ $sale->id }}
-                                                        </a>
+                                                        S_{{ $sale->id }}
                                                     </td>
                                                     <td>{{ $sale->vehicle->name ?? '-' }}</td>
                                                     <td>{{ $sale->net_weight ?? '-' }}</td>
@@ -176,6 +175,11 @@
                                                     </td>
                                                     <td>{{ $sale->amount ?? '-' }}</td>
                                                     <td>Carting</td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" class="challan-link btn btn-info btn-sm text-white" data-sale-id="{{ $sale->id }}">
+                                                            <i class="lni lni-eye"></i>
+                                                        </a>
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>

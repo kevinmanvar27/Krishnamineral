@@ -261,7 +261,7 @@ class PurchaseController extends Controller
             'receiver_id' => 'required|exists:purchase_receivers,id',
             'driver_id' => 'required|exists:drivers,id',
             'carting_id' => 'required',
-            'note' => 'required',
+            'note' => 'nullable',
         ]);
 
         if ($validated['gross_weight'] <= $validated['tare_weight']) {

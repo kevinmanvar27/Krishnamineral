@@ -90,9 +90,7 @@
                                             @forelse ($sales as $sale)
                                                 <tr data-id="{{ $sale->id }}">
                                                     <td>
-                                                        <a href="javascript:void(0)" class="challan-link" data-sale-id="{{ $sale->id }}">
-                                                            S_{{ $sale->id }}
-                                                        </a>
+                                                        S_{{ $sale->id }}
                                                     </td>
                                                     <td>{{ $sale->party->name ?? '-' }}</td>
                                                     <td>{{ $sale->net_weight ?? '-' }}</td>
@@ -105,6 +103,9 @@
                                                     <td>{{ $sale->created_at->timezone('Asia/Kolkata')->format('d-m-Y h:i A') }}</td>
                                                     <td>
                                                         <button class="btn btn-success btn-sm update-party-weight">OK</button>
+                                                        <a href="javascript:void(0)" class="btn btn-info btn-sm text-white challan-link" data-sale-id="{{ $sale->id }}">
+                                                            <i class="lni lni-eye"></i>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             @empty
