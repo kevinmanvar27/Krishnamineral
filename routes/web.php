@@ -73,6 +73,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/sales/audit', [SalesController::class, 'salesAudit'])->name('sales.salesAudit');
     Route::get('/sales/rate', [SalesController::class, 'rate'])->name('sales.rate');
+    Route::get('/sales/statement', [SalesController::class, 'salesStatement'])->name('sales.statement');
+    Route::get('/sales/statement/print', [SalesController::class, 'printStatement'])->name('sales.statement.print');
     Route::get('/sales/{id}/show-ajax', [SalesController::class, 'showAjax'])->name('sales.showAjax');
     Route::post('/sales/{id}/update-party-weight', [SalesController::class, 'updatePartyWeight'])->name('sales.updatePartyWeight');
     

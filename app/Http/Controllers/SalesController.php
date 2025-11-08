@@ -342,6 +342,234 @@ class SalesController extends Controller
         return view('sales.sales-audit', compact('sales', 'allDates', 'allChallans', 'allParties', 'allMaterials'));
     }
 
+    public function salesStatement(Request $request)
+    {
+        $query = Sales::query();
+
+        // Apply filters if provided
+        if ($request->party_name) {
+            $party = Party::where('name', $request->party_name)->first();
+            if ($party) {
+                $query->where('party_id', $party->id);
+            }
+            // If party not found, don't add any filter (show no results)
+        }
+        if ($request->material_name) {
+            $query->where('material_id', $request->material_name);
+        }
+
+        // Handle date filtering properly
+        if ($request->date_from && $request->date_to) {
+            // Both dates provided - filter between dates (inclusive)
+            $query->whereBetween('created_at', [
+                $request->date_from . ' 00:00:00',
+                $request->date_to . ' 23:59:59'
+            ]);
+        } elseif ($request->date_from) {
+            // Only from date provided
+            $query->whereDate('created_at', '>=', $request->date_from);
+        } elseif ($request->date_to) {
+            // Only to date provided
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Get all sales with their relationships where status = 1 (completed sales)
+        $sales = $query->with(['party', 'material', 'vehicle', 'place', 'royalty'])
+            ->where('status', 1)
+            ->latest()
+            ->paginate(10);
+
+        // Group sales by party for party-wise table
+        $partyWiseSales = [];
+        foreach ($sales as $sale) {
+            $partyId = $sale->party_id;
+            if (!isset($partyWiseSales[$partyId])) {
+                $partyWiseSales[$partyId] = [
+                    'party' => $sale->party,
+                    'sales' => [],
+                    'challanWiseData' => [], // For challan-wise totals
+                    'netWeightTotal' => 0,
+                    'partyWeightTotal' => 0,
+                    'amountTotal' => 0
+                ];
+            }
+            
+            // Add sale to party data
+            $partyWiseSales[$partyId]['sales'][] = $sale;
+            
+            // Initialize challan-wise data if not exists
+            $challanId = $sale->id;
+            if (!isset($partyWiseSales[$partyId]['challanWiseData'][$challanId])) {
+                $partyWiseSales[$partyId]['challanWiseData'][$challanId] = [
+                    'challanNumber' => 'S_' . $sale->id,
+                    'netWeight' => 0,
+                    'partyWeight' => 0,
+                    'amount' => 0,
+                    'records' => []
+                ];
+            }
+            
+            // Add sale to challan data
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['records'][] = $sale;
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['netWeight'] += $sale->net_weight ?? 0;
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['partyWeight'] += $sale->party_weight ?? 0;
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['amount'] += $sale->amount ?? 0;
+            
+            // Update party totals
+            $partyWiseSales[$partyId]['netWeightTotal'] += $sale->net_weight ?? 0;
+            $partyWiseSales[$partyId]['partyWeightTotal'] += $sale->party_weight ?? 0;
+            $partyWiseSales[$partyId]['amountTotal'] += $sale->amount ?? 0;
+        }
+
+        // Calculate grand totals
+        $grandTotalNetWeight = $sales->sum('net_weight');
+        $grandTotalPartyWeight = $sales->sum('party_weight');
+        $grandTotalAmount = $sales->sum('amount');
+
+        // Get all unique values for filters
+        $allParties = Party::whereIn('id', Sales::where('status', 1)->distinct()->pluck('party_id'))->get();
+        $allMaterials = Materials::whereIn('id', Sales::where('status', 1)->distinct()->pluck('material_id'))->get();
+
+        // Don't pass filter values to the view since we're handling this in JavaScript
+        // This makes it consistent with other modules
+        $filterValues = [];
+
+        if ($request->ajax()) {
+            return view('sales.statement', compact('sales', 'partyWiseSales', 'allParties', 'allMaterials', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'filterValues'))
+                ->with('i', ($sales->currentPage() - 1) * $sales->perPage())
+                ->render();
+        }
+
+        return view('sales.statement', compact('sales', 'partyWiseSales', 'allParties', 'allMaterials', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'filterValues'));
+    }
+
+    public function printStatement(Request $request)
+    {
+        $query = Sales::query();
+
+        // Apply filters if provided
+        if ($request->party_name) {
+            $party = Party::where('name', $request->party_name)->first();
+            if ($party) {
+                $query->where('party_id', $party->id);
+            } else {
+                $query->where('party_id', 0); // No results if party not found
+            }
+        }
+        
+        // Material filter for print statement
+        if ($request->material_name) {
+            $query->where('material_id', $request->material_name);
+        }
+
+        // Handle date filtering properly
+        if ($request->date_from && $request->date_to) {
+            // Both dates provided - filter between dates (inclusive)
+            $query->whereBetween('created_at', [
+                $request->date_from . ' 00:00:00',
+                $request->date_to . ' 23:59:59'
+            ]);
+        } elseif ($request->date_from) {
+            // Only from date provided
+            $query->whereDate('created_at', '>=', $request->date_from);
+        } elseif ($request->date_to) {
+            // Only to date provided
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // If a specific challan is requested, filter by that challan
+        if ($request->challan_id) {
+            $query->where('id', $request->challan_id);
+        }
+
+        // Get all sales with their relationships where status = 1 (completed sales)
+        $sales = $query->with(['party', 'material', 'vehicle', 'place', 'royalty'])
+            ->where('status', 1)
+            ->latest()
+            ->get(); // Get all records without pagination for printing
+
+        // Group sales by party for party-wise table
+        $partyWiseSales = [];
+        foreach ($sales as $sale) {
+            $partyId = $sale->party_id;
+            if (!isset($partyWiseSales[$partyId])) {
+                $partyWiseSales[$partyId] = [
+                    'party' => $sale->party,
+                    'sales' => [],
+                    'challanWiseData' => [], // For challan-wise totals
+                    'netWeightTotal' => 0,
+                    'partyWeightTotal' => 0,
+                    'amountTotal' => 0
+                ];
+            }
+            
+            // Add sale to party data
+            $partyWiseSales[$partyId]['sales'][] = $sale;
+            
+            // Initialize challan-wise data if not exists
+            $challanId = $sale->id;
+            if (!isset($partyWiseSales[$partyId]['challanWiseData'][$challanId])) {
+                $partyWiseSales[$partyId]['challanWiseData'][$challanId] = [
+                    'challanNumber' => 'S_' . $sale->id,
+                    'netWeight' => 0,
+                    'partyWeight' => 0,
+                    'amount' => 0,
+                    'records' => []
+                ];
+            }
+            
+            // Add sale to challan data
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['records'][] = $sale;
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['netWeight'] += $sale->net_weight ?? 0;
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['partyWeight'] += $sale->party_weight ?? 0;
+            $partyWiseSales[$partyId]['challanWiseData'][$challanId]['amount'] += $sale->amount ?? 0;
+            
+            // Update party totals
+            $partyWiseSales[$partyId]['netWeightTotal'] += $sale->net_weight ?? 0;
+            $partyWiseSales[$partyId]['partyWeightTotal'] += $sale->party_weight ?? 0;
+            $partyWiseSales[$partyId]['amountTotal'] += $sale->amount ?? 0;
+        }
+
+        // If printing a specific challan, use the challan PDF view
+        if ($request->challan_id && isset($partyWiseSales) && count($partyWiseSales) > 0) {
+            // Get the first party (there should only be one when filtering by challan_id)
+            $partyData = reset($partyWiseSales);
+            $challanData = $partyData['challanWiseData'][$request->challan_id] ?? null;
+            
+            if ($challanData) {
+                // Load the challan PDF view
+                $pdf = Pdf::loadView('sales.challan-pdf', compact('challanData', 'partyData'));
+                
+                // Set paper size and orientation
+                $pdf->setPaper('A4', 'portrait');
+                
+                // Return the PDF as a download
+                return $pdf->download('Challan_' . $challanData['challanNumber'] . '.pdf');
+            }
+        }
+
+        // Calculate grand totals
+        $grandTotalNetWeight = $sales->sum('net_weight');
+        $grandTotalPartyWeight = $sales->sum('party_weight');
+        $grandTotalAmount = $sales->sum('amount');
+
+        // Prepare filter values for the view
+        $filterValues = [
+            'party_name' => $request->party_name ?? '',
+            'date_from' => $request->date_from ?? '',
+            'date_to' => $request->date_to ?? ''
+        ];
+
+        // Load the PDF view with the same data
+        $pdf = Pdf::loadView('sales.statement-pdf', compact('sales', 'partyWiseSales', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'filterValues'));
+        
+        // Set paper size and orientation
+        $pdf->setPaper('A4', 'landscape');
+        
+        // Return the PDF as a download
+        return $pdf->download('Sales_Statement.pdf');
+    }
+
     public function searchChallans(Request $request)
     {
         $module = $request->module;
@@ -390,12 +618,12 @@ class SalesController extends Controller
 
         $sale = Sales::findOrFail($id);
         
-        // If party_weight is provided and not empty, use it
+        // If party_weight is provided and not empty, and not zero, use it
         // Otherwise, it means we're using the net weight from the frontend
-        if ($request->filled('party_weight')) {
+        if ($request->filled('party_weight') && $request->party_weight != 0) {
             $sale->party_weight = $request->party_weight;
         } else {
-            // Use net weight if party weight is not provided
+            // Use net weight if party weight is not provided or is zero
             $sale->party_weight = $sale->net_weight;
         }
         
@@ -422,8 +650,8 @@ class SalesController extends Controller
             $sale->gst = $request->gst;
         }
         
-        // Calculate amount using party_weight if available, otherwise net_weight
-        $weight = !is_null($sale->party_weight) ? $sale->party_weight : $sale->net_weight;
+        // Calculate amount using party_weight if available and not zero, otherwise net_weight
+        $weight = (!is_null($sale->party_weight) && $sale->party_weight != 0) ? $sale->party_weight : $sale->net_weight;
         $amount = 0;
         
         if (!is_null($sale->rate) && !is_null($weight)) {
@@ -463,8 +691,8 @@ class SalesController extends Controller
                 $sale->gst = $saleData['gst'];
             }
             
-            // Calculate amount using party_weight if available, otherwise net_weight
-            $weight = !is_null($sale->party_weight) ? $sale->party_weight : $sale->net_weight;
+            // Calculate amount using party_weight if available and not zero, otherwise net_weight
+            $weight = (!is_null($sale->party_weight) && $sale->party_weight != 0) ? $sale->party_weight : $sale->net_weight;
             $amount = 0;
             
             if (!is_null($sale->rate) && !is_null($weight)) {

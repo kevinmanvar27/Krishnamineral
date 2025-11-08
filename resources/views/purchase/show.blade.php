@@ -89,7 +89,7 @@
                             <hr class="mt-0">
                             <div class="row mb-4">
                                 <div class="col-lg-4 fw-medium">Note</div>
-                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $purchases->note ?? '' }}</a></div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $purchases->note ?? '-' }}</a></div>
                             </div>  
                         </div>
                         <hr>

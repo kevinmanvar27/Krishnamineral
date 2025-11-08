@@ -65,7 +65,8 @@
 									auth()->user()->can('edit-sales')||
                                     auth()->user()->can('pending-load-sales') ||
                                     auth()->user()->can('audit-sales') ||
-                                    auth()->user()->can('rate-sales');
+                                    auth()->user()->can('rate-sales')||
+                                    auth()->user()->can('statement-sales');
 				@endphp
 				@if($canSales)
                     <li>
@@ -103,6 +104,11 @@
                             @can('rate-sales')
                             <li>
                                 <a href="{{ route('sales.rate') }}"><i class='bx bx-radio-circle'></i>Sales Rate</a>
+                            </li>
+                            @endcan
+                            @can('statement-sales')
+                            <li>
+                                <a href="{{ route('sales.statement') }}"><i class='bx bx-radio-circle'></i>Sales Statement</a>
                             </li>
                             @endcan
                             <li>

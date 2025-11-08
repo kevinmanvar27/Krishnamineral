@@ -22,6 +22,7 @@ class PermissionTableSeeder extends Seeder
             'pending-load-sales',
             'audit-sales',
             'rate-sales',
+            'statement-sales',
             'view-carting',
             'edit-carting',
             'view-materials',

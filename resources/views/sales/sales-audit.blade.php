@@ -200,8 +200,8 @@
             let partyWeight = row.find('.party-weight-input').val();
             let netWeight = row.find('td:eq(3)').text(); // Get net weight from the 4th column (0-indexed)
 
-            // If party weight is empty, use net weight
-            if (partyWeight === '') {
+            // If party weight is empty or 0, use net weight
+            if (partyWeight === '' || parseFloat(partyWeight) === 0) {
                 partyWeight = netWeight;
             }
 
