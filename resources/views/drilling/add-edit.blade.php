@@ -25,54 +25,54 @@
                         @endsession
                         <div class="card stretch stretch-full">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">Blasting Details</h5>
+                                <h5 class="card-title">Drilling Details</h5>
                                 <div class="card-header-action">
                                     <div class="card-header-btn">         
-                                        <a class="btn btn-sm btn-primary" href="{{ isset($blasting) ? route('blasting.editIndex') : route('blasting.index') }}">
+                                        <a class="btn btn-sm btn-primary" href="{{ isset($drilling) ? route('drilling.editIndex') : route('drilling.index') }}">
                                             <i class="bx bx-arrow-to-left"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
-                            <form method="POST" action="{{ isset($blasting) ? route('blasting.update', $blasting->blasting_id) : route('blasting.store') }}" enctype="multipart/form-data">
+                            <form method="POST" action="{{ isset($drilling) ? route('drilling.update', $drilling->drilling_id) : route('drilling.store') }}" enctype="multipart/form-data">
                             @csrf
-                            @if (isset($blasting))
+                            @if (isset($drilling))
                                 @method('PUT')
                             @endif
                                 <div class="card-body general-info">    
                                     <div class="row">
                                         <!-- First Column -->
                                         <div class="col-lg-4">
-                                            <!-- Blasting ID -->
+                                            <!-- Drilling ID -->
                                             <div class="mb-4">
-                                                <label for="blasting_id" class="form-label mb-2">Blasting ID</label>
+                                                <label for="drilling_id" class="form-label mb-2">Drilling ID</label>
                                                 <div class="input-group">
-                                                    <div class="input-group-text">BL_</div>
-                                                    <input type="text" name="blasting_id" placeholder="Blasting ID" class="form-control" id="blasting_id" value="{{ old('blasting_id', isset($blasting) ? $blasting->blasting_id : (isset($latestBlasting->blasting_id) ? $latestBlasting->blasting_id + 1 : 0+1 )) }}" readonly>
+                                                    <div class="input-group-text">DR_</div>
+                                                    <input type="text" name="drilling_id" placeholder="Drilling ID" class="form-control" id="drilling_id" value="{{ old('drilling_id', isset($drilling) ? $drilling->drilling_id : (isset($latestDrilling->drilling_id) ? $latestDrilling->drilling_id + 1 : 0+1 )) }}" readonly>
                                                 </div>
                                             </div>
                                             
-                                            <!-- Blasting Name (Dropdown) -->
+                                            <!-- Drilling Name (Dropdown) -->
                                             <div class="mb-4">
-                                                <label for="bnm_id" class="form-label mb-2">Blaster Name</label>
+                                                <label for="dri_id" class="form-label mb-2">Drilling Name</label>
                                                 <div class="input-group">
-                                                    <select name="bnm_id" id="bnm_id" class="form-control js-select2" required>
-                                                        <option value="">Select Blaster Name</option>
-                                                        @foreach($blasterNames as $blaster)
-                                                            <option value="{{ $blaster->bnm_id }}" {{ old('bnm_id', (isset($blasting) ? $blasting->bnm_id : '') == $blaster->bnm_id ? 'selected' : '') }}>
-                                                                {{ $blaster->b_name }}
+                                                    <select name="dri_id" id="dri_id" class="form-control js-select2" required>
+                                                        <option value="">Select Drilling Name</option>
+                                                        @foreach($drillingNames as $drillingName)
+                                                            <option value="{{ $drillingName->dri_id }}" {{ old('dri_id', (isset($drilling) ? $drilling->dri_id : '') == $drillingName->dri_id ? 'selected' : '') }}>
+                                                                {{ $drillingName->d_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                @error('bnm_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                                @error('dri_id')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             
                                             <!-- Note -->
                                             <div class="mb-4">
-                                                <label for="b_notes" class="form-label mb-2">Note</label>
+                                                <label for="d_notes" class="form-label mb-2">Note</label>
                                                 <div class="input-group">
-                                                    <textarea name="b_notes" placeholder="Enter Note" class="form-control" id="b_notes" rows="3">{{ old('b_notes', $blasting->b_notes ?? '') }}</textarea>
+                                                    <textarea name="d_notes" placeholder="Enter Note" class="form-control" id="d_notes" rows="3">{{ old('d_notes', $drilling->d_notes ?? '') }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -83,98 +83,51 @@
                                             <div class="mb-4">
                                                 <label for="date_time" class="form-label mb-2">Date Time</label>
                                                 <div class="input-group">
-                                                    <input type="datetime-local" name="date_time" class="form-control" id="date_time" value="{{ old('date_time', isset($blasting) ? date('Y-m-d\TH:i', strtotime($blasting->date_time)) : '') }}" required>
+                                                    <input type="datetime-local" name="date_time" class="form-control" id="date_time" value="{{ old('date_time', isset($drilling) ? date('Y-m-d\TH:i', strtotime($drilling->date_time)) : '') }}" required>
                                                 </div>
                                                 @error('date_time')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                             
-                                            <!-- Geliten - Rate = Total -->
-                                            <div class="mb-4">
-                                                <label class="form-label mb-2">Geliten</label>
-                                                <div class="row g-2">
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="geliten" placeholder="Geliten" class="form-control geliten-field" value="{{ old('geliten', $blasting->geliten ?? '') }}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="geliten_rate" placeholder="Rate" class="form-control geliten-rate-field" value="{{ old('geliten_rate', $blasting->geliten_rate ?? '') }}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="geliten_total" placeholder="Total" class="form-control geliten-total-field" value="{{ old('geliten_total', $blasting->geliten_total ?? '') }}" readonly>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- DF - Rate = Total -->
-                                            <div class="mb-4">
-                                                <label class="form-label mb-2">DF</label>
-                                                <div class="row g-2">
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="df" placeholder="DF" class="form-control df-field" value="{{ old('df', $blasting->df ?? '') }}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="df_rate" placeholder="Rate" class="form-control df-rate-field" value="{{ old('df_rate', $blasting->df_rate ?? '') }}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="df_total" placeholder="Total" class="form-control df-total-field" value="{{ old('df_total', $blasting->df_total ?? '') }}" readonly>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- OD VAT - Rate = Total -->
-                                            <div class="mb-4">
-                                                <label class="form-label mb-2">OD VAT</label>
-                                                <div class="row g-2">
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="odvat" placeholder="OD VAT" class="form-control odvat-field" value="{{ old('odvat', $blasting->odvat ?? '') }}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="od_rate" placeholder="Rate" class="form-control od-rate-field" value="{{ old('od_rate', $blasting->od_rate ?? '') }}">
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <input type="number" step="0.01" name="od_total" placeholder="Total" class="form-control od-total-field" value="{{ old('od_total', $blasting->od_total ?? '') }}" readonly>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Controll - METER - RATE = TOTAL (Dynamic Rows) -->
+                                            <!-- Hole - FOOT - RATE = TOTAL (Dynamic Rows) -->
                                             <div class="mb-4">
                                                 <div class="row mt-2 mb-2">
                                                     <div class="col-md-12 d-flex justify-content-between">
-                                                        <label class="form-label mb-2">Controll</label>
-                                                        <button type="button" class="btn btn-sm btn-success add-controll-row">
+                                                        <label class="form-label mb-2">Hole</label>
+                                                        <button type="button" class="btn btn-sm btn-success add-hole-row">
                                                             <i class="bx bx-plus"></i> Add Row
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <div class="controll-rows">
+                                                <div class="hole-rows">
                                                     <table class="table table-bordered">
                                                         <thead>
                                                             <tr>
-                                                                <th>Controll</th>
-                                                                <th>METER</th>
+                                                                <th>Hole</th>
+                                                                <th>FOOT</th>
                                                                 <th>RATE</th>
                                                                 <th>TOTAL</th>
                                                                 <th>Action</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody class="controll-rows-container">
+                                                        <tbody class="hole-rows-container">
                                                             <!-- Existing rows will be populated here -->
-                                                            @if(isset($blasting) && !empty($blasting->controll))
-                                                                @foreach($blasting->controll as $index => $control)
-                                                                    <tr class="controll-row">
+                                                            @if(isset($drilling) && !empty($drilling->hole))
+                                                                @foreach($drilling->hole as $index => $holeItem)
+                                                                    <tr class="hole-row">
                                                                         <td>
-                                                                            <input type="number" name="controll[]" placeholder="Controll" class="form-control controll-name" value="{{ $control['name'] ?? '' }}">
+                                                                            <input type="number" step="0.01" name="hole[]" placeholder="Hole" class="form-control hole-name" value="{{ $holeItem['name'] ?? '' }}">
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" step="0.01" name="controll_meter[]" placeholder="METER" class="form-control controll-meter" value="{{ $control['meter'] ?? '' }}">
+                                                                            <input type="number" step="0.01" name="hole_foot[]" placeholder="FOOT" class="form-control hole-foot" value="{{ $holeItem['foot'] ?? '' }}">
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" step="0.01" name="controll_rate[]" placeholder="RATE" class="form-control controll-rate" value="{{ $control['rate'] ?? '' }}">
+                                                                            <input type="number" step="0.01" name="hole_rate[]" placeholder="RATE" class="form-control hole-rate" value="{{ $holeItem['rate'] ?? '' }}">
                                                                         </td>
                                                                         <td>
-                                                                            <input type="number" step="0.01" name="controll_total[]" placeholder="TOTAL" class="form-control controll-total" value="{{ $control['total'] ?? '' }}" readonly>
+                                                                            <input type="number" step="0.01" name="hole_total[]" placeholder="TOTAL" class="form-control hole-total" value="{{ $holeItem['total'] ?? '' }}" readonly>
                                                                         </td>
                                                                         <td>
-                                                                            <button type="button" class="btn btn-sm btn-danger remove-controll-row">
+                                                                            <button type="button" class="btn btn-sm btn-danger remove-hole-row">
                                                                                 <i class="bx bx-trash"></i>
                                                                             </button>
                                                                         </td>
@@ -190,7 +143,7 @@
                                             <div class="mb-4">
                                                 <label for="gross_total" class="form-label mb-2">Gross Total</label>
                                                 <div class="input-group">
-                                                    <input type="number" step="0.01" name="gross_total" placeholder="Gross Total" class="form-control" id="gross_total" value="{{ old('gross_total', $blasting->gross_total ?? '') }}" readonly>
+                                                    <input type="number" step="0.01" name="gross_total" placeholder="Gross Total" class="form-control" id="gross_total" value="{{ old('gross_total', $drilling->gross_total ?? '') }}" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -201,7 +154,7 @@
                                             <div class="input-group justify-content-end">
                                                 <button type="submit" class="btn btn-primary mt-2 mb-3">
                                                     <i class="bx bx-save me-2"></i>
-                                                    {{ isset($blasting) ? 'Update' : 'Submit' }}
+                                                    {{ isset($drilling) ? 'Update' : 'Submit' }}
                                                 </button>
                                             </div>
                                         </div>
@@ -215,27 +168,27 @@
             <!-- [ Main Content ] end -->
         </div>
     </main>
-    @can('add-blasterName')
+    @can('add-drillingName')
             <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="shortcutModalLabel">Add Blaster Name</h5>
+                            <h5 class="modal-title" id="shortcutModalLabel">Add Drilling Name</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="blasterForm" action="{{ route('blaster-name.store') }}" method="POST">
+                            <form id="drillingForm" action="{{ route('drilling-name.store') }}" method="POST">
                                 @csrf
                                 <div class="alert alert-danger print-error-msg" style="display:none">
                                     <ul></ul>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-12 mb-4">
-                                        <label for="b_name" class="form-label mb-2">Blaster Name</label>
+                                        <label for="d_name" class="form-label mb-2">Drilling Name</label>
                                         <div class="input-group">
-                                            <input type="text" name="b_name" placeholder="Enter Blaster Name" class="form-control"  id="b_name">
+                                            <input type="text" name="d_name" placeholder="Enter Drilling Name" class="form-control"  id="d_name">
                                         </div>
-                                        @error('b_name')<div class="text-danger">{{ $message }}</div>@enderror
+                                        @error('d_name')<div class="text-danger">{{ $message }}</div>@enderror
                                     </div>
                                 </div>
                                 <div class="row">
@@ -249,7 +202,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-12 mb-4">
-                                        <label for="status" class="form-label mb-2">Blaster Status</label>
+                                        <label for="status" class="form-label mb-2">Drilling Status</label>
                                         <div class="input-group">
                                             <select name="status" id="status" class="form-control">
                                                 <option value="">Select Status</option>
@@ -282,68 +235,68 @@
     <!-- JavaScript for dynamic rows and calculations -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Add controll row button
-            document.querySelector('.add-controll-row').addEventListener('click', function() {
-                addControllRow();
+            // Add hole row button
+            document.querySelector('.add-hole-row').addEventListener('click', function() {
+                addHoleRow();
             });
             
             // Initialize with at least one row if none exist
-            if (document.querySelectorAll('.controll-row').length === 0) {
-                addControllRow();
+            if (document.querySelectorAll('.hole-row').length === 0) {
+                addHoleRow();
             }
             
-            // Function to add a new controll row
-            function addControllRow() {
+            // Function to add a new hole row
+            function addHoleRow() {
                 // Create a new table row with the same structure as existing rows
                 const newRow = document.createElement('tr');
-                newRow.className = 'controll-row';
+                newRow.className = 'hole-row';
                 newRow.innerHTML = `
                     <td>
-                        <input type="number" name="controll[]" placeholder="Controll" class="form-control controll-name">
+                        <input type="number" step="0.01" name="hole[]" placeholder="Hole" class="form-control hole-name">
                     </td>
                     <td>
-                        <input type="number" step="0.01" name="controll_meter[]" placeholder="METER" class="form-control controll-meter">
+                        <input type="number" step="0.01" name="hole_foot[]" placeholder="FOOT" class="form-control hole-foot">
                     </td>
                     <td>
-                        <input type="number" step="0.01" name="controll_rate[]" placeholder="RATE" class="form-control controll-rate">
+                        <input type="number" step="0.01" name="hole_rate[]" placeholder="RATE" class="form-control hole-rate">
                     </td>
                     <td>
-                        <input type="number" step="0.01" name="controll_total[]" placeholder="TOTAL" class="form-control controll-total" readonly>
+                        <input type="number" step="0.01" name="hole_total[]" placeholder="TOTAL" class="form-control hole-total" readonly>
                     </td>
                     <td>
-                        <button type="button" class="btn btn-sm btn-danger remove-controll-row">
+                        <button type="button" class="btn btn-sm btn-danger remove-hole-row">
                             <i class="bx bx-trash"></i>
                         </button>
                     </td>
                 `;
                 
                 // Add event listeners for calculation
-                const controllInput = newRow.querySelector('.controll-name');
-                const meterInput = newRow.querySelector('.controll-meter');
-                const rateInput = newRow.querySelector('.controll-rate');
+                const holeInput = newRow.querySelector('.hole-name');
+                const footInput = newRow.querySelector('.hole-foot');
+                const rateInput = newRow.querySelector('.hole-rate');
                 
                 // Add event listeners for calculation
-                [controllInput, meterInput, rateInput].forEach(input => {
-                    input.addEventListener('input', calculateControllTotal);
+                [holeInput, footInput, rateInput].forEach(input => {
+                    input.addEventListener('input', calculateHoleTotal);
                 });
                 
                 // Add event listener for remove button
-                newRow.querySelector('.remove-controll-row').addEventListener('click', function() {
+                newRow.querySelector('.remove-hole-row').addEventListener('click', function() {
                     newRow.remove();
                     calculateGrossTotal();
                 });
                 
-                document.querySelector('.controll-rows-container').appendChild(newRow);
+                document.querySelector('.hole-rows-container').appendChild(newRow);
             }
             
-            // Function to calculate controll total
-            function calculateControllTotal(event) {
-                const row = event.target.closest('.controll-row');
-                const controll = parseFloat(row.querySelector('.controll-name').value) || 0;
-                const meter = parseFloat(row.querySelector('.controll-meter').value) || 0;
-                const rate = parseFloat(row.querySelector('.controll-rate').value) || 0;
-                const total = controll * meter * rate;
-                row.querySelector('.controll-total').value = total.toFixed(2);
+            // Function to calculate hole total
+            function calculateHoleTotal(event) {
+                const row = event.target.closest('.hole-row');
+                const hole = parseFloat(row.querySelector('.hole-name').value) || 0;
+                const foot = parseFloat(row.querySelector('.hole-foot').value) || 0;
+                const rate = parseFloat(row.querySelector('.hole-rate').value) || 0;
+                const total = hole * foot * rate;
+                row.querySelector('.hole-total').value = total.toFixed(2);
                 calculateGrossTotal();
             }
             
@@ -351,68 +304,13 @@
             function calculateGrossTotal() {
                 let grossTotal = 0;
                 
-                // Add geliten total
-                const gelitenTotal = parseFloat(document.querySelector('.geliten-total-field').value) || 0;
-                grossTotal += gelitenTotal;
-                
-                // Add df total
-                const dfTotal = parseFloat(document.querySelector('.df-total-field').value) || 0;
-                grossTotal += dfTotal;
-                
-                // Add od total
-                const odTotal = parseFloat(document.querySelector('.od-total-field').value) || 0;
-                grossTotal += odTotal;
-                
-                // Add controll totals
-                document.querySelectorAll('.controll-total').forEach(input => {
+                // Add hole totals
+                document.querySelectorAll('.hole-total').forEach(input => {
                     grossTotal += parseFloat(input.value) || 0;
                 });
                 
                 document.getElementById('gross_total').value = grossTotal.toFixed(2);
             }
-            
-            // Add event listeners for the main calculations
-            document.querySelector('.geliten-field').addEventListener('input', function() {
-                const geliten = parseFloat(this.value) || 0;
-                const rate = parseFloat(document.querySelector('.geliten-rate-field').value) || 0;
-                document.querySelector('.geliten-total-field').value = (geliten * rate).toFixed(2);
-                calculateGrossTotal();
-            });
-            
-            document.querySelector('.geliten-rate-field').addEventListener('input', function() {
-                const rate = parseFloat(this.value) || 0;
-                const geliten = parseFloat(document.querySelector('.geliten-field').value) || 0;
-                document.querySelector('.geliten-total-field').value = (geliten * rate).toFixed(2);
-                calculateGrossTotal();
-            });
-            
-            document.querySelector('.df-field').addEventListener('input', function() {
-                const df = parseFloat(this.value) || 0;
-                const rate = parseFloat(document.querySelector('.df-rate-field').value) || 0;
-                document.querySelector('.df-total-field').value = (df * rate).toFixed(2);
-                calculateGrossTotal();
-            });
-            
-            document.querySelector('.df-rate-field').addEventListener('input', function() {
-                const rate = parseFloat(this.value) || 0;
-                const df = parseFloat(document.querySelector('.df-field').value) || 0;
-                document.querySelector('.df-total-field').value = (df * rate).toFixed(2);
-                calculateGrossTotal();
-            });
-            
-            document.querySelector('.odvat-field').addEventListener('input', function() {
-                const odvat = parseFloat(this.value) || 0;
-                const rate = parseFloat(document.querySelector('.od-rate-field').value) || 0;
-                document.querySelector('.od-total-field').value = (odvat * rate).toFixed(2);
-                calculateGrossTotal();
-            });
-            
-            document.querySelector('.od-rate-field').addEventListener('input', function() {
-                const rate = parseFloat(this.value) || 0;
-                const odvat = parseFloat(document.querySelector('.odvat-field').value) || 0;
-                document.querySelector('.od-total-field').value = (odvat * rate).toFixed(2);
-                calculateGrossTotal();
-            });
             
             // Initialize calculations on page load
             calculateGrossTotal();
@@ -427,19 +325,19 @@
                 dateTimeInput.value = now.toISOString().slice(0, 16);
             }
             
-            // Add event listeners to existing controll rows
-            document.querySelectorAll('.controll-row').forEach(row => {
-                const controllInput = row.querySelector('.controll-name');
-                const meterInput = row.querySelector('.controll-meter');
-                const rateInput = row.querySelector('.controll-rate');
+            // Add event listeners to existing hole rows
+            document.querySelectorAll('.hole-row').forEach(row => {
+                const holeInput = row.querySelector('.hole-name');
+                const footInput = row.querySelector('.hole-foot');
+                const rateInput = row.querySelector('.hole-rate');
                 
-                if (controllInput && meterInput && rateInput) {
-                    [controllInput, meterInput, rateInput].forEach(input => {
-                        input.addEventListener('input', calculateControllTotal);
+                if (holeInput && footInput && rateInput) {
+                    [holeInput, footInput, rateInput].forEach(input => {
+                        input.addEventListener('input', calculateHoleTotal);
                     });
                 }
                 
-                const removeButton = row.querySelector('.remove-controll-row');
+                const removeButton = row.querySelector('.remove-hole-row');
                 if (removeButton) {
                     removeButton.addEventListener('click', function() {
                         row.remove();
@@ -513,16 +411,16 @@
             });
         }
 
-        // Add modal dropdown for blaster name
+        // Add modal dropdown for drilling name
         modalDropdown({
-            dropDownSelector: '#bnm_id',
+            dropDownSelector: '#dri_id',
             modalSelector: '#myModal',
-            formSelector: '#blasterForm',
+            formSelector: '#drillingForm',
             fields: {
-                bnm_id: '#bnm_id',
-                b_name: '#b_name',
+                dri_id: '#dri_id',
+                d_name: '#d_name',
             },
-            labelField: 'b_name',
+            labelField: 'd_name',
         })
     </script>
 @endpush

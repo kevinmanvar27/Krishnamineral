@@ -36,11 +36,9 @@
                             </a>
                         @endcan
                         @can('edit-purchase')
-                            @if($result->status == 0)
-                                <a class="btn btn-warning btn-sm me-2" href="{{ route('purchase.edit',$result->id) }}">
-                                    <i class="lni lni-pencil text-white"></i>
-                                </a>
-                            @endif
+                            <a class="btn btn-warning btn-sm me-2" href="{{ route('purchase.edit',$result->id) }}">
+                                <i class="lni lni-pencil text-white"></i>
+                            </a>
                         @endcan
                     </td>
                 </tr>

@@ -86,7 +86,15 @@ class BlasterNameController extends Controller
             'status' => 'required|in:active,inactive'
         ]);
 
-        BlasterName::create($request->all());
+        $blasterName = BlasterName::create($request->all());
+
+        if ($request->ajax()) {
+            return response()->json([
+                'bnm_id' => $blasterName->bnm_id,
+                'b_name' => $blasterName->b_name,
+                'message' => 'Blaster Name created successfully.'
+            ]);
+        }
 
         return redirect()->route('blaster-name.index')->with('success', 'Blaster Name created successfully.');
     }

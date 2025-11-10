@@ -344,7 +344,7 @@
 				@endif
 
 				@php
-					$canCarting = auth()->user()->can('view-carting') ||
+					$canCarting = auth()->user()->can('view-carting') &&
 									auth()->user()->can('edit-carting');
 				@endphp
 				@if($canCarting)
@@ -367,8 +367,8 @@
 				@php
 					$canPurchase = auth()->user()->can('view-purchase') ||
 									auth()->user()->can('add-purchase') ||
-									auth()->user()->can('edit-purchase') ||
-                                    auth()->user()->can('pending-load-purchase');
+									auth()->user()->can('edit-purchase')||
+									auth()->user()->can('pending-load-purchase');
 				@endphp
 				@if($canPurchase)
                     <li>
@@ -599,6 +599,39 @@
                         </ul>
                     </li>
 				@endif
+
+				<!-- @php
+					$canVendors = auth()->user()->can('view-vendor') ||
+									auth()->user()->can('add-vendor') ||
+									auth()->user()->can('edit-vendor');
+				@endphp
+				@if($canVendors)
+					<li>
+						<a href="javascript:;" class="has-arrow">
+							<div class="parent-icon"><i class='bx bx-building-house'></i>
+							</div>
+							<div class="menu-title">Vendors</div>
+						</a>
+						<ul>
+							@can('view-vendor')
+								<li> 
+									<a href="{{ route('vendors.index') }}"><i class='bx bx-radio-circle'></i>View Vendors</a>
+								</li>
+							@endcan
+							@can('add-vendor')
+								<li>
+									<a href="{{ route('vendors.create') }}"><i class='bx bx-radio-circle'></i>Add Vendor</a>
+								</li>
+							@endcan
+							@can('edit-vendor')
+								<li>
+									<a href="{{ route('vendors.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Vendors</a>
+								</li>
+							@endcan
+						</ul>
+					</li>
+				@endif -->
+
                 <!-- @php
                     $attendancePermission = auth()->user()->can('view-attendance') ||
                                             auth()->user()->can('add-attendance');
@@ -618,45 +651,137 @@
                     </li>
                 @endif -->
 
-
-                <!-- <li>
+                <!-- @php
+                    $blastingPermission = auth()->user()->can('view-blasting') ||
+                                            auth()->user()->can('add-blasting') ||
+                                            auth()->user()->can('edit-blasting') ||
+                                            auth()->user()->can('view-blasterName') ||
+                                            auth()->user()->can('add-blasterName') ||
+                                            auth()->user()->can('edit-blasterName');
+                @endphp
+                @if($blastingPermission)
+                <li>
                     <a href="javascript:;" class="has-arrow">
                         <div class="parent-icon"><i class='bx bx-bomb'></i>
                         </div>
                         <div class="menu-title">Blasting</div>
                     </a>
                     <ul>
-                            <li> 
-                                <a href="{{ route('blasting.index') }}"><i class='bx bx-radio-circle'></i>View Blasting</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('blasting.create') }}"><i class='bx bx-radio-circle'></i>Add Blasting</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('blasting.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Blasting</a>
-                            </li>
-                        <li>
-                            <li>
-                                <a href="javascript:;" class="has-arrow">
-                                    <div class="parent-icon"><i class='bx bxs-truck'></i>
-                                    </div>
-                                    <div class="menu-title">Blaster Name</div>
-                                </a>
-                                <ul>
-                                    <li> 
-                                        <a href="{{ route('blaster-name.index') }}"><i class='bx bx-radio-circle'></i>View Blaster Name</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('blaster-name.create') }}"><i class='bx bx-radio-circle'></i>Add Blaster Name</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('blaster-name.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Blaster Name</a>
-                                    </li>
-                                </ul>
-                            </li>
+                        @can('view-blasting')
+                        <li> 
+                            <a href="{{ route('blasting.index') }}"><i class='bx bx-radio-circle'></i>View Blasting</a>
                         </li>
+                        @endcan
+                        @can('add-blasting')
+                        <li>
+                            <a href="{{ route('blasting.create') }}"><i class='bx bx-radio-circle'></i>Add Blasting</a>
+                        </li>
+                        @endcan
+                        @can('edit-blasting')
+                        <li>
+                            <a href="{{ route('blasting.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Blasting</a>
+                        </li>
+                        @endcan
+                        @php
+                            $blasterNamePermission = auth()->user()->can('view-blasterName') ||
+                                                    auth()->user()->can('add-blasterName') ||
+                                                    auth()->user()->can('edit-blasterName');
+                        @endphp
+                        @if($blasterNamePermission)
+                        <li>
+                            <a href="javascript:;" class="has-arrow">
+                                <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                </div>
+                                <div class="menu-title">Blaster Name</div>
+                            </a>
+                            <ul>
+                                @can('view-blasterName')
+                                <li> 
+                                    <a href="{{ route('blaster-name.index') }}"><i class='bx bx-radio-circle'></i>View Blaster Name</a>
+                                </li>
+                                @endcan
+                                @can('add-blasterName')
+                                <li>
+                                    <a href="{{ route('blaster-name.create') }}"><i class='bx bx-radio-circle'></i>Add Blaster Name</a>
+                                </li>
+                                @endcan
+                                @can('edit-blasterName')
+                                <li>
+                                    <a href="{{ route('blaster-name.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Blaster Name</a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </li>
+                        @endif
                     </ul>
-                </li> -->
+                </li>
+                @endif -->
+
+                <!-- @php
+                    $drillingPermission = auth()->user()->can('view-drilling') ||
+                                            auth()->user()->can('add-drilling') ||
+                                            auth()->user()->can('edit-drilling') ||
+                                            auth()->user()->can('view-drillingName') ||
+                                            auth()->user()->can('add-drillingName') ||
+                                            auth()->user()->can('edit-drillingName');
+                @endphp
+                @if($drillingPermission)
+                <li>
+                    <a href="javascript:;" class="has-arrow">
+                        <div class="parent-icon"><i class='bx bx-diamond'></i>
+                        </div>
+                        <div class="menu-title">Drilling</div>
+                    </a>
+                    <ul>
+                        @can('view-drilling')
+                        <li> 
+                            <a href="{{ route('drilling.index') }}"><i class='bx bx-radio-circle'></i>View Drilling</a>
+                        </li>
+                        @endcan
+                        @can('add-drilling')
+                        <li>
+                            <a href="{{ route('drilling.create') }}"><i class='bx bx-radio-circle'></i>Add Drilling</a>
+                        </li>
+                        @endcan
+                        @can('edit-drilling')
+                        <li>
+                            <a href="{{ route('drilling.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Drilling</a>
+                        </li>
+                        @endcan
+                        @php
+                            $drillingNamePermission = auth()->user()->can('view-drillingName') ||
+                                                    auth()->user()->can('add-drillingName') ||
+                                                    auth()->user()->can('edit-drillingName');
+                        @endphp
+                        @if($drillingNamePermission)
+                        <li>
+                            <a href="javascript:;" class="has-arrow">
+                                <div class="parent-icon"><i class='bx bxs-truck'></i>
+                                </div>
+                                <div class="menu-title">Drilling Name</div>
+                            </a>
+                            <ul>
+                                @can('view-drillingName')
+                                <li> 
+                                    <a href="{{ route('drilling-name.index') }}"><i class='bx bx-radio-circle'></i>View Drilling Name</a>
+                                </li>
+                                @endcan
+                                @can('add-drillingName')
+                                <li>
+                                    <a href="{{ route('drilling-name.create') }}"><i class='bx bx-radio-circle'></i>Add Drilling Name</a>
+                                </li>
+                                @endcan
+                                @can('edit-drillingName')
+                                <li>
+                                    <a href="{{ route('drilling-name.editIndex') }}"><i class='bx bx-radio-circle'></i>Edit Drilling Name</a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </li>
+                        @endif
+                    </ul>
+                </li>
+                @endif -->
 
                 @if(auth()->user()->can('view-activity-log'))
                 <li>

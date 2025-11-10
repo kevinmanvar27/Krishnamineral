@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Models\Sales;
 use App\Models\Purchase;
 use App\Models\Materials;
@@ -13,6 +14,8 @@ use App\Models\Royalty;
 use App\Models\Driver;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\Blasting;
+use App\Models\Drilling;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class SalesController extends Controller
@@ -572,41 +575,101 @@ class SalesController extends Controller
 
     public function searchChallans(Request $request)
     {
-        $module = $request->module;
-        $searchType = $request->searchType;
-        $searchData = $request->searchData;
+        try {
+            $module = $request->module;
+            $searchType = $request->searchType;
+            $searchData = $request->searchData;
 
-        if ($module === 'sales') {
-            $query = Sales::query();
-        } else {
-            $query = Purchase::query();
-        }
+            if ($module === 'sales') {
+                $query = Sales::query();
+            } elseif ($module === 'purchase') {
+                $query = Purchase::query();
+            } elseif ($module === 'blasting') {
+                $query = Blasting::query();
+            } elseif ($module === 'drilling') {
+                $query = Drilling::query();
+            } else {
+                // Return error if module is not supported
+                return response()->json(['error' => 'Invalid module selected'], 400);
+            }
 
-        // Apply filters based on search type
-        if ($searchType === 'challan' && !empty($searchData['challan'])) {
-            $query->where('id', 'like', '%' . $searchData['challan'] . '%');
-        } elseif ($searchType === 'transporter' && !empty($searchData['transporter'])) {
-            $query->where('transporter', 'like', '%' . $searchData['transporter'] . '%');
-        } elseif ($searchType === 'vehicle' && !empty($searchData['vehicle'])) {
-            // For vehicle search, we need to join with vehicles table
-            $vehicleIds = Vehicle::where('name', 'like', '%' . $searchData['vehicle'] . '%')->pluck('id');
-            $query->whereIn('vehicle_id', $vehicleIds);
-        } elseif ($searchType === 'date' && !empty($searchData['date'])) {
-            $query->whereDate('created_at', $searchData['date']);
-        } elseif ($searchType === 'date_range' && !empty($searchData['date_from']) && !empty($searchData['date_to'])) {
-            $query->whereBetween('created_at', [
-                $searchData['date_from'] . ' 00:00:00',
-                $searchData['date_to'] . ' 23:59:59'
-            ]);
-        }
+            // Apply filters based on search type
+            if ($searchType === 'challan' && !empty($searchData['challan'])) {
+                if ($module === 'blasting') {
+                    // For blasting, we search by blasting_id
+                    $query->where('blasting_id', 'like', '%' . $searchData['challan'] . '%');
+                } elseif ($module === 'drilling') {
+                    // For drilling, we search by drilling_id
+                    $query->where('drilling_id', 'like', '%' . $searchData['challan'] . '%');
+                } else {
+                    $query->where('id', 'like', '%' . $searchData['challan'] . '%');
+                }
+            } elseif ($searchType === 'transporter' && !empty($searchData['transporter'])) {
+                if ($module === 'blasting') {
+                    // For blasting, we can search by blaster name
+                    $query->whereHas('blasterName', function ($q) use ($searchData) {
+                        $q->where('b_name', 'like', '%' . $searchData['transporter'] . '%');
+                    });
+                } elseif ($module === 'drilling') {
+                    // For drilling, we can search by drilling name
+                    $query->whereHas('drillingName', function ($q) use ($searchData) {
+                        $q->where('d_name', 'like', '%' . $searchData['transporter'] . '%');
+                    });
+                } else {
+                    $query->where('transporter', 'like', '%' . $searchData['transporter'] . '%');
+                }
+            } elseif ($searchType === 'vehicle' && !empty($searchData['vehicle'])) {
+                if ($module === 'sales' || $module === 'purchase') {
+                    // For vehicle search, we need to join with vehicles table
+                    $vehicleIds = Vehicle::where('name', 'like', '%' . $searchData['vehicle'] . '%')->pluck('id');
+                    $query->whereIn('vehicle_id', $vehicleIds);
+                }
+                // For blasting and drilling, there's no vehicle field, so we skip this filter
+            } elseif ($searchType === 'date' && !empty($searchData['date'])) {
+                if ($module === 'blasting' || $module === 'drilling') {
+                    $query->whereDate('date_time', $searchData['date']);
+                } else {
+                    $query->whereDate('created_at', $searchData['date']);
+                }
+            } elseif ($searchType === 'date_range' && !empty($searchData['date_from']) && !empty($searchData['date_to'])) {
+                if ($module === 'blasting' || $module === 'drilling') {
+                    $query->whereBetween('date_time', [
+                        $searchData['date_from'] . ' 00:00:00',
+                        $searchData['date_to'] . ' 23:59:59'
+                    ]);
+                } else {
+                    $query->whereBetween('created_at', [
+                        $searchData['date_from'] . ' 00:00:00',
+                        $searchData['date_to'] . ' 23:59:59'
+                    ]);
+                }
+            }
 
-        $results = $query->with('vehicle')->latest()->limit(20)->get();
+            // Load appropriate relationships based on module
+            if ($module === 'sales' || $module === 'purchase') {
+                $results = $query->with('vehicle')->latest()->limit(20)->get();
+            } elseif ($module === 'blasting') {
+                $results = $query->with('blasterName')->latest()->limit(20)->get();
+            } elseif ($module === 'drilling') {
+                $results = $query->with('drillingName')->latest()->limit(20)->get();
+            } else {
+                $results = $query->latest()->limit(20)->get();
+            }
 
-        // Return view with results
-        if ($module === 'sales') {
-            return view('sales.search-results', compact('results', 'module'))->render();
-        } else {
-            return view('purchase.search-results', compact('results', 'module'))->render();
+            // Return view with results
+            if ($module === 'sales') {
+                return view('sales.search-results', compact('results', 'module'))->render();
+            } elseif ($module === 'purchase') {
+                return view('purchase.search-results', compact('results', 'module'))->render();
+            } elseif ($module === 'blasting') {
+                return view('blasting.search-results', compact('results', 'module'))->render();
+            } elseif ($module === 'drilling') {
+                return view('drilling.search-results', compact('results', 'module'))->render();
+            }
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Search error: ' . $e->getMessage());
+            return response()->json(['error' => 'An error occurred while searching: ' . $e->getMessage()], 500);
         }
     }
 

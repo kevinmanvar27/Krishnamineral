@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>{{ !empty($settings) ? $settings->name : '' }} {{ !empty($settings) ? ' - '.$settings->tagline : '' }}</title>
+    <title>{{ !empty($settings) ? $settings->name : 'Krishna Minerals' }} {{ !empty($settings) ? ' - '.$settings->tagline : 'Krishna Minerals' }}</title>
 	<!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -195,6 +195,8 @@
                                 <select class="form-select" id="searchModule">
                                     <option value="sales">Sales</option>
                                     <option value="purchase">Purchase</option>
+                                    <option value="blasting">Blasting</option>
+                                    <option value="drilling">Drilling</option>
                                 </select>
                             </div>
                             
@@ -315,7 +317,13 @@
                         $('#searchResults').html(response);
                     },
                     error: function(xhr) {
-                        $('#searchResults').html('<div class="alert alert-danger">Error occurred while searching.</div>');
+                        var errorMessage = 'Error occurred while searching.';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        } else if (xhr.responseText) {
+                            errorMessage = xhr.responseText;
+                        }
+                        $('#searchResults').html('<div class="alert alert-danger">' + errorMessage + '</div>');
                     }
                 });
             });

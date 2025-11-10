@@ -36,11 +36,11 @@
                             </a>
                         @endcan
                         @can('edit-sales')
-                            @if($result->status == 0)
-                                <a class="btn btn-warning btn-sm me-2" href="{{ route('sales.edit',$result->id) }}">
+                            @if($result->status == 2)
+                                <a class="btn btn-warning btn-sm me-2" href="{{ route('sales.salesAudit') }}">
                                     <i class="lni lni-pencil text-white"></i>
                                 </a>
-                            @elseif($result->status == 1)
+                            @else
                                 <a class="btn btn-warning btn-sm me-2" href="{{ route('sales.edit',$result->id) }}">
                                     <i class="lni lni-pencil text-white"></i>
                                 </a>

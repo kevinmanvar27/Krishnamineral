@@ -78,7 +78,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Challan Details</h1>
+        <h1>Krishna Minerals Challan Details</h1>
         @if(isset($challanData))
         <div class="challan-header">Challan: {{ $challanData['challanNumber'] }}</div>
         <p>Party: {{ $partyData['party']->name ?? 'N/A' }}</p>

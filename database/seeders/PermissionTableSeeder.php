@@ -70,7 +70,22 @@ class PermissionTableSeeder extends Seeder
             'edit-purchaseDriver',
             'view-attendance',
             'add-attendance',
-            'view-activity-log'
+            'view-activity-log',
+            'view-blasting',
+            'add-blasting',
+            'edit-blasting',
+            'view-blasterName',
+            'add-blasterName',
+            'edit-blasterName',
+            'view-drilling',
+            'add-drilling',
+            'edit-drilling',
+            'view-drillingName',
+            'add-drillingName',
+            'edit-drillingName',
+            'view-vendor',
+            'add-vendor',
+            'edit-vendor'
         ];
 
         foreach ($permissions as $permission) {

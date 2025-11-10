@@ -28,6 +28,9 @@ use App\Http\Controllers\BlastingController;
 use App\Http\Controllers\BlasterNameController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\CartingController;
+use App\Http\Controllers\DrillingController;
+use App\Http\Controllers\DrillingNameController;
+use App\Http\Controllers\VendorController;
 
 // Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
@@ -66,6 +69,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase/editindex', [PurchaseController::class, 'editIndex'])->name('purchase.editIndex');
     Route::get('/blasting/editindex', [BlastingController::class, 'editIndex'])->name('blasting.editIndex');
     Route::get('/blaster-name/editindex', [BlasterNameController::class, 'editIndex'])->name('blaster-name.editIndex');
+    Route::get('/drilling/editindex', [DrillingController::class, 'editIndex'])->name('drilling.editIndex');
+    Route::get('/drilling-name/editindex', [DrillingNameController::class, 'editIndex'])->name('drilling-name.editIndex');
+    Route::get('/vendors/editindex', [VendorController::class, 'editIndex'])->name('vendors.editIndex');
     
 
     Route::get('/sales/pendingLoads', [SalesController::class, 'pendingLoad'])->name('sales.pendingLoad');
@@ -109,6 +115,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('purchase', PurchaseController::class);
     Route::resource('blasting', BlastingController::class);
     Route::resource('blaster-name', BlasterNameController::class);
+    Route::resource('drilling', DrillingController::class);
+    Route::resource('drilling-name', DrillingNameController::class);
+    Route::resource('vendors', VendorController::class);
 
 
     Route::post('/vehicle/fetch-details', [VehicleController::class, 'fetchDetails'])->name('vehicle.details');
@@ -125,6 +134,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users/{user}/credentials-pdf', [UserController::class, 'streamPdf'])->name('users.credentials-pdf');
     Route::get('/sales/{id}/sales-pdf', [SalesController::class, 'salesPdf'])->name('sales.sales-pdf');
     Route::get('/purchase/{id}/purchase-pdf', [PurchaseController::class, 'purchasePdf'])->name('purchase.purchase-pdf');
+    Route::get('/drilling/{id}/drilling-pdf', [DrillingController::class, 'drillingPdf'])->name('drilling.drilling-pdf');
+    Route::get('/blasting/{id}/blasting-pdf', [BlastingController::class, 'blastingPdf'])->name('blasting.blasting-pdf');
 
     // Attendance routes
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
