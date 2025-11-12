@@ -131,7 +131,7 @@
     <div class="table-responsive">
         @foreach($partyWiseSales as $partyData)
         <div class="party-section">
-            <div class="party-header">Party: {{ $partyData['party']->name ?? 'N/A' }}</div>
+            <div class="party-header">Party: {{ $partyData['party']->name ?? 'Under Pending Load' }}</div>
             
             <table class="party-table">
                 <thead>

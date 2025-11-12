@@ -51,7 +51,7 @@
                                 <div class="table-responsive">
                                     @foreach($partyWiseSales as $partyData)
                                     <div class="mb-4 party-section">
-                                        <h4 class="mb-3 party-header">Party: {{ $partyData['party']->name ?? 'N/A' }}</h4>
+                                        <h4 class="mb-3 party-header">Party: {{ $partyData['party']->name ?? 'Under Pending Load' }}</h4>
                                         
                                         <table class="table table-striped table-bordered party-table" style="width:100%">
                                             <thead>
