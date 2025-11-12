@@ -195,8 +195,8 @@
                                 <select class="form-select" id="searchModule">
                                     <option value="sales">Sales</option>
                                     <option value="purchase">Purchase</option>
-                                    <option value="blasting">Blasting</option>
-                                    <option value="drilling">Drilling</option>
+                                    <!-- <option value="blasting">Blasting</option>
+                                    <option value="drilling">Drilling</option> -->
                                 </select>
                             </div>
                             

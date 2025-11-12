@@ -36,6 +36,8 @@
                                 <div class="col-lg-4 fw-medium">Contact Number</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->contact_number ?? '-' }}</a></div>
                             </div>
+                            <hr class="mt-0">
+                            <h5 class="mb-4">Rate Details :-</h5>
                             <div class="row mb-4">
                                 <div class="col-lg-4 fw-medium">Gross Weight</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->gross_weight ?? '-' }}</a></div>
@@ -51,6 +53,40 @@
                             <div class="row mb-4">
                                 <div class="col-lg-4 fw-medium">Party Weight</div>
                                 <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->party_weight ?? '-' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Rate</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->rate ?? '-' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">GST</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->gst.'%' ?? '-' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Amount</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->amount ?? '-' }}</a></div>
+                            </div>
+                            <hr class="mt-0">
+                            <h5 class="mb-4">Carting Details :-</h5>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Net Weight</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->net_weight ?? '-' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Party Weight</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->party_weight ?? '-' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Carting Type</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->carting_type == '0' ? 'No' : 'Yes' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Carting Rate</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ $sales->carting_rate ?? '-' }}</a></div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-lg-4 fw-medium">Total</div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ isset($sales->party_weight) && $sales->party_weight != '' ? ($sales->party_weight) / 1000 * $sales->carting_rate : ($sales->net_weight) / 1000 * $sales->carting_rate }}</a></div>
                             </div>
                             <hr class="mt-0">
                             <div class="row mb-4">
