@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Materials;
+use Illuminate\Support\Facades\Auth;
 
 class MaterialsController extends Controller
 {
@@ -99,7 +100,7 @@ class MaterialsController extends Controller
             ]);
         }
 
-        return redirect()->route('materials.index')->with('success', 'Material added successfully');
+        return redirect()->route(Auth::user()->can('edit-materials') ? 'materials.editIndex' : 'home')->with('success', 'Material added successfully');
     }
 
     public function edit($id)
@@ -124,12 +125,12 @@ class MaterialsController extends Controller
         ]);
         $materials['table_type'] = 'sales';
         Materials::find($id)->update($materials);
-        return redirect()->route('materials.editIndex')->with('success', 'Materials updated successfully');
+        return redirect()->route(Auth::user()->can('edit-materials') ? 'materials.editIndex' : 'home')->with('success', 'Materials updated successfully');
     }
 
     public function destroy($id)
     {
         Materials::find($id)->delete();
-        return redirect()->route('materials.editIndex')->with('success', 'Materials deleted successfully');
+        return redirect()->route(Auth::user()->can('edit-materials') ? 'materials.editIndex' : 'home')->with('success', 'Materials deleted successfully');
     }
 }

@@ -56,8 +56,10 @@
                                                 <th>Place</th>
                                                 <th>Party</th>
                                                 <th>Date</th>
+                                                @can('edit-carting')
                                                 <th>Rate</th>
                                                 <th>Carting Type</th>
+                                                @endcan
                                                 <th>Action</th>
                                             </tr>
                                             <tr>
@@ -110,16 +112,18 @@
                                                     </select>
                                                 </th>
                                                 <th></th>
-                                                <th>
-                                                    <input type="number" id="searchRate" class="form-control" min="0" placeholder="Rate">
-                                                </th>
-                                                <th>
-                                                    <select id="searchCarting" class="form-select">
-                                                        <option value="">All Types</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="0">No</option>
-                                                    </select>
-                                                </th>
+                                                @can('edit-carting')
+                                                    <th>
+                                                        <input type="number" id="searchRate" class="form-control" min="0" placeholder="Rate">
+                                                    </th>
+                                                    <th>
+                                                        <select id="searchCarting" class="form-select">
+                                                            <option value="">All Types</option>
+                                                            <option value="1">Yes</option>
+                                                            <option value="0">No</option>
+                                                        </select>
+                                                    </th>
+                                                @endcan
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -136,6 +140,7 @@
                                                     <td>{{ $sale->place->name ?? '-' }}</td>
                                                     <td>{{ $sale->party->name ?? '-' }}</td>
                                                     <td>{{ $sale->created_at->timezone('Asia/Kolkata')->format('d-m-Y h:i A') }}</td>
+                                                    @can('edit-carting')
                                                     <td>
                                                         <input type="number" class="form-control rate-input" 
                                                                data-sale-id="{{ $sale->id }}" 
@@ -162,6 +167,7 @@
                                                             <label class="form-check-label" for="radio_no_{{ $sale->id }}">No</label>
                                                         </div>
                                                     </td>
+                                                    @endcan
                                                     <td>
                                                         <a href="javascript:void(0)" class="btn btn-info btn-sm text-white challan-link" data-sale-id="{{ $sale->id }}">
                                                             <i class="lni lni-eye"></i>
@@ -174,22 +180,24 @@
                                                 </tr>
                                             @endforelse
                                         </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="7" class="text-end"><strong>Update Selected Records:</strong></td>
-                                                <td>
-                                                    <input type="number" id="bulkRate" class="form-control" min="0" placeholder="Rate" style="width: 100px; min-width: 100px;">
-                                                </td>
-                                                <td>
-                                                    <select id="bulkCartingRadio" class="form-select">
-                                                        <option value="">Select Type</option>
-                                                        <option value="1">Yes</option>
-                                                        <option value="0">No</option>
-                                                    </select>
-                                                    <button id="updateBulk" class="btn btn-primary mt-2">Update</button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
+                                        @can('edit-carting')
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="7" class="text-end"><strong>Update Selected Records:</strong></td>
+                                                    <td>
+                                                        <input type="number" id="bulkRate" class="form-control" min="0" placeholder="Rate" style="width: 100px; min-width: 100px;">
+                                                    </td>
+                                                    <td>
+                                                        <select id="bulkCartingRadio" class="form-select">
+                                                            <option value="">Select Type</option>
+                                                            <option value="1">Yes</option>
+                                                            <option value="0">No</option>
+                                                        </select>
+                                                        <button id="updateBulk" class="btn btn-primary mt-2">Update</button>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        @endcan
                                     </table>
                                 </div>
                             </div>

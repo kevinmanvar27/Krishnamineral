@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Models\Party;
 use App\Models\PartyPersion;
+use Illuminate\Support\Facades\Auth;
 
 class PartyController extends Controller
 {
@@ -92,7 +93,7 @@ class PartyController extends Controller
             ]);
         }
 
-        return redirect()->route('party.index')->with('success', 'Party Added Successfully');
+        return redirect()->route(Auth::user()->can('edit-party') ? 'party.editIndex' : 'home')->with('success', 'Party Added Successfully');
     }
 
 
@@ -148,7 +149,7 @@ class PartyController extends Controller
             }
         });
 
-        return redirect()->route('party.editIndex')->with('success', 'Party Updated Successfully');
+        return redirect()->route(Auth::user()->can('edit-party') ? 'party.editIndex' : 'home')->with('success', 'Party Updated Successfully');
     }
 
 

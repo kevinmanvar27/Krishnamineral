@@ -14,6 +14,7 @@ use App\Models\PurchaseQuarry;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Vehicle;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseController extends Controller
 {
@@ -219,7 +220,7 @@ class PurchaseController extends Controller
         //     'auto_download_pdf' => true,
         // ]);
 
-        return redirect()->route('purchase.pendingLoad')
+        return redirect()->route(Auth::user()->can('pending-load-purchase') ? 'purchase.pendingLoad' : 'home')
             ->with('success', 'Purchase created successfully.');
     }
 
@@ -279,7 +280,7 @@ class PurchaseController extends Controller
             'auto_download_pdf' => true
         ]);
 
-        return redirect()->route('purchase.editIndex')
+        return redirect()->route(Auth::user()->can('edit-purchase') ? 'purchase.editIndex' : 'home')
             ->with('success', 'Purchase updated successfully');
     }
 

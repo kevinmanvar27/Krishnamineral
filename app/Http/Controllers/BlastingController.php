@@ -411,7 +411,7 @@ class BlastingController extends Controller
             'auto_download_pdf' => true
         ]);
 
-        return redirect()->route('blasting.index')->with('success', 'Blasting created successfully.');
+        return redirect()->route(Auth::user()->can('edit-blasting') ? 'blasting.editIndex' : 'home')->with('success', 'Blasting created successfully.');
     }
 
     public function show($id)
@@ -486,7 +486,7 @@ class BlastingController extends Controller
             'auto_download_pdf' => true
         ]);
 
-        return redirect()->route('blasting.editIndex')->with('success', 'Blasting updated successfully.');
+        return redirect()->route(Auth::user()->can('edit-blasting') ? 'blasting.editIndex' : 'home')->with('success', 'Blasting updated successfully.');
     }
 
     public function blastingPdf($id)

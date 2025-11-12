@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Loading;
+use Illuminate\Support\Facades\Auth;
 
 class LoadingController extends Controller
 {
@@ -66,7 +67,7 @@ class LoadingController extends Controller
         }
 
         // Fallback for normal form submission
-        return redirect()->route('loading.index')->with('success', 'Loading added successfully');
+        return redirect()->route(Auth::user()->can('edit-loading') ? 'loading.editIndex' : 'home')->with('success', 'Loading added successfully');
     }
 
 
@@ -93,7 +94,7 @@ class LoadingController extends Controller
         ]);
         $loading['table_type'] = 'sales';
         Loading::find($id)->update($loading);
-        return redirect()->route('loading.editIndex')->with('success', 'Loading updated successfully');
+        return redirect()->route(Auth::user()->can('edit-loading') ? 'loading.editIndex' : 'home')->with('success', 'Loading updated successfully');
     }
     
     public function show($id)

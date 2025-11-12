@@ -27,7 +27,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <table id="example" class="table table-striped table-bordered" style="width:100%">
+                                        <table id="example" class="table table-bordered" style="width:100%">
                                             <thead>
                                                 <tr class="border-b">
                                                     <th>Challan Number</th>
@@ -68,7 +68,7 @@
                                             <tbody id="tableData">
                                                 @php $i = $i ?? 0; @endphp
                                                 @forelse ($sales as $key => $sale)
-                                                    <tr>
+                                                    <tr class="{{ $sale->status == '1' ? 'table-success' : '' }}">
                                                         <td>S_{{ $sale->id }}</td>
                                                         <td>{{ $sale->transporter }}</td>
                                                         <td>{{ $sale->contact_number }}</td>

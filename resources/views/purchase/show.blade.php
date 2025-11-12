@@ -21,7 +21,7 @@
                             <hr class="mt-0">
                             <div class="row mb-4">
                                 <div class="col-lg-4 fw-medium">Purchase Challan Number</div>
-                                <div class="col-lg-8"><a href="javascript:void(0);">{{ 'S_'.$purchases->id ?? '-' }}</a></div>
+                                <div class="col-lg-8"><a href="javascript:void(0);">{{ 'P_'.$purchases->id ?? '-' }}</a></div>
                             </div>
                             <div class="row mb-4">
                                 <div class="col-lg-4 fw-medium">Purchase Date Time</div>

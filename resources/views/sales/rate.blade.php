@@ -67,7 +67,7 @@
                                             <tr>
                                                 <th>
                                                     <select id="searchChallan" class="form-select js-select2">
-                                                        <option value="">All Challans</option>
+                                                        <option value="">Challans</option>
                                                         @foreach($allChallans as $challan)
                                                             <option value="{{ $challan }}">S_{{ $challan }}</option>
                                                         @endforeach
@@ -75,7 +75,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchVehicle" class="form-select js-select2">
-                                                        <option value="">All Vehicles</option>
+                                                        <option value="">Vehicles</option>
                                                         @foreach($allVehicles as $vehicle)
                                                             <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
                                                         @endforeach
@@ -83,7 +83,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchNetWeight" class="form-select js-select2">
-                                                        <option value="">All Net Weights</option>
+                                                        <option value="">Net Weights</option>
                                                         @foreach($allNetWeights as $netWeight)
                                                             <option value="{{ $netWeight }}">{{ $netWeight }}</option>
                                                         @endforeach
@@ -91,7 +91,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchPartyWeight" class="form-select js-select2">
-                                                        <option value="">All Party Weights</option>
+                                                        <option value="">Party Weights</option>
                                                         @foreach($allPartyWeights as $partyWeight)
                                                             <option value="{{ $partyWeight }}">{{ $partyWeight }}</option>
                                                         @endforeach
@@ -99,7 +99,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchMaterial" class="form-select js-select2">
-                                                        <option value="">All Materials</option>
+                                                        <option value="">Materials</option>
                                                         @foreach($allMaterials as $material)
                                                             <option value="{{ $material->id }}">{{ $material->name }}</option>
                                                         @endforeach
@@ -107,7 +107,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchPlace" class="form-select js-select2">
-                                                        <option value="">All Places</option>
+                                                        <option value="">Places</option>
                                                         @foreach($allPlaces as $place)
                                                             <option value="{{ $place->id }}">{{ $place->name }}</option>
                                                         @endforeach
@@ -115,7 +115,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchParty" class="form-select js-select2">
-                                                        <option value="">All Parties</option>
+                                                        <option value="">Parties</option>
                                                         @foreach($allParties as $party)
                                                             <option value="{{ $party->id }}">{{ $party->name }}</option>
                                                         @endforeach
@@ -123,7 +123,7 @@
                                                 </th>
                                                 <th>
                                                     <select id="searchRoyalty" class="form-select js-select2">
-                                                        <option value="">All Royalties</option>
+                                                        <option value="">Royalties</option>
                                                         @foreach($allRoyalties as $royalty)
                                                             <option value="{{ $royalty->id }}">{{ $royalty->name }}</option>
                                                         @endforeach

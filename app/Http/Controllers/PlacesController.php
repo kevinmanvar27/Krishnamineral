@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Places;
+use Illuminate\Support\Facades\Auth;
 
 class PlacesController extends Controller
 {
@@ -91,7 +92,7 @@ class PlacesController extends Controller
             ]);
         }
 
-        return redirect()->route('places.index')->with('suuccess', 'Places added successfully');
+        return redirect()->route(Auth::user()->can('edit-places') ? 'places.editIndex' : 'home')->with('suuccess', 'Places added successfully');
     }
 
     public function edit($id)
@@ -109,13 +110,13 @@ class PlacesController extends Controller
         ]);
         $places['table_type'] = 'sales';
         Places::find($id)->update($places);
-        return redirect()->route('places.editIndex')->with('success', 'Places updated successfully');
+        return redirect()->route(Auth::user()->can('edit-places') ? 'places.editIndex' : 'home')->with('success', 'Places updated successfully');
     }
 
     public function destroy($id)
     {
         Places::find($id)->delete();
-        return redirect()->route('places.editIndex')->with('success', 'Places deleted successfully');
+        return redirect()->route(Auth::user()->can('edit-places') ? 'places.editIndex' : 'home')->with('success', 'Places deleted successfully');
     }
 
 }

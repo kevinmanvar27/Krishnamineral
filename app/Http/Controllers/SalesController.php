@@ -17,6 +17,7 @@ use App\Models\Vehicle;
 use App\Models\Blasting;
 use App\Models\Drilling;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class SalesController extends Controller
 {
@@ -123,8 +124,13 @@ class SalesController extends Controller
     public function create(Sales $sales)
     {
         $sales = Sales::latest('id')->first();
+        // Get all vehicles for sales
         $vehicles = Vehicle::where('table_type', 'sales')->get();
-        return view('sales.create-sales', compact('sales', 'vehicles'));    
+        
+        // Get vehicle IDs that have pending loads (status = 0)
+        $pendingVehicleIds = Sales::where('status', 0)->pluck('vehicle_id')->unique();
+        
+        return view('sales.create-sales', compact('sales', 'vehicles', 'pendingVehicleIds'));    
     }
 
     public function store(Request $request)
@@ -137,8 +143,9 @@ class SalesController extends Controller
             'contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'driver_contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
         ]);
+        
         Sales::create($request->all());
-        return redirect()->route('sales.pendingLoad')
+        return redirect()->route(Auth::user()->can('pending-load-sales') ? 'sales.pendingLoad' : 'home')
             ->with('success', 'Sales created successfully.');
     }
 
@@ -265,7 +272,7 @@ class SalesController extends Controller
             'auto_download_pdf' => true
         ]);
 
-        return redirect()->route('sales.salesAudit')
+        return redirect()->route(Auth::user()->can('audit-sales') ? 'sales.salesAudit' : 'home')
             ->with('success', 'Sales updated successfully');
     }
 
@@ -378,7 +385,7 @@ class SalesController extends Controller
 
         // Get all sales with their relationships where status = 1 (completed sales)
         $sales = $query->with(['party', 'material', 'vehicle', 'place', 'royalty'])
-            ->where('status', 1)
+            // ->where('status', 1)
             ->latest()
             ->paginate(10);
 
@@ -429,21 +436,28 @@ class SalesController extends Controller
         $grandTotalPartyWeight = $sales->sum('party_weight');
         $grandTotalAmount = $sales->sum('amount');
 
+        // Calculate grand total display weight (party weight when available, otherwise net weight)
+        $grandTotalDisplayWeight = 0;
+        foreach ($sales as $sale) {
+            $displayWeight = (!is_null($sale->party_weight) && $sale->party_weight != 0) ? $sale->party_weight : ($sale->net_weight ?? 0);
+            $grandTotalDisplayWeight += $displayWeight;
+        }
+
         // Get all unique values for filters
-        $allParties = Party::whereIn('id', Sales::where('status', 1)->distinct()->pluck('party_id'))->get();
-        $allMaterials = Materials::whereIn('id', Sales::where('status', 1)->distinct()->pluck('material_id'))->get();
+        $allParties = Party::whereIn('id', Sales::distinct()->pluck('party_id'))->get();
+        $allMaterials = Materials::whereIn('id', Sales::distinct()->pluck('material_id'))->get();
 
         // Don't pass filter values to the view since we're handling this in JavaScript
         // This makes it consistent with other modules
         $filterValues = [];
 
         if ($request->ajax()) {
-            return view('sales.statement', compact('sales', 'partyWiseSales', 'allParties', 'allMaterials', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'filterValues'))
+            return view('sales.statement', compact('sales', 'partyWiseSales', 'allParties', 'allMaterials', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'grandTotalDisplayWeight', 'filterValues'))
                 ->with('i', ($sales->currentPage() - 1) * $sales->perPage())
                 ->render();
         }
 
-        return view('sales.statement', compact('sales', 'partyWiseSales', 'allParties', 'allMaterials', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'filterValues'));
+        return view('sales.statement', compact('sales', 'partyWiseSales', 'allParties', 'allMaterials', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'grandTotalDisplayWeight', 'filterValues'));
     }
 
     public function printStatement(Request $request)
@@ -487,7 +501,7 @@ class SalesController extends Controller
 
         // Get all sales with their relationships where status = 1 (completed sales)
         $sales = $query->with(['party', 'material', 'vehicle', 'place', 'royalty'])
-            ->where('status', 1)
+            // ->where('status', 1)
             ->latest()
             ->get(); // Get all records without pagination for printing
 
@@ -556,6 +570,13 @@ class SalesController extends Controller
         $grandTotalPartyWeight = $sales->sum('party_weight');
         $grandTotalAmount = $sales->sum('amount');
 
+        // Calculate grand total display weight (party weight when available, otherwise net weight)
+        $grandTotalDisplayWeight = 0;
+        foreach ($sales as $sale) {
+            $displayWeight = (!is_null($sale->party_weight) && $sale->party_weight != 0) ? $sale->party_weight : ($sale->net_weight ?? 0);
+            $grandTotalDisplayWeight += $displayWeight;
+        }
+
         // Prepare filter values for the view
         $filterValues = [
             'party_name' => $request->party_name ?? '',
@@ -564,7 +585,7 @@ class SalesController extends Controller
         ];
 
         // Load the PDF view with the same data
-        $pdf = Pdf::loadView('sales.statement-pdf', compact('sales', 'partyWiseSales', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'filterValues'));
+        $pdf = Pdf::loadView('sales.statement-pdf', compact('sales', 'partyWiseSales', 'grandTotalNetWeight', 'grandTotalPartyWeight', 'grandTotalAmount', 'grandTotalDisplayWeight', 'filterValues'));
         
         // Set paper size and orientation
         $pdf->setPaper('A4', 'landscape');
@@ -717,8 +738,9 @@ class SalesController extends Controller
         $weight = (!is_null($sale->party_weight) && $sale->party_weight != 0) ? $sale->party_weight : $sale->net_weight;
         $amount = 0;
         
-        if (!is_null($sale->rate) && !is_null($weight)) {
-            $amount = $sale->rate * $weight;
+        $newWeight = $weight / 1000;
+        if (!is_null($sale->rate) && !is_null($newWeight)) {
+            $amount = $sale->rate * $newWeight;
             if (!is_null($sale->gst)) {
                 $amount += ($amount * $sale->gst / 100);
             }
@@ -758,8 +780,9 @@ class SalesController extends Controller
             $weight = (!is_null($sale->party_weight) && $sale->party_weight != 0) ? $sale->party_weight : $sale->net_weight;
             $amount = 0;
             
-            if (!is_null($sale->rate) && !is_null($weight)) {
-                $amount = $sale->rate * $weight;
+            $newWeight = $weight / 1000;
+            if (!is_null($sale->rate) && !is_null($newWeight)) {
+                $amount = $sale->rate * $newWeight;
                 if (!is_null($sale->gst)) {
                     $amount += ($amount * $sale->gst / 100);
                 }

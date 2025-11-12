@@ -47,7 +47,8 @@
                                 <input type="text" class="form-control" value="{{ $sales->driver_contact_number ?? '-' }}" readonly>
                             </div>
                         </div>
-
+                        <hr class="mt-0 border border-2 border-primary">
+                        <h5>Rate Details :-</h5>
                         <div class="row">
                             <div class="col-lg-6 mb-3">
                                 <label class="form-label">Gross Weight</label>
@@ -69,6 +70,45 @@
                                 <input type="text" class="form-control" value="{{ $sales->party_weight ?? '-' }}" readonly>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-lg-4 mb-3">
+                                <label class="form-label">Rate</label>
+                                <input type="text" class="form-control" value="{{ $sales->rate ?? '-' }}" readonly>
+                            </div>
+                            <div class="col-lg-4 mb-3">
+                                <label class="form-label">GST</label>
+                                <input type="text" class="form-control" value="{{ $sales->gst ?? '-' }}%" readonly>
+                            </div>
+                            <div class="col-lg-4 mb-3">
+                                <label class="form-label">Amount</label>
+                                <input type="text" class="form-control" value="{{ $sales->amount ?? '-' }}" readonly>
+                            </div>
+                        </div>
+                        <hr class="mt-0 border border-2 border-primary">
+                        <h5>Carting Details :-</h5>
+
+                        <div class="row">
+                            <div class="col-lg-6 mb-3">
+                                <label class="form-label">Net Weight</label>
+                                <input type="text" class="form-control" value="{{ $sales->net_weight ?? '-' }}" readonly>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <label class="form-label">Party Weight</label>
+                                <input type="text" class="form-control" value="{{ $sales->party_weight ?? '-' }}" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 mb-3">
+                                <label class="form-label">Carting Type</label>
+                                <input type="text" class="form-control" value="{{ $sales->carting_type == '0' ? 'No' : 'Yes' }}" readonly>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <label class="form-label">Carting Rate</label>
+                                <input type="text" class="form-control" value="{{ $sales->carting_rate ?? '-' }}" readonly>
+                            </div>
+                        </div>
+                        <hr class="mt-0 border border-2 border-primary">
 
                         <div class="row">
                             <div class="col-lg-4 mb-3">

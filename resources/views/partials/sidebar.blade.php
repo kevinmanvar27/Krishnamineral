@@ -344,8 +344,9 @@
 				@endif
 
 				@php
-					$canCarting = auth()->user()->can('view-carting') &&
-									auth()->user()->can('edit-carting');
+					$canCarting = auth()->user()->can('view-carting') ||
+									auth()->user()->can('edit-carting') ||
+                                    auth()->user()->can('statement-carting');
 				@endphp
 				@if($canCarting)
 					<li>
@@ -360,6 +361,11 @@
 									<a href="{{ route('carting.index') }}"><i class='bx bx-radio-circle'></i>View Carting</a>
 								</li>
 							@endcan
+                            @can('statement-carting')
+								<li> 
+									<a href="{{ route('carting.statement') }}"><i class='bx bx-radio-circle'></i>Carting Statement</a>
+								</li>
+                            @endcan
 						</ul>
 					</li>
 				@endif

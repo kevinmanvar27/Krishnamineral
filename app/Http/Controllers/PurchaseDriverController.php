@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Driver;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseDriverController extends Controller
 {
@@ -82,7 +83,7 @@ class PurchaseDriverController extends Controller
             ]);
         }
 
-        return redirect()->route('purchaseDriver.index')
+        return redirect()->route(Auth::user()->can('edit-purchaseDriver') ? 'purchaseDriver.editIndex' : 'home')
             ->with('success', 'Driver created successfully.');
     }
 
@@ -150,7 +151,7 @@ class PurchaseDriverController extends Controller
         ]);
         $validated['table_type'] = 'purchase';
         Driver::find($id)->update($validated);
-        return redirect()->route('purchaseDriver.editIndex')
+        return redirect()->route(Auth::user()->can('edit-purchaseDriver') ? 'purchaseDriver.editIndex' : 'home')
             ->with('success', 'Driver updated successfully');
     }
 

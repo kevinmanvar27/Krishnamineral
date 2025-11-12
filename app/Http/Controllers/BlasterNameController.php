@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BlasterName;
+use Illuminate\Support\Facades\Auth;
 
 class BlasterNameController extends Controller
 {
@@ -96,7 +97,7 @@ class BlasterNameController extends Controller
             ]);
         }
 
-        return redirect()->route('blaster-name.index')->with('success', 'Blaster Name created successfully.');
+        return redirect()->route(Auth::user()->can('edit-blasterName') ? 'blaster-name.editIndex' : 'home')->with('success', 'Blaster Name created successfully.');
     }
 
     public function show($id)
@@ -122,6 +123,6 @@ class BlasterNameController extends Controller
         $blasterName = BlasterName::findOrFail($id);
         $blasterName->update($request->all());
 
-        return redirect()->route('blaster-name.editIndex')->with('success', 'Blaster Name updated successfully.');
+        return redirect()->route(Auth::user()->can('edit-blasterName') ? 'blaster-name.editIndex' : 'home')->with('success', 'Blaster Name updated successfully.');
     }
 }

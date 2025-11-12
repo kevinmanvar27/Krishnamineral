@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DrillingName;
+use Illuminate\Support\Facades\Auth;
 
 class DrillingNameController extends Controller
 {
@@ -96,7 +97,7 @@ class DrillingNameController extends Controller
             ]);
         }
 
-        return redirect()->route('drilling-name.index')->with('success', 'Drilling Name created successfully.');
+        return redirect()->route(Auth::user()->can('edit-drillingName') ? 'drilling-name.editIndex' : 'home')->with('success', 'Drilling Name created successfully.');
     }
 
     public function show($id)
@@ -122,6 +123,6 @@ class DrillingNameController extends Controller
         $drillingName = DrillingName::findOrFail($id);
         $drillingName->update($request->all());
 
-        return redirect()->route('drilling-name.editIndex')->with('success', 'Drilling Name updated successfully.');
+        return redirect()->route(Auth::user()->can('edit-drillingName') ? 'drilling-name.editIndex' : 'home')->with('success', 'Drilling Name updated successfully.');
     }
 }

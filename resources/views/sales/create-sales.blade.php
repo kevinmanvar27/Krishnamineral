@@ -62,7 +62,11 @@
                                                     <select class="form-select js-select2" aria-label="Default select example" id="vehicle_id" name="vehicle_id"  data-url="{{ route('vehicle.details') }}">
                                                         <option selected disabled value>Select Vehicle</option>
                                                         @foreach($vehicles as $vehicle)
-                                                            <option value="{{ $vehicle->id ?? '' }}">{{ $vehicle->name ?? '' }}</option>
+                                                            @if(isset($pendingVehicleIds) && $pendingVehicleIds->contains($vehicle->id))
+                                                                <option value="{{ $vehicle->id ?? '' }}" disabled>{{ $vehicle->name ?? '' }} - In Pending Load</option>
+                                                            @else
+                                                                <option value="{{ $vehicle->id ?? '' }}">{{ $vehicle->name ?? '' }}</option>
+                                                            @endif
                                                         @endforeach
                                                     </select>                                                
                                                 </div>

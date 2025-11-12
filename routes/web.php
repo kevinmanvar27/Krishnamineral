@@ -90,6 +90,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Carting routes
     Route::get('/carting', [CartingController::class, 'index'])->name('carting.index');
+    Route::get('/carting/statement', [CartingController::class, 'cartingStatement'])->name('carting.statement');
+    Route::get('/carting/statement/print', [CartingController::class, 'printCartingStatement'])->name('carting.statement.print');
     Route::post('/carting/{id}/update-carting', [CartingController::class, 'updateCarting'])->name('carting.updateCarting');
     Route::post('/carting/bulk-update-carting', [CartingController::class, 'bulkUpdateCarting'])->name('carting.bulkUpdateCarting');
 
@@ -149,3 +151,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
     Route::get('/activity-log/{id}', [ActivityLogController::class, 'show'])->name('activity-log.show');
 });
+
+// Activity Log related logs route (outside auth middleware for AJAX access)
+Route::get('/activity-log/related/{subjectType}/{subjectId}', [ActivityLogController::class, 'relatedLogs'])->name('activity-log.related');

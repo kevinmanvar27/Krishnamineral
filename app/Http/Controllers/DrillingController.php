@@ -306,7 +306,7 @@ class DrillingController extends Controller
             'auto_download_pdf' => true
         ]);
 
-        return redirect()->route('drilling.index')->with('success', 'Drilling created successfully.');
+        return redirect()->route(Auth::user()->can('edit-drilling') ? 'drilling.editIndex' : 'home')->with('success', 'Drilling created successfully.');
     }
 
     public function show($id)
@@ -363,7 +363,7 @@ class DrillingController extends Controller
             'auto_download_pdf' => true
         ]);
 
-        return redirect()->route('drilling.editIndex')->with('success', 'Drilling updated successfully.');
+        return redirect()->route(Auth::user()->can('edit-drilling') ? 'drilling.editIndex' : 'home')->with('success', 'Drilling updated successfully.');
     }
 
     public function drillingPdf($id)

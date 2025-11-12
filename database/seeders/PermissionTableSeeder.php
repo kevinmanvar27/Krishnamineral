@@ -25,6 +25,7 @@ class PermissionTableSeeder extends Seeder
             'statement-sales',
             'view-carting',
             'edit-carting',
+            'statement-carting',
             'view-materials',
             'add-material',
             'edit-materials',
