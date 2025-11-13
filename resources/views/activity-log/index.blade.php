@@ -12,9 +12,10 @@
                             <div class="d-flex gap-2">
                                 <input type="date" id="searchDateFrom" class="form-control" placeholder="From Date" value="{{ request('from_date') }}">
                                 <input type="date" id="searchDateTo" class="form-control" placeholder="To Date" value="{{ request('to_date') }}">
+                                <button type="button" id="resetFilters" class="btn btn-secondary">Reset</button>
                             </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body"> 
                             
                             <div class="table-responsive">
                                 <table class="table table-striped table-bordered" id="activityLogTable">
@@ -22,8 +23,9 @@
                                         <tr>
                                             <th>#</th>
                                             <th>User</th>
-                                            <th>Event</th>
+                                            <th>ID</th>
                                             <th>Subject</th>
+                                            <th>Event</th>
                                             <th>Description</th>
                                             <th>Created At</th>
                                             @can('view-activity-log')
@@ -42,12 +44,7 @@
                                                 </select>
                                             </th>
                                             <th>
-                                                <select class="form-control js-select2 filter-input" data-column="2">
-                                                    <option value="">All Events</option>
-                                                    @foreach($activities->pluck('event')->unique()->filter() as $event)
-                                                        <option value="{{ $event }}">{{ $event }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" class="form-control filter-input" placeholder="Filter Subject ID" data-column="2">
                                             </th>
                                             <th>
                                                 <select class="form-control js-select2 filter-input" data-column="3">
@@ -58,10 +55,18 @@
                                                 </select>
                                             </th>
                                             <th>
-                                                <input type="text" class="form-control filter-input" placeholder="Filter Description" data-column="4">
+                                                <select class="form-control js-select2 filter-input" data-column="4">
+                                                    <option value="">All Events</option>
+                                                    @foreach($activities->pluck('event')->unique()->filter() as $event)
+                                                        <option value="{{ $event }}">{{ $event }}</option>
+                                                    @endforeach
+                                                </select>
                                             </th>
                                             <th>
-                                                <input type="date" class="form-control filter-input" data-column="5">
+                                                <input type="text" class="form-control filter-input" placeholder="Filter Description" data-column="5">
+                                            </th>
+                                            <th>
+                                                <input type="date" class="form-control filter-input" data-column="6">
                                             </th>
                                             @can('view-activity-log')
                                             <th></th> <!-- Actions column -->
@@ -73,8 +78,9 @@
                                         <tr>
                                             <td>{{ $loop->iteration + ($activities->currentPage() - 1) * $activities->perPage() }}</td>
                                             <td>{{ $activity->causer ? $activity->causer->name : 'System' }}</td>
-                                            <td>{{ $activity->event }}</td>
+                                            <td>{{ $activity->subject_id }}</td>
                                             <td>{{ $activity->subject_type }}</td>
+                                            <td>{{ $activity->event }}</td>
                                             <td>{{ Str::limit($activity->description, 50) }}</td>
                                             <td>{{ $activity->created_at->format('Y-m-d H:i:s') }}</td>
                                             @can('view-activity-log')
@@ -87,7 +93,7 @@
                                         </tr>
                                         @empty
                                         <tr>
-                                            <td colspan="7" class="text-center">No activity logs found.</td>
+                                            <td colspan="8" class="text-center">No activity logs found.</td>
                                         </tr>
                                         @endforelse
                                     </tbody>
@@ -109,11 +115,19 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-        // Existing date filter functionality
+        // Ensure Select2 is properly initialized for our elements
+        // This is redundant with the global initialization but ensures our elements are ready
+        $('#searchSubjectType').select2({
+            theme: 'bootstrap-5',
+            width: '100%'
+        });
+        
+        // Existing date filter functionality + new filters
         function fetch_data() {
             let fromDate = $('#searchDateFrom').val();
             let toDate = $('#searchDateTo').val();
-            let causer = $('#causer').val();
+            let subjectType = $('#searchSubjectType').val();
+            let subjectId = $('#searchSubjectId').val();
             
             let params = new URLSearchParams();
             
@@ -125,8 +139,12 @@
                 params.append('to_date', toDate);
             }
             
-            if (causer) {
-                params.append('causer', causer);
+            if (subjectType) {
+                params.append('subject_type', subjectType);
+            }
+            
+            if (subjectId) {
+                params.append('subject_id', subjectId);
             }
             
             let newUrl = "{{ route('activity-log.index') }}";
@@ -137,8 +155,39 @@
             window.location.href = newUrl;
         }
 
-        $('#searchDateFrom, #searchDateTo').on('change', function () {
+        $('#searchDateFrom, #searchDateTo, #searchSubjectType').on('change', function () {
             fetch_data();
+        });
+        
+        $('#searchSubjectId').on('keyup', function(e) {
+            // Delay the search to avoid too many requests
+            clearTimeout($(this).data('timeout'));
+            $(this).data('timeout', setTimeout(fetch_data, 500));
+        });
+        
+        // Reset filters button functionality
+        $('#resetFilters').on('click', function() {
+            // Clear all filter inputs
+            $('#searchDateFrom').val('');
+            $('#searchDateTo').val('');
+            
+            // Clear all column filters
+            $('.filter-input').each(function() {
+                if ($(this).is('select')) {
+                    $(this).val('').trigger('change');
+                } else {
+                    $(this).val('');
+                }
+            });
+            
+            // Reset Select2 elements specifically
+            $('.js-select2').val('').trigger('change');
+            
+            // Refresh the table
+            filterTable();
+            
+            // Update URL to remove query parameters
+            window.location.href = "{{ route('activity-log.index') }}";
         });
         
         // Column-based filtering

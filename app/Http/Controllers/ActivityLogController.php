@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use App\Models\Sales;
 use App\Models\Purchase;
+use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
@@ -27,7 +28,20 @@ class ActivityLogController extends Controller
         
         // Filter by causer (user)
         if ($request->has('causer') && $request->causer != '') {
-            $query->where('causer_id', $request->causer);
+            $user = User::where('name', $request->causer)->first();
+            if ($user) {
+                $query->where('causer_id', $user->id);
+            }
+        }
+        
+        // Filter by subject type
+        if ($request->has('subject_type') && $request->subject_type != '') {
+            $query->where('subject_type', $request->subject_type);
+        }
+        
+        // Filter by subject ID
+        if ($request->has('subject_id') && $request->subject_id != '') {
+            $query->where('subject_id', $request->subject_id);
         }
         
         // Filter by date range
