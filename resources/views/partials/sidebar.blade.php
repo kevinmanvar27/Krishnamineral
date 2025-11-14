@@ -606,7 +606,7 @@
                     </li>
 				@endif
 
-				<!-- @php
+				@php
 					$canVendors = auth()->user()->can('view-vendor') ||
 									auth()->user()->can('add-vendor') ||
 									auth()->user()->can('edit-vendor');
@@ -636,9 +636,9 @@
 							@endcan
 						</ul>
 					</li>
-				@endif -->
+				@endif
 
-                <!-- @php
+                @php
                     $attendancePermission = auth()->user()->can('view-attendance') ||
                                             auth()->user()->can('add-attendance');
                 @endphp
@@ -655,9 +655,9 @@
                             </li>
                         </ul>
                     </li>
-                @endif -->
+                @endif
 
-                <!-- @php
+                @php
                     $blastingPermission = auth()->user()->can('view-blasting') ||
                                             auth()->user()->can('add-blasting') ||
                                             auth()->user()->can('edit-blasting') ||
@@ -721,9 +721,9 @@
                         @endif
                     </ul>
                 </li>
-                @endif -->
+                @endif
 
-                <!-- @php
+                @php
                     $drillingPermission = auth()->user()->can('view-drilling') ||
                                             auth()->user()->can('add-drilling') ||
                                             auth()->user()->can('edit-drilling') ||
@@ -787,7 +787,7 @@
                         @endif
                     </ul>
                 </li>
-                @endif -->
+                @endif
 
                 @if(auth()->user()->can('view-activity-log'))
                 <li>
