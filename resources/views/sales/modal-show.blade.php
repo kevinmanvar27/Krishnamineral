@@ -77,8 +77,8 @@
                                 <input type="text" class="form-control" value="{{ $sales->rate ?? '-' }}" readonly>
                             </div>
                             <div class="col-lg-4 mb-3">
-                                <label class="form-label">GST</label>
-                                <input type="text" class="form-control" value="{{ $sales->gst ?? '-' }}%" readonly>
+                                <label class="form-label">GST(%)</label>
+                                <input type="text" class="form-control" value="{{ $sales->gst ?? '-' }}" readonly>
                             </div>
                             <div class="col-lg-4 mb-3">
                                 <label class="form-label">Amount</label>
