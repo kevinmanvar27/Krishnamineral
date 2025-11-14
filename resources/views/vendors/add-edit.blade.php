@@ -65,7 +65,7 @@
                                         <div class="col-md-4 mb-4">
                                             <label for="contact_person" class="form-label mb-2">Contact Person</label>
                                             <div class="input-group">
-                                                <input type="text" name="contact_person" placeholder="Contact Person" class="form-control" id="contact_person" value="{{ old('contact_person', $vendor->contact_person ?? '') }}">
+                                                <input type="number" name="contact_person" placeholder="Contact Person" class="form-control" id="contact_person" value="{{ old('contact_person', $vendor->contact_person ?? '') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
                                             </div>
                                             @error('contact_person')<div class="text-danger mt-1">{{ $message }}</div>@enderror
                                         </div>

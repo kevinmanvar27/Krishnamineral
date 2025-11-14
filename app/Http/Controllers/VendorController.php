@@ -82,7 +82,7 @@ class VendorController extends Controller
         $rules = [
             'vendor_code' => 'required|string|max:20|unique:vendors',
             'vendor_name' => 'required|string|max:255',
-            'contact_person' => 'required|string|max:255',
+            'contact_person' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'mobile' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'telephone' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'email_id' => 'required|email|max:255',
@@ -156,7 +156,7 @@ class VendorController extends Controller
         $rules = [
             'vendor_code' => 'required|string|max:20|unique:vendors,vendor_code,' . $id,
             'vendor_name' => 'required|string|max:255',
-            'contact_person' => 'required|string|max:255',
+            'contact_person' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'mobile' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'telephone' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'email_id' => 'required|email|max:255',
