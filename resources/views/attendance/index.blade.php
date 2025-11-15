@@ -1,476 +1,474 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+.attendance-summary-table {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.attendance-calendar-table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 8px;
+}
+
+.attendance-calendar-table th {
+    width: 14.28%; /* 100% / 7 days */
+    background: #0d6efd;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 8px;
+}
+
+.calendar-day-cell {
+    height: 180px;
+    min-height: 180px;
+    vertical-align: top;
+    background: white;
+    padding: 12px;
+    position: relative;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 14.28%; /* 100% / 7 days */
+}
+
+.calendar-day-cell:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.calendar-day-cell.disabled {
+    background: #e9ecef;
+    color: #6c757d;
+    border: 2px solid #ced4da;
+}
+
+.day-header {
+    font-weight: bold;
+    font-size: 20px;
+    padding: 8px;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 12px;
+    background: #f1f1f1;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.attendance-counts {
+    padding: 8px;
+}
+
+.count {
+    margin-bottom: 10px;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    border: 2px solid transparent;
+}
+
+.present-highlight {
+    background-color: #d1e7dd;
+    border-color: #198754;
+}
+
+.present-highlight .label {
+    color: #198754;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.present-highlight .value {
+    color: #198754;
+    font-weight: bold;
+    float: right;
+    font-size: 18px;
+}
+
+.absent-highlight {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.absent-highlight .label {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.absent-highlight .value {
+    color: #dc3545;
+    font-weight: bold;
+    float: right;
+    font-size: 18px;
+}
+
+.paid-leave-highlight {
+    background-color: #cce5ff;
+    border-color: #0d6efd;
+}
+
+.paid-leave-highlight .label {
+    color: #0d6efd;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.paid-leave-highlight .value {
+    color: #0d6efd;
+    font-weight: bold;
+    float: right;
+    font-size: 18px;
+}
+
+.no-data {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 50px);
+}
+
+.summary-stat {
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s ease;
+}
+
+.summary-stat:hover {
+    transform: translateY(-3px);
+}
+
+.summary-stat h3 {
+    margin: 0;
+    font-size: 2rem;
+    color: #0d6efd;
+}
+
+.summary-stat p {
+    margin: 5px 0 0;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.table-bordered td, .table-bordered th {
+    border: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .calendar-day-cell {
+        height: 150px;
+        min-height: 150px;
+        padding: 8px;
+    }
+    
+    .day-header {
+        font-size: 16px;
+        padding: 5px;
+    }
+    
+    .count {
+        font-size: 14px;
+        padding: 8px;
+    }
+    
+    .count .value {
+        font-size: 16px;
+    }
+    
+    .attendance-calendar-table th {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    .no-data {
+        font-size: 14px;
+    }
+}
+</style>
 <div class="wrapper">
     <div class="page-wrapper">
         <div class="page-content">
             <div class="row">
                 <div class="col-lg-12">
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success">
-                            <p>{{ $message }}</p>
-                        </div>
-                    @endif
-
                     <div class="card stretch stretch-full">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">Attendance Records</h5>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal" id="openAddAttendanceModal">
-                                    <i class="lni lni-plus"></i> Add Attendance
-                                </button>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">Attendance Summary Calendar</h5>
+                            <div class="card-header-action">
+                                <a href="{{ route('attendance.calendar') }}" class="btn btn-secondary">
+                                    <i class="lni lni-tablet"></i> Detailed View
+                                </a>
                             </div>
-                        </div>  
+                        </div>
                         <div class="card-body">
                             <!-- Filter Section -->
-                            <div class="row mb-3">
+                            <div class="row mb-4">
                                 <div class="col-md-12">
-                                    <form id="attendanceFilterForm" method="GET" action="{{ route('attendance.index') }}">
+                                    <form id="attendanceSummaryForm" method="GET" action="{{ route('attendance.index') }}">
                                         <div class="row g-3 align-items-end">
                                             <div class="col-md-3">
-                                                <label for="month" class="form-label">Month</label>
-                                                <select id="month" name="month" class="form-select">
-                                                    <option value="">Select Month</option>
-                                                    @for($m = 1; $m <= 12; $m++)
-                                                        <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
-                                                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
-                                                        </option>
-                                                    @endfor
-                                                </select>
+                                                <label for="month_year" class="form-label">Month & Year</label>
+                                                <input type="month" class="form-control" id="month_year" name="month_year" 
+                                                       value="{{ sprintf('%04d-%02d', $year, $month) }}">
                                             </div>
                                             <div class="col-md-3">
-                                                <label for="year" class="form-label">Year</label>
-                                                <select id="year" name="year" class="form-select">
-                                                    <option value="">Select Year</option>
-                                                    @for($y = date('Y'); $y >= 2020; $y--)
-                                                        <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>
-                                                            {{ $y }}
-                                                        </option>
-                                                    @endfor
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="employee_id" class="form-label">Employee</label>
-                                                <select id="employee_id" name="employee_id" class="form-select js-select2">
-                                                    <option value="">All Employees</option>
-                                                    @foreach($employees as $employee)
-                                                        <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
-                                                            {{ $employee->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="d-flex">
-                                                    <button type="submit" class="btn btn-primary me-2">Filter</button>
-                                                    <a href="{{ route('attendance.index') }}" class="btn btn-secondary">Reset</a>
-                                                </div>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="lni lni-funnel"></i> Filter
+                                                </button>
                                             </div>
                                         </div>
+                                        <!-- Hidden inputs for month and year to ensure proper parameter passing -->
+                                        <input type="hidden" name="month" value="{{ $month }}">
+                                        <input type="hidden" name="year" value="{{ $year }}">
                                     </form>
                                 </div>
                             </div>
+
+                            <!-- Calendar Table Visualization -->
+                            <div class="attendance-summary-table">
+                                <div class="calendar-header text-center mb-4">
+                                    <h4>{{ date('F Y', mktime(0, 0, 0, $month, 1, $year)) }}</h4>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-bordered attendance-calendar-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Sun</th>
+                                                <th class="text-center">Mon</th>
+                                                <th class="text-center">Tue</th>
+                                                <th class="text-center">Wed</th>
+                                                <th class="text-center">Thu</th>
+                                                <th class="text-center">Fri</th>
+                                                <th class="text-center">Sat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                                                $firstDayOfMonth = date('w', strtotime("$year-$month-01"));
+                                                $dayCounter = 1;
+                                            @endphp
+                                            
+                                            <!-- Generate calendar rows -->
+                                            @for ($week = 0; $week < 6; $week++)
+                                                <tr>
+                                                    @for ($dayOfWeek = 0; $dayOfWeek < 7; $dayOfWeek++)
+                                                        @php
+                                                            $dayIndex = ($week * 7) + $dayOfWeek - $firstDayOfMonth + 1;
+                                                            $isCurrentMonth = ($dayIndex > 0 && $dayIndex <= $daysInMonth);
+                                                            $date = $isCurrentMonth ? sprintf('%04d-%02d-%02d', $year, $month, $dayIndex) : '';
+                                                            $attendanceData = $isCurrentMonth && isset($attendanceSummary[$date]) ? $attendanceSummary[$date] : null;
+                                                        @endphp
+                                                        
+                                                        @if ($isCurrentMonth)
+                                                            <td class="calendar-day-cell">
+                                                                <div class="day-header">{{ $dayIndex }}</div>
+                                                                @if ($attendanceData)
+                                                                    <div class="attendance-counts">
+                                                                        <div class="count present-highlight" data-date="{{ $date }}" data-type="present">
+                                                                            <span class="label">Present:</span>
+                                                                            <span class="value">{{ $attendanceData['present'] }}</span>
+                                                                        </div>
+                                                                        <div class="count absent-highlight" data-date="{{ $date }}" data-type="absent">
+                                                                            <span class="label">Absent:</span>
+                                                                            <span class="value">{{ $attendanceData['absent'] }}</span>
+                                                                        </div>
+                                                                        @if ($attendanceData['paid_leave'] > 0)
+                                                                        <div class="count paid-leave-highlight" data-date="{{ $date }}" data-type="paid_leave">
+                                                                            <span class="label">Paid Leave:</span>
+                                                                            <span class="value">{{ $attendanceData['paid_leave'] }}</span>
+                                                                        </div>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            </td>
+                                                            @php $dayCounter++; @endphp
+                                                        @else
+                                                            <td class="calendar-day-cell" style="visibility: hidden;">
+                                                                <div class="day-header">&nbsp;</div>
+                                                            </td>
+                                                        @endif
+                                                    @endfor
+                                                </tr>
+                                                
+                                                <!-- Break if we've displayed all days of the month -->
+                                                @if ($dayCounter > $daysInMonth)
+                                                    @break
+                                                @endif
+                                            @endfor
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                             
-                            <!-- Summary Section -->
-                            <div class="row mb-3">
+                            <!-- Summary Statistics -->
+                            <div class="row mt-5">
                                 <div class="col-md-12">
                                     <div class="card bg-light">
                                         <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <h6 class="mb-0">Attendance Summary</h6>
-                                                <div>
-                                                    <button type="button" class="btn btn-info btn-sm me-2" id="viewSummaryBtn">
-                                                        Summary View
-                                                    </button>
-                                                    <button type="button" class="btn btn-success btn-sm" id="viewCalendarBtn">
-                                                        Calendar View
-                                                    </button>
+                                            <h5 class="card-title">Attendance Summary</h5>
+                                            <div class="row">
+                                                <div class="col-md-3 col-sm-6 mb-3">
+                                                    <div class="summary-stat">
+                                                        <h3>{{ $totalPresent }}</h3>
+                                                        <p class="mb-0">Total Present</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6 mb-3">
+                                                    <div class="summary-stat">
+                                                        <h3>{{ $totalAbsent }}</h3>
+                                                        <p class="mb-0">Total Absent</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6 mb-3">
+                                                    <div class="summary-stat">
+                                                        <h3>{{ $totalPaidLeave }}</h3>
+                                                        <p class="mb-0">Paid Leave</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-sm-6 mb-3">
+                                                    <div class="summary-stat">
+                                                        <h3>{{ $totalEmployees }}</h3>
+                                                        <p class="mb-0">Total Employees</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Attendance Table -->
-                            <div class="table-responsive">
-                                <table id="attendanceTable" class="table table-striped table-bordered" style="width:100%">
-                                    <thead>
-                                        <tr class="border-b">
-                                            <th>Date</th>
-                                            <th>Employee ID</th>
-                                            <th>Employee Name</th>
-                                            <th>Designation</th>
-                                            <th>Attendance</th>
-                                            <th>Overtime (Hours)</th>
-                                            <th>Trips</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($attendances as $attendance)
-                                            <tr>
-                                                <td>{{ $attendance->date->format('d M, Y') }}</td>
-                                                <td>{{ $attendance->employee->id ?? 'N/A' }}</td>
-                                                <td>{{ $attendance->employee->name ?? 'N/A' }}</td>
-                                                <td>{{ strtoupper($attendance->employee->role ?? 'Employee') }}</td>
-                                                <td>
-                                                    @if($attendance->type_attendance == 1)
-                                                        <span class="badge bg-success">Present</span>
-                                                    @elseif($attendance->type_attendance == 2)
-                                                        <span class="badge bg-danger">Absent</span>
-                                                    @else
-                                                        <span class="badge bg-warning">Absent (Paid)</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $attendance->extra_hours }}</td>
-                                                <td>{{ $attendance->driver_tuck_trip }}</td>
-                                                <td class="d-flex">
-                                                    <button class="btn btn-info btn-sm me-2 edit-attendance" 
-                                                            data-id="{{ $attendance->id }}"
-                                                            data-employee-id="{{ $attendance->employee_id }}"
-                                                            data-date="{{ $attendance->date->format('Y-m-d') }}"
-                                                            data-type="{{ $attendance->type_attendance }}"
-                                                            data-extra-hours="{{ $attendance->extra_hours }}"
-                                                            data-driver-trip="{{ $attendance->driver_tuck_trip }}"
-                                                            data-bs-toggle="modal" 
-                                                            data-bs-target="#editAttendanceModal">
-                                                        <i class="lni lni-pencil"></i>
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm delete-attendance" 
-                                                            data-id="{{ $attendance->id }}">
-                                                        <i class="lni lni-trash-can"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    Showing {{ $attendances->firstItem() ?? 0 }} to {{ $attendances->lastItem() ?? 0 }} of {{ $attendances->total() ?? 0 }} entries
-                                </div>
-                                <div>
-                                    {{ $attendances->links() }}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- [Attendance] end -->
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Attendance Modal -->
-<div class="modal fade" id="addAttendanceModal" tabindex="-1" aria-labelledby="addAttendanceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addAttendanceModalLabel">Add Attendance Record</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addAttendanceForm">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="add_date" class="form-label">Date *</label>
-                                <input type="date" class="form-control" id="add_date" name="date" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="add_employee_id" class="form-label">Select Employee *</label>
-                                <select id="add_employee_id" name="employee_id" class="form-select" required>
-                                    <option value="">Select Employee</option>
-                                    @foreach($employees as $employee)
-                                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="add_extra_hours" class="form-label">Extra Working Hours</label>
-                                <input type="number" class="form-control" id="add_extra_hours" name="extra_hours" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="add_type_attendance" class="form-label">Attendance Type *</label>
-                                <select id="add_type_attendance" name="type_attendance" class="form-select" required>
-                                    <option value="1">Present</option>
-                                    <option value="2">Absent</option>
-                                    <option value="3">Absent (Paid)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="add_driver_tuck_trip" class="form-label">Trips</label>
-                                <input type="number" class="form-control" id="add_driver_tuck_trip" name="driver_tuck_trip" min="0" value="0">
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveAttendanceBtn">Save Attendance</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Attendance Modal -->
-<div class="modal fade" id="editAttendanceModal" tabindex="-1" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editAttendanceModalLabel">Edit Attendance Record</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editAttendanceForm">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" id="edit_attendance_id" name="id">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_date" class="form-label">Date *</label>
-                                <input type="date" class="form-control" id="edit_date" name="date" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_employee_id" class="form-label">Select Employee *</label>
-                                <select id="edit_employee_id" name="employee_id" class="form-select" required>
-                                    <option value="">Select Employee</option>
-                                    @foreach($employees as $employee)
-                                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_extra_hours" class="form-label">Extra Working Hours</label>
-                                <input type="number" class="form-control" id="edit_extra_hours" name="extra_hours" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_type_attendance" class="form-label">Attendance Type *</label>
-                                <select id="edit_type_attendance" name="type_attendance" class="form-select" required>
-                                    <option value="1">Present</option>
-                                    <option value="2">Absent</option>
-                                    <option value="3">Absent (Paid)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="edit_driver_tuck_trip" class="form-label">Trips</label>
-                                <input type="number" class="form-control" id="edit_driver_tuck_trip" name="driver_tuck_trip" min="0" value="0">
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="updateAttendanceBtn">Update Attendance</button>
             </div>
         </div>
     </div>
 </div>
 @endsection
 
+<!-- Attendance Details Modal -->
+<div class="modal fade" id="attendanceDetailsModal" tabindex="-1" aria-labelledby="attendanceDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="attendanceDetailsModalLabel">Attendance Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="attendance-details-content">
+                    <!-- Content will be loaded here via AJAX -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
-    $(document).ready(function() {
-        // Set today's date as default for add form
-        const today = new Date().toISOString().split('T')[0];
-        $('#add_date').val(today);
-        
-        // Save attendance
-        $('#saveAttendanceBtn').click(function() {
-            const formData = $('#addAttendanceForm').serialize();
+$(document).ready(function() {
+    // Update month/year filter when changed
+    $('#month_year').change(function() {
+        var selectedDate = $(this).val();
+        if (selectedDate) {
+            var parts = selectedDate.split('-');
+            var year = parts[0];
+            var month = parts[1];
             
-            $.ajax({
-                url: "{{ route('attendance.store') }}",
-                type: "POST",
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        $('#addAttendanceModal').modal('hide');
-                        $('#addAttendanceForm')[0].reset();
-                        $('#add_date').val(today);
-                        
-                        // Reload the table
-                        location.reload();
-                        
-                        // Show success message
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message,
+            // Update hidden inputs
+            $('input[name="month"]').val(month);
+            $('input[name="year"]').val(year);
+            
+            // Submit the form
+            $('#attendanceSummaryForm').submit();
+        }
+    });
+    
+    // Add hover effect to calendar cells
+    $('.calendar-day-cell').hover(
+        function() {
+            $(this).css('cursor', 'pointer');
+        }, function() {
+            $(this).css('cursor', 'default');
+        }
+    );
+    
+    // Add click handlers for attendance count sections
+    $(document).on('click', '.present-highlight, .absent-highlight, .paid-leave-highlight', function() {
+        var date = $(this).data('date');
+        var type = $(this).data('type');
+        
+        // Show loading in modal
+        var typeLabel = type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        $('#attendanceDetailsModalLabel').text('Attendance Details - ' + typeLabel + ' (' + date + ')');
+        $('#attendance-details-content').html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#attendanceDetailsModal').modal('show');
+        
+        // Fetch attendance details
+        $.ajax({
+            url: '{{ route("attendance.details") }}',
+            method: 'GET',
+            data: {
+                date: date,
+                type: type
+            },
+            success: function(response) {
+                if (response.success) {
+                    var html = '<div class="table-responsive">' +
+                               '<table class="table table-striped">' +
+                               '<thead>' +
+                               '<tr>' +
+                               '<th>Employee Name</th>' +
+                               '<th>Employee ID</th>' +
+                               '<th>Extra Hours</th>' +
+                               '<th>Driver Tuck Trip</th>' +
+                               '</tr>' +
+                               '</thead>' +
+                               '<tbody>';
+                    
+                    if (response.data.length > 0) {
+                        $.each(response.data, function(index, attendance) {
+                            html += '<tr>' +
+                                    '<td>' + (attendance.employee ? attendance.employee.name : 'N/A') + '</td>' +
+                                    '<td>' + (attendance.employee ? attendance.employee.id : 'N/A') + '</td>' +
+                                    '<td>' + (attendance.extra_hours || 0) + '</td>' +
+                                    '<td>' + (attendance.driver_tuck_trip || 0) + '</td>' +
+                                    '</tr>';
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: response.message,
-                        });
+                        html += '<tr><td colspan="4" class="text-center">No records found</td></tr>';
                     }
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Something went wrong. Please try again.',
-                    });
+                    
+                    html += '</tbody></table></div>';
+                    $('#attendance-details-content').html(html);
+                } else {
+                    $('#attendance-details-content').html('<div class="alert alert-danger">Error loading data: ' + response.message + '</div>');
                 }
-            });
-        });
-        
-        // Edit attendance
-        $(document).on('click', '.edit-attendance', function() {
-            const id = $(this).data('id');
-            const employeeId = $(this).data('employee-id');
-            const date = $(this).data('date');
-            const type = $(this).data('type');
-            const extraHours = $(this).data('extra-hours');
-            const driverTrip = $(this).data('driver-trip');
-            
-            $('#edit_attendance_id').val(id);
-            $('#edit_employee_id').val(employeeId);
-            $('#edit_date').val(date);
-            $('#edit_type_attendance').val(type);
-            $('#edit_extra_hours').val(extraHours);
-            $('#edit_driver_tuck_trip').val(driverTrip);
-        });
-        
-        // Update attendance
-        $('#updateAttendanceBtn').click(function() {
-            const id = $('#edit_attendance_id').val();
-            const formData = $('#editAttendanceForm').serialize();
-            
-            $.ajax({
-                url: `/attendance/${id}`,
-                type: "PUT",
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        $('#editAttendanceModal').modal('hide');
-                        
-                        // Reload the table
-                        location.reload();
-                        
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: response.message,
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: response.message,
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Something went wrong. Please try again.',
-                    });
-                }
-            });
-        });
-        
-        // Delete attendance
-        $(document).on('click', '.delete-attendance', function() {
-            const id = $(this).data('id');
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: `/attendance/${id}`,
-                        type: "DELETE",
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                // Reload the table
-                                location.reload();
-                                
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Deleted!',
-                                    text: response.message,
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: response.message,
-                                });
-                            }
-                        },
-                        error: function(xhr) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: 'Something went wrong. Please try again.',
-                            });
-                        }
-                    });
-                }
-            });
-        });
-        
-        // View summary
-        $('#viewSummaryBtn').click(function() {
-            const month = $('#month').val();
-            const year = $('#year').val();
-            
-            if (!month || !year) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Warning!',
-                    text: 'Please select both month and year to view summary.',
-                });
-                return;
+            },
+            error: function(xhr, status, error) {
+                $('#attendance-details-content').html('<div class="alert alert-danger">Error loading data: ' + error + '</div>');
             }
-            
-            window.location.href = `{{ route('attendance.index') }}?month=${month}&year=${year}`;
-        });
-        
-        // View calendar
-        $('#viewCalendarBtn').click(function() {
-            const month = $('#month').val() || new Date().getMonth() + 1;
-            const year = $('#year').val() || new Date().getFullYear();
-            
-            window.location.href = `{{ route('attendance.calendar') }}?month=${month}&year=${year}`;
         });
     });
+});
 </script>
 @endpush

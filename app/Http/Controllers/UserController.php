@@ -123,6 +123,8 @@ class UserController extends Controller
             'contact_number_1' => 'required|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
             'contact_number_2' => 'nullable|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
             'joining_date' => 'required|date',
+            'shift_start_time' => 'required|date_format:H:i',
+            'shift_end_time' => 'required|date_format:H:i',
             'user_photo' => 'required|image|mimes:jpeg,png,jpg,pdf|max:2048',
             'user_photo_id' => 'required|image|mimes:jpeg,png,jpg,pdf|max:2048',
             'user_address_proof' => 'required|image|mimes:jpeg,png,jpg,pdf|max:2048',
@@ -173,6 +175,10 @@ class UserController extends Controller
 
             // Email
             'email' => 'nullable|email|unique:users,email',
+            
+            // Attendance time fields
+            'attendance_start_time' => 'nullable|date_format:H:i',
+            'attendance_end_time' => 'nullable|date_format:H:i',
         ], [
             // Custom messages...
             'username.required' => 'Employee name is required.',
@@ -387,6 +393,8 @@ class UserController extends Controller
             'contact_number_1' => 'nullable|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
             'contact_number_2' => 'nullable|string|max:10|min:10|regex:/^[0-9+\-\s]+$/',
             'joining_date' => 'required|date',
+            'shift_start_time' => 'nullable',
+            'shift_end_time' => 'nullable',
             'user_photo' => 'nullable|image|mimes:jpeg,png,jpg,pdf|max:2048',
             'user_photo_id' => 'nullable|image|mimes:jpeg,png,jpg,pdf|max:2048',
             'user_address_proof' => 'nullable|image|mimes:jpeg,png,jpg,pdf|max:2048',
@@ -402,6 +410,9 @@ class UserController extends Controller
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
             'email' => 'nullable|email|unique:users,email,' . $id,
+            // Attendance time fields
+            'attendance_start_time' => 'nullable',
+            'attendance_end_time' => 'nullable',
         ];
 
         if ($request->input('bank') == 2 && empty($user->bank_proof)) {
@@ -652,4 +663,3 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Password changed successfully.');
     }
 }
-

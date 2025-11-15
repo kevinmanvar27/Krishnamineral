@@ -289,6 +289,20 @@
                                                 @error('licence')<div class="text-danger">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
+
+                                        {{-- Shift Time --}}
+                                        <hr class="mt-3">
+                                        <h5>Shift Time</h5>
+                                        <div class="row">
+                                            <div class="col-lg-6 mb-3">
+                                                <label for="shift_start_time" class="form-label">Start Time</label>
+                                                <input type="time" name="shift_start_time" class="form-control" id="shift_start_time" value="{{ old('shift_start_time', $user->shift_start_time) }}">
+                                            </div>
+                                            <div class="col-lg-6 mb-3">
+                                                <label for="shift_end_time" class="form-label">End Time</label>
+                                                <input type="time" name="shift_end_time" class="form-control" id="shift_end_time" value="{{ old('shift_end_time', $user->shift_end_time) }}">
+                                            </div>
+                                        </div>
                                     </div>
 
 
@@ -422,16 +436,37 @@
                                                                         @foreach($permissions as $permission)
                                                                             <div class="col-md-4 mb-2">
                                                                                 <div class="form-check">
-                                                                                    <input class="form-check-input" 
+                                                                                    <input class="form-check-input attendance-checkbox" 
                                                                                         id="perm_{{ $permission->id }}" 
                                                                                         type="checkbox" 
                                                                                         name="permissions[]" 
                                                                                         value="{{ $permission->id }}"
-                                                                                        {{ in_array($permission->id, $userPermissions) ? 'checked' : '' }}>
+                                                                                        {{ in_array($permission->id, $userPermissions) ? 'checked' : '' }}
+                                                                                        data-permission-name="{{ $permission->name }}">
                                                                                     <label class="form-check-label" for="perm_{{ $permission->id }}">
                                                                                         {{ ucwords(preg_replace('/(?<!^)([A-Z])/', ' $1', str_replace('-', ' ', $permission->name))) }}
                                                                                     </label>
                                                                                 </div>
+                                                                                @if($permission->name === 'add-attendance')
+                                                                                    <div class="attendance-time-fields mt-2 {{ in_array($permission->id, $userPermissions) ? '' : 'd-none' }}">
+                                                                                        <div class="row">
+                                                                                            <div class="col-md-6">
+                                                                                                <label for="attendance_start_time_{{ $permission->id }}" class="form-label">Start Time</label>
+                                                                                                <input type="time" 
+                                                                                                       class="form-control" 
+                                                                                                       id="attendance_start_time_{{ $permission->id }}" 
+                                                                                                       name="attendance_start_time" value="{{ $user->attendance_start_time ?? '' }}">
+                                                                                            </div>
+                                                                                            <div class="col-md-6">
+                                                                                                <label for="attendance_end_time_{{ $permission->id }}" class="form-label">End Time</label>
+                                                                                                <input type="time" 
+                                                                                                       class="form-control" 
+                                                                                                       id="attendance_end_time_{{ $permission->id }}" 
+                                                                                                       name="attendance_end_time" value="{{ $user->attendance_end_time ?? '' }}">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                @endif
                                                                             </div>
                                                                         @endforeach
                                                                     </div>
@@ -623,6 +658,18 @@
                 $('#Mobile2').removeClass('d-none');
                 $('#showMobile2').removeClass('bx-plus').addClass('bx-minus');
             }
+
+            // -------------------- Attendance Time Fields Toggle --------------------
+            $('.attendance-checkbox').on('change', function() {
+                const permissionName = $(this).data('permission-name');
+                if (permissionName === 'add-attendance') {
+                    if ($(this).is(':checked')) {
+                        $(this).closest('.col-md-4').find('.attendance-time-fields').removeClass('d-none');
+                    } else {
+                        $(this).closest('.col-md-4').find('.attendance-time-fields').addClass('d-none');
+                    }
+                }
+            });
 
         });
 

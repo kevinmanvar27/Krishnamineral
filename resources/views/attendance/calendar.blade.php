@@ -10,14 +10,29 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title">Attendance Calendar</h5>
                             <div class="card-header-action">
+                                <!-- Start Time End Time Countdown Timer -->
+                                <span class="d-none" id="startTime">{{ auth()->user()->attendance_start_time ?? '00:00:00' }}</span>
+                                <span class="d-none" id="endTime">{{ auth()->user()->attendance_end_time ?? '23:59:59' }}</span>
+                                <div id="startTimeEndTimeCountdown" class="btn btn-warning me-2"></div>
                                 <!-- Print Button -->
                                 <button type="button" class="btn btn-secondary me-2" id="printCalendar">
                                     <i class="lni lni-printer"></i> Print
                                 </button>
                                 @if(auth()->user()->can('add-attendance'))
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal" id="openAddAttendanceModal">
-                                        <i class="lni lni-plus"></i> Add Attendance
-                                    </button>
+                                    @php
+                                        $currentTime = now()->timezone('Asia/Kolkata')->format('H:i:s');
+                                        $startTime = auth()->user()->attendance_start_time ?? '00:00:00';
+                                        $endTime = auth()->user()->attendance_end_time ?? '23:59:59';
+                                    @endphp
+                                    @if( ($currentTime >= $startTime) && ( $currentTime <= $endTime) )
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAttendanceModal" id="openAddAttendanceModal">
+                                            <i class="lni lni-plus"></i> Add Attendance
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-primary disabled" data-bs-toggle="modal">
+                                            <i class="lni lni-plus"></i> Add Attendance
+                                        </button>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -122,7 +137,9 @@
                                             @foreach($records as $date => $record)
                                                 <td class="text-center">
                                                     @if($record)
-                                                        @if($record->type_attendance == 1)
+                                                        @if($record->type_attendance == 1 && $record->extra_hours)
+                                                            <span class="badge bg-success">P+</span>
+                                                        @elseif($record->type_attendance == 1)
                                                             <span class="badge bg-success">P</span>
                                                         @elseif($record->type_attendance == 2)
                                                             <span class="badge bg-danger">A</span>
@@ -396,5 +413,44 @@
         // Trigger change event on page load to set initial state
         $('#add_type_attendance').trigger('change');
     });
+
+    // Start Time End Time Countdown Timer
+    $(document).ready(function () {
+
+        function liveCountdown() {
+
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0]; // yyyy-mm-dd
+
+            const endString = $("#endTime").text().trim();   // example: 18:00:00
+            const endTime = new Date(dateString + " " + endString);
+            const now = new Date();
+
+            let diff = Math.floor((endTime - now) / 1000); // seconds
+
+            if (diff < 0) diff = 0; // countdown stops at zero
+
+            // Convert to HH:MM:SS
+            const hours   = String(Math.floor(diff / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+            const seconds = String(diff % 60).padStart(2, '0');
+
+            $("#startTimeEndTimeCountdown").text(
+                `${hours}:${minutes}:${seconds}`
+            );
+            //when endtime == now then reload page
+            if (diff === 1) {
+                setTimeout(function() {
+                    location.reload();
+                }, 4000);
+            }
+        }
+
+        liveCountdown();
+        setInterval(liveCountdown, 1000); // Update every second
+
+    });
+
+
 </script>
 @endpush

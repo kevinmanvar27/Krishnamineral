@@ -13,22 +13,60 @@ class AttendanceController extends Controller
 {
     public function index(Request $request)
     {
-        // Redirect to calendar view directly
-        $month = $request->get('month', date('m'));
-        $year = $request->get('year', date('Y'));
-        $userId = $request->get('user_id', null);
-        
-        // If no user_id is specified, get the first user by default
-        if (!$userId) {
-            $firstUser = User::orderBy('name')->first();
-            $userId = $firstUser ? $firstUser->id : null;
+        // Handle month_year parameter (YYYY-MM format) or fallback to separate month/year parameters
+        $monthYear = $request->get('month_year');
+        if ($monthYear) {
+            $dateParts = explode('-', $monthYear);
+            $year = $dateParts[0];
+            $month = $dateParts[1];
+        } else {
+            $month = $request->get('month', date('m'));
+            $year = $request->get('year', date('Y'));
         }
         
-        return redirect()->route('attendance.calendar', [
-            'month' => $month,
-            'year' => $year,
-            'user_id' => $userId
-        ]);
+        // Get attendance records for the selected month/year
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+        
+        $attendances = Attendance::whereBetween('date', [$startDate, $endDate])->get();
+        
+        // Group attendances by date and calculate present/absent counts
+        $attendanceSummary = [];
+        $totalPresent = 0;
+        $totalAbsent = 0;
+        $totalPaidLeave = 0;
+        
+        foreach ($attendances as $attendance) {
+            $date = $attendance->date->format('Y-m-d');
+            
+            if (!isset($attendanceSummary[$date])) {
+                $attendanceSummary[$date] = [
+                    'present' => 0,
+                    'absent' => 0,
+                    'paid_leave' => 0
+                ];
+            }
+            
+            switch ($attendance->type_attendance) {
+                case 1: // Present
+                    $attendanceSummary[$date]['present']++;
+                    $totalPresent++;
+                    break;
+                case 2: // Absent
+                    $attendanceSummary[$date]['absent']++;
+                    $totalAbsent++;
+                    break;
+                case 3: // Absent (Paid)
+                    $attendanceSummary[$date]['paid_leave']++;
+                    $totalPaidLeave++;
+                    break;
+            }
+        }
+        
+        // Get total employees count
+        $totalEmployees = User::count();
+        
+        return view('attendance.index', compact('attendanceSummary', 'month', 'year', 'totalPresent', 'totalAbsent', 'totalPaidLeave', 'totalEmployees'));
     }
 
     public function calendar(Request $request)
@@ -227,6 +265,45 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Attendance record deleted successfully.'
+        ]);
+    }
+
+    /**
+     * Get detailed attendance data for a specific date and type
+     */
+    public function getAttendanceDetails(Request $request)
+    {
+        $date = $request->get('date');
+        $type = $request->get('type');
+        
+        // Validate input
+        if (!$date || !$type) {
+            return response()->json(['error' => 'Date and type are required'], 400);
+        }
+        
+        // Map type to attendance type
+        $typeMap = [
+            'present' => 1,
+            'absent' => 2,
+            'paid_leave' => 3
+        ];
+        
+        $typeAttendance = $typeMap[$type] ?? null;
+        if (!$typeAttendance) {
+            return response()->json(['error' => 'Invalid type'], 400);
+        }
+        
+        // Get attendance records for the date and type
+        $attendances = Attendance::where('date', $date)
+            ->where('type_attendance', $typeAttendance)
+            ->with('employee')
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $attendances,
+            'date' => $date,
+            'type' => $type
         ]);
     }
 }

@@ -71,6 +71,7 @@ class PermissionTableSeeder extends Seeder
             'edit-purchaseDriver',
             'view-attendance',
             'add-attendance',
+            'show-attendance',
             'view-activity-log',
             'view-blasting',
             'add-blasting',

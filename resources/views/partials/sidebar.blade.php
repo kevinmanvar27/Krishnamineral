@@ -640,7 +640,8 @@
 
                 @php
                     $attendancePermission = auth()->user()->can('view-attendance') ||
-                                            auth()->user()->can('add-attendance');
+                                            auth()->user()->can('add-attendance') ||
+                                            auth()->user()->can('show-attendance');
                 @endphp
                 @if($attendancePermission)
                     <li>
@@ -650,9 +651,16 @@
                             <div class="menu-title">Attendance</div>
                         </a>
                         <ul>
-                            <li> 
-                                <a href="{{ route('attendance.calendar') }}"><i class='bx bx-radio-circle'></i>View Attendance</a>
-                            </li>
+                            @can('view-attendance')
+                                <li> 
+                                    <a href="{{ route('attendance.calendar') }}"><i class='bx bx-radio-circle'></i>View Attendance</a>
+                                </li>
+                            @endcan
+                            @can('show-attendance')
+                                <li> 
+                                    <a href="{{  route('attendance.index') }}"><i class='bx bx-radio-circle'></i>Summary Attendance</a>
+                                </li>
+                            @endcan
                         </ul>
                     </li>
                 @endif

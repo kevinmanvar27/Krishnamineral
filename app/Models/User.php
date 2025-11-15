@@ -47,7 +47,11 @@ class User extends Authenticatable
         'court',
         'court_case_files',
         'court_case_close_file',
-        'note'
+        'note',
+        'shift_start_time',
+        'shift_end_time',
+        'attendance_start_time',
+        'attendance_end_time'
     ];
     protected $hidden = ['password', 'remember_token'];
 
