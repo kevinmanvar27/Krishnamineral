@@ -237,16 +237,13 @@ class AttendanceController extends Controller
     public function update(Request $request, Attendance $attendance)
     {
         $request->validate([
-            'employee_id' => 'required|exists:users,id',
-            'date' => 'required|date',
             'type_attendance' => 'required|in:1,2,3',
             'extra_hours' => 'nullable|integer|min:0',
             'driver_tuck_trip' => 'nullable|integer|min:0'
         ]);
 
+        // Only update the fields that can be changed from the calendar view
         $attendance->update([
-            'employee_id' => $request->employee_id,
-            'date' => $request->date,
             'type_attendance' => $request->type_attendance,
             'extra_hours' => $request->extra_hours ?? 0,
             'driver_tuck_trip' => $request->driver_tuck_trip ?? 0
@@ -304,6 +301,51 @@ class AttendanceController extends Controller
             'data' => $attendances,
             'date' => $date,
             'type' => $type
+        ]);
+    }
+
+    /**
+     * Check if an employee exists in either sales or purchase modules
+     */
+    public function checkEmployeeStatus(Request $request)
+    {
+        $employeeId = $request->get('employee_id');
+        
+        // Validate input
+        if (!$employeeId) {
+            return response()->json(['error' => 'Employee ID is required'], 400);
+        }
+        
+        // Get the employee (user)
+        $employee = \App\Models\User::find($employeeId);
+        
+        if (!$employee) {
+            return response()->json(['is_active' => false]);
+        }
+        
+        // Check if employee is a driver (user_type = 1)
+        if ($employee->user_type != 1) {
+            return response()->json(['is_active' => false]);
+        }
+        
+        // Find a driver with the same name as the employee
+        $driver = \App\Models\Driver::where('name', $employee->name)->first();
+        
+        if (!$driver) {
+            return response()->json(['is_active' => false]);
+        }
+        
+        // Check if driver exists in sales module
+        $existsInSales = \App\Models\Sales::where('driver_id', $driver->id)->exists();
+        
+        // Check if driver exists in purchase module
+        $existsInPurchase = \App\Models\Purchase::where('driver_id', $driver->id)->exists();
+        
+        // Employee is active if the corresponding driver exists in either sales or purchase
+        $isActive = $existsInSales || $existsInPurchase;
+        
+        return response()->json([
+            'is_active' => $isActive
         ]);
     }
 }

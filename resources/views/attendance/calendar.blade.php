@@ -138,13 +138,49 @@
                                                 <td class="text-center">
                                                     @if($record)
                                                         @if($record->type_attendance == 1 && $record->extra_hours)
-                                                            <span class="badge bg-success">P+</span>
+                                                            <span class="badge bg-success attendance-badge" 
+                                                                  data-id="{{ $record->id }}"
+                                                                  data-date="{{ $record->date->format('Y-m-d') }}"
+                                                                  data-employee-id="{{ $record->employee_id }}"
+                                                                  data-type-attendance="{{ $record->type_attendance }}"
+                                                                  data-extra-hours="{{ $record->extra_hours }}"
+                                                                  data-driver-tuck-trip="{{ $record->driver_tuck_trip }}"
+                                                                  style="cursor: pointer;">
+                                                                P+
+                                                            </span>
                                                         @elseif($record->type_attendance == 1)
-                                                            <span class="badge bg-success">P</span>
+                                                            <span class="badge bg-success attendance-badge" 
+                                                                  data-id="{{ $record->id }}"
+                                                                  data-date="{{ $record->date->format('Y-m-d') }}"
+                                                                  data-employee-id="{{ $record->employee_id }}"
+                                                                  data-type-attendance="{{ $record->type_attendance }}"
+                                                                  data-extra-hours="{{ $record->extra_hours }}"
+                                                                  data-driver-tuck-trip="{{ $record->driver_tuck_trip }}"
+                                                                  style="cursor: pointer;">
+                                                                P
+                                                            </span>
                                                         @elseif($record->type_attendance == 2)
-                                                            <span class="badge bg-danger">A</span>
+                                                            <span class="badge bg-danger attendance-badge" 
+                                                                  data-id="{{ $record->id }}"
+                                                                  data-date="{{ $record->date->format('Y-m-d') }}"
+                                                                  data-employee-id="{{ $record->employee_id }}"
+                                                                  data-type-attendance="{{ $record->type_attendance }}"
+                                                                  data-extra-hours="{{ $record->extra_hours }}"
+                                                                  data-driver-tuck-trip="{{ $record->driver_tuck_trip }}"
+                                                                  style="cursor: pointer;">
+                                                                A
+                                                            </span>
                                                         @else
-                                                            <span class="badge bg-warning">AP</span>
+                                                            <span class="badge bg-warning attendance-badge" 
+                                                                  data-id="{{ $record->id }}"
+                                                                  data-date="{{ $record->date->format('Y-m-d') }}"
+                                                                  data-employee-id="{{ $record->employee_id }}"
+                                                                  data-type-attendance="{{ $record->type_attendance }}"
+                                                                  data-extra-hours="{{ $record->extra_hours }}"
+                                                                  data-driver-tuck-trip="{{ $record->driver_tuck_trip }}"
+                                                                  style="cursor: pointer;">
+                                                                AP
+                                                            </span>
                                                         @endif
                                                     @else
                                                         -
@@ -304,6 +340,71 @@
     </div>
 </div>
 
+@can('edit-attendance')
+<!-- Edit Attendance Modal -->
+<div class="modal fade" id="editAttendanceModal" tabindex="-1" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAttendanceModalLabel">Edit Attendance Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAttendanceForm">
+                    @csrf
+                    <input type="hidden" name="_method" value="PUT">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_date" class="form-label">Date *</label>
+                                <input type="date" class="form-control" id="edit_date" required readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_employee_id" class="form-label">Select Employee *</label>
+                                <select id="edit_employee_id" class="form-select" required disabled>
+                                    <option value="">Select Employee</option>
+                                    @foreach($allEmployees as $employee)
+                                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_type_attendance" class="form-label">Attendance Type *</label>
+                                <select id="edit_type_attendance" name="type_attendance" class="form-select" required>
+                                    <option value="1">Present</option>
+                                    <option value="2">Absent</option>
+                                    <option value="3">Absent (Paid)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="edit-extra-hours-container">
+                            <div class="mb-3">
+                                <label for="edit_extra_hours" class="form-label">Extra Working Hours</label>
+                                <input type="number" class="form-control" id="edit_extra_hours" name="extra_hours" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="edit-trips-container">
+                            <div class="mb-3">
+                                <label for="edit_driver_tuck_trip" class="form-label">Trips</label>
+                                <input type="number" class="form-control" id="edit_driver_tuck_trip" name="driver_tuck_trip" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="updateAttendanceBtn">Update Attendance</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endcan
+
 @endsection
 
 @push('scripts')
@@ -412,6 +513,92 @@
         
         // Trigger change event on page load to set initial state
         $('#add_type_attendance').trigger('change');
+        
+        // Handle click on attendance badges to edit attendance
+        $(document).on('click', '.attendance-badge', function() {
+            // Get attendance data from the badge
+            const attendanceId = $(this).data('id');
+            const date = $(this).data('date');
+            const employeeId = $(this).data('employee-id');
+            const typeAttendance = $(this).data('type-attendance');
+            const extraHours = $(this).data('extra-hours');
+            const driverTuckTrip = $(this).data('driver-tuck-trip');
+            
+            // Store attendance ID in a data attribute on the modal or form
+            $('#editAttendanceForm').data('attendance-id', attendanceId);
+            
+            // Populate the edit form with the attendance data
+            $('#edit_date').val(date);
+            $('#edit_employee_id').val(employeeId);
+            $('#edit_type_attendance').val(typeAttendance);
+            $('#edit_extra_hours').val(extraHours);
+            $('#edit_driver_tuck_trip').val(driverTuckTrip);
+            
+            // Show/hide extra fields based on attendance type
+            if (typeAttendance == '2' || typeAttendance == '3') {
+                $('#edit-extra-hours-container').hide();
+                $('#edit-trips-container').hide();
+            } else {
+                $('#edit-extra-hours-container').show();
+                $('#edit-trips-container').show();
+            }
+            
+            // Show the edit modal
+            $('#editAttendanceModal').modal('show');
+        });
+        
+        // Handle attendance type change in edit form to show/hide extra fields
+        $('#edit_type_attendance').change(function() {
+            const attendanceType = $(this).val();
+            // Hide extra fields for Absent (2) and Absent (Paid) (3)
+            if (attendanceType == '2' || attendanceType == '3') {
+                $('#edit-extra-hours-container').hide();
+                $('#edit-trips-container').hide();
+            } else {
+                $('#edit-extra-hours-container').show();
+                $('#edit-trips-container').show();
+            }
+        });
+        
+        // Update attendance
+        $('#updateAttendanceBtn').click(function() {
+            const attendanceId = $('#editAttendanceForm').data('attendance-id');
+            const formData = $('#editAttendanceForm').serialize();
+            
+            $.ajax({
+                url: "/attendance/" + attendanceId,
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#editAttendanceModal').modal('hide');
+                        
+                        // Reload the page to show updated data
+                        location.reload();
+                        
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message,
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again.',
+                    });
+                }
+            });
+        });
     });
 
     // Start Time End Time Countdown Timer

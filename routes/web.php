@@ -147,6 +147,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update');
     Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
     Route::get('/attendance/details', [AttendanceController::class, 'getAttendanceDetails'])->name('attendance.details');
+    Route::get('/attendance/check-employee-status', [AttendanceController::class, 'checkEmployeeStatus'])->name('attendance.checkEmployeeStatus');
     
     // Activity Log routes
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');

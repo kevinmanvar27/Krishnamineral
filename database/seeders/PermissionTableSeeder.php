@@ -72,6 +72,7 @@ class PermissionTableSeeder extends Seeder
             'view-attendance',
             'add-attendance',
             'show-attendance',
+            'edit-attendance',
             'view-activity-log',
             'view-blasting',
             'add-blasting',

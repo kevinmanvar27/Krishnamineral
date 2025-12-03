@@ -210,11 +210,6 @@
                     <div class="card stretch stretch-full">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title">Attendance Summary Calendar</h5>
-                            <div class="card-header-action">
-                                <a href="{{ route('attendance.calendar') }}" class="btn btn-secondary">
-                                    <i class="lni lni-tablet"></i> Detailed View
-                                </a>
-                            </div>
                         </div>
                         <div class="card-body">
                             <!-- Filter Section -->
@@ -226,11 +221,6 @@
                                                 <label for="month_year" class="form-label">Month & Year</label>
                                                 <input type="month" class="form-control" id="month_year" name="month_year" 
                                                        value="{{ sprintf('%04d-%02d', $year, $month) }}">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="lni lni-funnel"></i> Filter
-                                                </button>
                                             </div>
                                         </div>
                                         <!-- Hidden inputs for month and year to ensure proper parameter passing -->
@@ -433,33 +423,70 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+                    // First, display the table structure with loading indicators
                     var html = '<div class="table-responsive">' +
                                '<table class="table table-striped">' +
                                '<thead>' +
                                '<tr>' +
                                '<th>Employee Name</th>' +
                                '<th>Employee ID</th>' +
+                               '<th>Status</th>' +
                                '<th>Extra Hours</th>' +
-                               '<th>Driver Tuck Trip</th>' +
+                               '<th>Driver Truck Trip</th>' +
                                '</tr>' +
                                '</thead>' +
-                               '<tbody>';
+                               '<tbody id="attendance-details-body">';
                     
                     if (response.data.length > 0) {
+                        html += '</tbody></table></div>';
+                        $('#attendance-details-content').html(html);
+                        
+                        // Process each attendance record
                         $.each(response.data, function(index, attendance) {
-                            html += '<tr>' +
-                                    '<td>' + (attendance.employee ? attendance.employee.name : 'N/A') + '</td>' +
-                                    '<td>' + (attendance.employee ? attendance.employee.id : 'N/A') + '</td>' +
-                                    '<td>' + (attendance.extra_hours || 0) + '</td>' +
-                                    '<td>' + (attendance.driver_tuck_trip || 0) + '</td>' +
-                                    '</tr>';
+                            var employeeId = attendance.employee ? attendance.employee.id : null;
+                            var rowId = 'row-' + index;
+                            
+                            // Add row with loading status
+                            var rowHtml = '<tr id="' + rowId + '">' +
+                                          '<td>' + (attendance.employee ? attendance.employee.name : 'N/A') + '</td>' +
+                                          '<td>' + (employeeId || 'N/A') + '</td>' +
+                                          '<td><span class="text-muted">Checking...</span></td>' +
+                                          '<td>' + (attendance.extra_hours || 0) + '</td>' +
+                                          '<td>' + (attendance.driver_tuck_trip || 0) + '</td>' +
+                                          '</tr>';
+                            
+                            $('#attendance-details-body').append(rowHtml);
+                            
+                            if (employeeId) {
+                                // Check employee status
+                                $.ajax({
+                                    url: '{{ route("attendance.checkEmployeeStatus") }}',
+                                    method: 'GET',
+                                    data: {
+                                        employee_id: employeeId
+                                    },
+                                    success: function(statusResponse) {
+                                        var isActive = statusResponse.is_active;
+                                        var statusText = isActive ? 'Active' : 'Inactive';
+                                        var statusClass = isActive ? 'text-success' : 'text-danger';
+                                        
+                                        $('#' + rowId + ' td:nth-child(3)').html('<span class="' + statusClass + '">' + statusText + '</span>');
+                                    },
+                                    error: function() {
+                                        // Default to Inactive on error
+                                        $('#' + rowId + ' td:nth-child(3)').html('<span class="text-danger">Inactive</span>');
+                                    }
+                                });
+                            } else {
+                                // No employee ID, default to Inactive
+                                $('#' + rowId + ' td:nth-child(3)').html('<span class="text-danger">Inactive</span>');
+                            }
                         });
                     } else {
-                        html += '<tr><td colspan="4" class="text-center">No records found</td></tr>';
+                        html += '<tr><td colspan="5" class="text-center">No records found</td></tr>';
+                        html += '</tbody></table></div>';
+                        $('#attendance-details-content').html(html);
                     }
-                    
-                    html += '</tbody></table></div>';
-                    $('#attendance-details-content').html(html);
                 } else {
                     $('#attendance-details-content').html('<div class="alert alert-danger">Error loading data: ' + response.message + '</div>');
                 }
