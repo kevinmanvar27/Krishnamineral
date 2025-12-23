@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +31,9 @@ use App\Http\Controllers\CartingController;
 use App\Http\Controllers\DrillingController;
 use App\Http\Controllers\DrillingNameController;
 use App\Http\Controllers\VendorController;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 
 // Redirect root URL to /home if logged in, or to login otherwise
 Route::get('/', function () {
@@ -100,6 +103,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
+    Route::post('/users/{user}/start-task', [UserController::class, 'startTask'])->name('users.startTask');
+    Route::post('/users/{user}/complete-task', [UserController::class, 'completeTask'])->name('users.completeTask');
+    Route::post('/users/{user}/reset-task', [UserController::class, 'resetTask'])->name('users.resetTask');
     Route::resource('sales', SalesController::class);
     Route::resource('vehicle', VehicleController::class);
     Route::resource('materials', MaterialsController::class);
@@ -152,7 +158,59 @@ Route::middleware(['auth'])->group(function () {
     // Activity Log routes
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
     Route::get('/activity-log/{id}', [ActivityLogController::class, 'show'])->name('activity-log.show');
+    
+    // Create notifications table route
+    Route::get('/create-notifications-table', function () {
+        if (!Schema::hasTable('notifications')) {
+            Schema::create('notifications', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('type');
+                $table->morphs('notifiable');
+                $table->text('data');
+                $table->timestamp('read_at')->nullable();
+                $table->timestamps();
+            });
+            return 'Notifications table created successfully!';
+        } else {
+            return 'Notifications table already exists!';
+        }
+    })->name('create-notifications-table');
 });
 
 // Activity Log related logs route (outside auth middleware for AJAX access)
 Route::get('/activity-log/related/{subjectType}/{subjectId}', [ActivityLogController::class, 'relatedLogs'])->name('activity-log.related');
+
+// Notification trigger route
+Route::middleware(['auth'])->group(function () {
+    Route::get('/trigger-notifications', function () {
+        try {
+            Artisan::call('drivers:check-inactive');
+            Artisan::call('users:check-inactive');
+            Artisan::call('work-timing:check-notifications');
+            return response()->json(['status' => 'success', 'message' => 'Notifications checked']);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    })->name('notifications.trigger');
+});
+
+// Notification routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', function () {
+        $notifications = auth()->user()->notifications()->latest()->paginate(10);
+        return view('notifications.index', compact('notifications'));
+    })->name('notifications.index');
+    
+    Route::post('/notifications/mark-as-read/{id}', function ($id) {
+        $notification = auth()->user()->notifications()->find($id);
+        if ($notification) {
+            $notification->markAsRead();
+        }
+        return back();
+    })->name('notifications.markAsRead');
+    
+    Route::post('/notifications/mark-all-as-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.markAllAsRead');
+});

@@ -11,6 +11,16 @@ use Spatie\Activitylog\LogOptions;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, LogsActivity;
+    
+    /**
+     * Get the class name for polymorphic relations.
+     *
+     * @return string
+     */
+    public function getMorphClass()
+    {
+        return 'App\\Models\\User';
+    }
 
     protected $fillable = [
         'name', 
@@ -51,7 +61,13 @@ class User extends Authenticatable
         'shift_start_time',
         'shift_end_time',
         'attendance_start_time',
-        'attendance_end_time'
+        'attendance_end_time',
+        'work_timing_enabled',
+        'work_timing_initiate_checking',
+        'task_start_time',
+        'task_completed',
+        'task_description',
+        'last_activity_at'
     ];
     protected $hidden = ['password', 'remember_token'];
 
@@ -59,6 +75,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'last_login_at' => 'datetime',
+        'last_activity_at' => 'datetime',
+        'task_start_time' => 'datetime',
+        'task_completed' => 'boolean',
     ];
     
     // Configure activity logging

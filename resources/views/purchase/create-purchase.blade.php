@@ -78,6 +78,20 @@
                                     </div>
                                     <div class="row align-items-center">
                                         <div class="col-lg-4 mb-4">
+                                            <label for="driver_id" class="form-label mb-2">Driver Name</label>
+                                            <div class="input-group">
+                                                <select class="form-select js-select2" aria-label="Select Driver" id="driver_id" name="driver_id">
+                                                    <option selected disabled value>Select Driver</option>
+                                                    @foreach($drivers as $driver)
+                                                        <option value="{{ $driver['id'] ?? '' }}" {{ old('driver_id') == $driver['id'] || (isset($driver['original_id']) && old('driver_id') == $driver['original_id']) || old('driver_id') == 'driver_' . $driver['original_id'] ? 'selected' : '' }}>{{ $driver['name'] ?? '' }}</option>
+                                                    @endforeach
+                                                </select>                                                
+                                            </div>
+                                            @error('driver_id')<div class="text-danger">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-4 mb-4">
                                             <label for="contact_number" class="form-label mb-2">Owner Contact Number</label>
                                             <div class="input-group">
                                                 <input type="number" name="contact_number" maxlength="10" minlength="10"  placeholder="Enter Transporter Owner Contact Number" class="form-control" id="contact_number" value="{{ old('contact_number') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
@@ -312,6 +326,7 @@
             });
         }
 
+        // Initialize vehicle select2
         modalDropdown({
             dropDownSelector: '#vehicle_id',
             modalSelector: '#myModal',
@@ -322,7 +337,13 @@
                 contact_number: '#contact_number',
             },
             labelField: 'name',
-        })
+        });
+
+        // Initialize driver select2
+        $('#driver_id').select2({
+            placeholder: 'Select Driver',
+            allowClear: true
+        });
     </script>
     
 @endpush

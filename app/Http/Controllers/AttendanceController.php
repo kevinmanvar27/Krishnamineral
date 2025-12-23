@@ -323,29 +323,49 @@ class AttendanceController extends Controller
             return response()->json(['is_active' => false]);
         }
         
-        // Check if employee is a driver (user_type = 1)
-        if ($employee->user_type != 1) {
+        // Check if employee is a driver by role name
+        $driverRole = Role::where('name', 'driver')->first();
+        if (!$driverRole || $employee->user_type != $driverRole->id) {
             return response()->json(['is_active' => false]);
         }
         
         // Find a driver with the same name as the employee
         $driver = \App\Models\Driver::where('name', $employee->name)->first();
         
-        if (!$driver) {
+        // Also check for a driver entry linked to this user
+        $userLinkedDriver = \App\Models\Driver::where('user_id', $employee->id)->first();
+        
+        if (!$driver && !$userLinkedDriver) {
             return response()->json(['is_active' => false]);
         }
         
         // Check if driver exists in sales module
-        $existsInSales = \App\Models\Sales::where('driver_id', $driver->id)->exists();
+        $existsInSales = false;
+        if ($driver) {
+            $existsInSales = \App\Models\Sales::where('driver_id', $driver->id)->exists();
+        }
         
         // Check if driver exists in purchase module
-        $existsInPurchase = \App\Models\Purchase::where('driver_id', $driver->id)->exists();
+        $existsInPurchase = false;
+        if ($driver) {
+            $existsInPurchase = \App\Models\Purchase::where('driver_id', $driver->id)->exists();
+        }
+        
+        // Also check for user-linked driver in sales and purchase modules
+        if ($userLinkedDriver) {
+            $existsInSales = $existsInSales || \App\Models\Sales::where('driver_id', $userLinkedDriver->id)->exists();
+            $existsInPurchase = $existsInPurchase || \App\Models\Purchase::where('driver_id', $userLinkedDriver->id)->exists();
+        }
         
         // Employee is active if the corresponding driver exists in either sales or purchase
         $isActive = $existsInSales || $existsInPurchase;
         
+        // Determine which driver object to return
+        $driverToReturn = $driver ?: $userLinkedDriver;
+        
         return response()->json([
-            'is_active' => $isActive
+            'is_active' => $isActive,
+            'driver_id' => $driverToReturn ? $driverToReturn->id : null
         ]);
     }
 }

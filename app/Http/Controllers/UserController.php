@@ -155,6 +155,10 @@ class UserController extends Controller
             'department' => 'required|string|max:255',
             'salary' => 'required|numeric',
             'licence' => 'nullable|file|mimes:pdf,jpg,png,jpeg',
+            
+            // ============ WORK TIMING ============
+            'work_timing_enabled' => 'required|boolean',
+            'work_timing_initiate_checking' => 'required_if:work_timing_enabled,1|nullable|integer|min:1|max:1440', // minutes, max 24 hours
 
             // ============ BANK ============
             'bank' => 'required|in:1,2',
@@ -214,6 +218,10 @@ class UserController extends Controller
             'note.max' => 'Note cannot exceed 1000 characters.',
             'permissions.*.exists' => 'One or more selected permissions are invalid.',
             'email.unique' => 'This email address is already in use. Please provide a different email address.',
+            'work_timing_initiate_checking.required_if' => 'Work timing minutes is required when work timing is enabled.',
+            'work_timing_initiate_checking.integer' => 'Work timing must be a valid number of minutes.',
+            'work_timing_initiate_checking.min' => 'Work timing must be at least 1 minute.',
+            'work_timing_initiate_checking.max' => 'Work timing cannot exceed 1440 minutes (24 hours).',
         ]);
 
         // -------------------- Prepare User Data --------------------
@@ -346,6 +354,56 @@ class UserController extends Controller
             ->with('success', 'Employee created successfully.')
             ->with('auto_download_pdf', true);
     }
+    
+    /**
+     * Start a new task for a user
+     */
+    public function startTask(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        $request->validate([
+            'task_description' => 'required|string|max:255',
+        ]);
+        
+        $user->update([
+            'task_start_time' => now(),
+            'task_completed' => false,
+            'task_description' => $request->task_description,
+        ]);
+        
+        return redirect()->back()->with('success', 'Task started successfully!');
+    }
+    
+    /**
+     * Mark a task as completed
+     */
+    public function completeTask($id)
+    {
+        $user = User::findOrFail($id);
+        
+        $user->update([
+            'task_completed' => true,
+        ]);
+        
+        return redirect()->back()->with('success', 'Task completed successfully!');
+    }
+    
+    /**
+     * Reset task tracking
+     */
+    public function resetTask($id)
+    {
+        $user = User::findOrFail($id);
+        
+        $user->update([
+            'task_start_time' => null,
+            'task_completed' => false,
+            'task_description' => null,
+        ]);
+        
+        return redirect()->back()->with('success', 'Task tracking reset!');
+    }
 
     public function show($id): View
     {
@@ -413,6 +471,9 @@ class UserController extends Controller
             // Attendance time fields
             'attendance_start_time' => 'nullable',
             'attendance_end_time' => 'nullable',
+            // Work timing fields
+            'work_timing_enabled' => 'nullable|boolean',
+            'work_timing_initiate_checking' => 'required_if:work_timing_enabled,1|nullable|integer|min:1|max:1440', // minutes, max 24 hours
         ];
 
         if ($request->input('bank') == 2 && empty($user->bank_proof)) {

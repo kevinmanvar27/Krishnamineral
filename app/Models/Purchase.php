@@ -72,4 +72,49 @@ class Purchase extends Model
     {
         return $this->belongsTo(Driver::class);
     }
+    
+    /**
+     * Get the driver, which can be either a Driver model or a User model
+     * 
+     * @return mixed
+     */
+    public function getAssignedDriver()
+    {
+        // If driver_id exists and is a driver from drivers table
+        if ($this->driver_id && strpos($this->driver_id, 'driver_') === 0) {
+            $driverId = str_replace('driver_', '', $this->driver_id);
+            return Driver::find($driverId);
+        }
+        // If driver_id exists and is a user with driver role
+        elseif ($this->driver_id && strpos($this->driver_id, 'user_') === 0) {
+            $userId = str_replace('user_', '', $this->driver_id);
+            return User::find($userId);
+        }
+        // Fallback to direct relationship for backward compatibility
+        elseif ($this->driver_id) {
+            return Driver::find($this->driver_id);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check if the assigned driver is a user with driver role
+     * 
+     * @return bool
+     */
+    public function hasUserDriver()
+    {
+        return $this->driver_id && strpos($this->driver_id, 'user_') === 0;
+    }
+    
+    /**
+     * Check if the assigned driver is from the drivers table
+     * 
+     * @return bool
+     */
+    public function hasTableDriver()
+    {
+        return $this->driver_id && (strpos($this->driver_id, 'driver_') === 0 || is_numeric($this->driver_id));
+    }
 }

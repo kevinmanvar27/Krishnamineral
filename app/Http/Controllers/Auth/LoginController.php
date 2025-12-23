@@ -58,6 +58,9 @@ class LoginController extends Controller
 
         // Save last login time
         $user->last_login_at = now();
+        
+        // Also update last activity time to track from login
+        $user->last_activity_at = now();
 
         $user->save();
 
@@ -73,6 +76,7 @@ class LoginController extends Controller
 
         if ($user) {
             $user->session_id = null;
+            // Optionally update last activity on logout if needed
             $user->save();
         }
 

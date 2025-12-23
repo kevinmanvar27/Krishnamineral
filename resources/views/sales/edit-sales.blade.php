@@ -201,7 +201,7 @@
                                                     <select class="form-select js-select2" aria-label="Default select example" id="driver_id" name="driver_id">
                                                         <option selected disabled value>Select Driver</option>
                                                         @foreach($drivers as $driver)
-                                                            <option value="{{ $driver->id ?? '' }}" {{ $driver->id == $sales->driver_id ? 'selected' : '' }}>{{ $driver->name ?? '' }}</option>
+                                                            <option value="{{ $driver['id'] ?? '' }}" {{ (isset($driver['original_id']) && $driver['original_id'] == $sales->driver_id) || $driver['id'] == 'driver_' . $sales->driver_id ? 'selected' : '' }}>{{ $driver['name'] ?? '' }}</option>
                                                         @endforeach
                                                     </select>                                                
                                                 </div>

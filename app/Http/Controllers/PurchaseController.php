@@ -15,9 +15,12 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Concerns\DriverHelper;
 
 class PurchaseController extends Controller
 {
+    use DriverHelper;
+    
     public function index(Request $request)
     {
         $query = Purchase::query();
@@ -188,7 +191,7 @@ class PurchaseController extends Controller
         $quarries = PurchaseQuarry::where('table_type', 'purchase')->get();
         $purchaseReceivers = PurchaseReceiver::where('table_type', 'purchase')->get();
         $royalties = Royalty::where('table_type', 'purchase')->get();
-        $drivers  = Driver::where('table_type', 'purchase')->get();
+        $drivers  = $this->getCombinedDrivers('purchase');
         $employees = User::all();
         return view('purchase.create-purchase', compact('latestPurchase', 'vehicles', 'materials', 'loadings', 'quarries', 'purchaseReceivers', 'royalties', 'drivers', 'employees'));    
     }
@@ -198,9 +201,10 @@ class PurchaseController extends Controller
         $validated = $request->validate([
             'date_time' => 'required',
             'vehicle_id' => 'required',
+            'driver_id' => 'required',
             'transporter' => 'required',
-            'contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
-            'driver_contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
+            'contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/u',
+            'driver_contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/u',
             'tare_weight' => 'required',
         ]);
 
@@ -213,12 +217,62 @@ class PurchaseController extends Controller
         // Add default status of 0 (pending)
         $validated['status'] = 0;
         
-        Purchase::create($validated);
+        // Process the driver_id to extract the original ID if it's a combined ID
+        if (isset($validated['driver_id'])) {
+            $driverId = $validated['driver_id'];
+            
+            // If it's a user driver, create or get the corresponding driver entry
+            if (strpos($driverId, 'user_') === 0) {
+                $userId = str_replace('user_', '', $driverId);
+                $user = \App\Models\User::find($userId);
+                
+                if ($user) {
+                    // Check if a driver entry already exists for this user
+                    $existingDriver = \App\Models\Driver::where('user_id', $userId)->first();
+                    
+                    if ($existingDriver) {
+                        // Use existing driver entry
+                        $validated['driver_id'] = $existingDriver->id;
+                    } else {
+                        // Create a new driver entry for this user
+                        $driverEntry = \App\Models\Driver::create([
+                            'name' => $user->name,
+                            'driver' => 'Krishna Employee',
+                            'contact_number' => $user->contact_number ?? '',
+                            'table_type' => 'purchase',
+                            'user_id' => $userId
+                        ]);
+                        
+                        $validated['driver_id'] = $driverEntry->id;
+                    }
+                }
+            }
+            // If it's a regular driver, extract the ID
+            elseif (strpos($driverId, 'driver_') === 0) {
+                $originalId = str_replace('driver_', '', $driverId);
+                $validated['driver_id'] = $originalId;
+            }
+        }
+        
+        $purchase = Purchase::create($validated);
+        
+        // Mark the driver as active when purchase is created
+        if ($purchase && isset($validated['driver_id'])) {
+            $driver = \App\Models\Driver::find($validated['driver_id']);
+            
+            if ($driver) {
+                // Update the driver's activity
+                $driver->update([
+                    'is_active' => true,
+                    'last_active_at' => now()
+                ]);
+            }
+        }
 
-        // session([
-        //     'pdf_purchase_id' => $purchase->id,
-        //     'auto_download_pdf' => true,
-        // ]);
+        session([
+            'pdf_purchase_id' => $purchase->id,
+            'auto_download_pdf' => true,
+        ]);
 
         return redirect()->route(Auth::user()->can('pending-load-purchase') ? 'purchase.pendingLoad' : 'home')
             ->with('success', 'Purchase created successfully.');
@@ -239,7 +293,7 @@ class PurchaseController extends Controller
         $quarries = PurchaseQuarry::where('table_type', 'purchase')->get();
         $purchaseReceivers = PurchaseReceiver::where('table_type', 'purchase')->get();
         $royalties = Royalty::where('table_type', 'purchase')->get();
-        $drivers  = Driver::where('table_type', 'purchase')->get();
+        $drivers  = $this->getCombinedDrivers('purchase');
         $employees = User::all();
         return view('purchase.edit-purchase', compact('purchase', 'vehicles', 'materials', 'loadings', 'quarries', 'purchaseReceivers', 'royalties', 'drivers', 'employees'));    
     }
@@ -260,7 +314,7 @@ class PurchaseController extends Controller
             'loading_id' => 'required|exists:loadings,id',
             'quarry_id' => 'required|exists:purchase_quarries,id',
             'receiver_id' => 'required|exists:purchase_receivers,id',
-            'driver_id' => 'required|exists:drivers,id',
+            'driver_id' => 'required',
             'carting_id' => 'required',
             'note' => 'nullable',
         ]);
@@ -272,6 +326,57 @@ class PurchaseController extends Controller
         }
 
         $validated['status'] = '1';
+        
+        // Process the driver_id to extract the original ID if it's a combined ID
+        if (isset($validated['driver_id'])) {
+            $driverId = $validated['driver_id'];
+            
+            // If it's a user driver, create or get the corresponding driver entry
+            if (strpos($driverId, 'user_') === 0) {
+                $userId = str_replace('user_', '', $driverId);
+                $user = \App\Models\User::find($userId);
+                
+                if ($user) {
+                    // Check if a driver entry already exists for this user
+                    $existingDriver = \App\Models\Driver::where('user_id', $userId)->first();
+                    
+                    if ($existingDriver) {
+                        // Use existing driver entry
+                        $validated['driver_id'] = $existingDriver->id;
+                    } else {
+                        // Create a new driver entry for this user
+                        $driverEntry = \App\Models\Driver::create([
+                            'name' => $user->name,
+                            'driver' => 'Krishna Employee',
+                            'contact_number' => $user->contact_number ?? '',
+                            'table_type' => 'purchase',
+                            'user_id' => $userId
+                        ]);
+                        
+                        $validated['driver_id'] = $driverEntry->id;
+                    }
+                }
+            }
+            // If it's a regular driver, extract the ID
+            elseif (strpos($driverId, 'driver_') === 0) {
+                $originalId = str_replace('driver_', '', $driverId);
+                $validated['driver_id'] = $originalId;
+            }
+        }
+        
+        // Handle driver assignment for activity tracking
+        if (isset($validated['driver_id'])) {
+            $driver = \App\Models\Driver::find($validated['driver_id']);
+            
+            if ($driver) {
+                // Update the driver's activity
+                $driver->update([
+                    'is_active' => true,
+                    'last_active_at' => now()
+                ]);
+            }
+        }
+        
         Purchase::findOrFail($id)->update($validated);
 
         // Save ID in session for PDF auto-download

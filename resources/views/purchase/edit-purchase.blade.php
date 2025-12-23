@@ -173,7 +173,7 @@
                                                 <select class="form-select js-select2" aria-label="Default select example" id="driver_id" name="driver_id">
                                                     <option selected disabled value>Select Driver</option>
                                                     @foreach($drivers as $driver)
-                                                        <option value="{{ $driver->id ?? '' }}" {{ $driver->id == $purchase->driver_id ? 'selected' : '' }}>{{ $driver->name ?? '' }}</option>
+                                                        <option value="{{ $driver['id'] ?? '' }}" {{ (isset($driver['original_id']) && $driver['original_id'] == $purchase->driver_id) || $driver['id'] == 'driver_' . $purchase->driver_id ? 'selected' : '' }}>{{ $driver['name'] ?? '' }}</option>
                                                     @endforeach
                                                 </select>                                                
                                             </div>
@@ -646,16 +646,16 @@
             });
         });
         
-        $(document).ready(function(){
-            const dateTimeInput = document.getElementById('date');
-            const now = new Date();
+        // $(document).ready(function(){
+        //     const dateTimeInput = document.getElementById('date');
+        //     const now = new Date();
 
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            now.setSeconds(0);
-            now.setMilliseconds(0);
+        //     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        //     now.setSeconds(0);
+        //     now.setMilliseconds(0);
             
-            dateTimeInput.value = now.toISOString().slice(0, 16);
-        })
+        //     dateTimeInput.value = now.toISOString().slice(0, 16);
+        // })
 
 
         $(document).ready(function() { 

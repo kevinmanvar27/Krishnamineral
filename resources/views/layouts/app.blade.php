@@ -47,6 +47,7 @@
     </div>
 
     
+        
 	<!--start switcher-->
 	<div class="switcher-wrapper">
 		<div class="switcher-btn"> <i class='bx bx-cog bx-spin'></i>
@@ -178,6 +179,28 @@
     </script>
 
     @stack('scripts')
+    
+    <!-- Notification Trigger Script -->
+    <script>
+        // Trigger notification check every minute
+        @auth
+        setInterval(function() {
+            $.ajax({
+                url: '{{ route('notifications.trigger') }}',
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log('Notification check completed:', response);
+                },
+                error: function(xhr) {
+                    console.log('Error triggering notifications:', xhr.responseText);
+                }
+            });
+        }, 60000); // Every 60 seconds
+        @endauth
+    </script>
 
     <!-- Search Modal -->
     <div class="modal fade" id="SearchModal" tabindex="-1" aria-labelledby="SearchModalLabel" aria-hidden="true">

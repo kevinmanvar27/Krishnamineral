@@ -18,9 +18,12 @@ use App\Models\Blasting;
 use App\Models\Drilling;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Concerns\DriverHelper;
 
 class SalesController extends Controller
 {
+    use DriverHelper;
+    
     public function index(Request $request)
     {
         $query = Sales::query();
@@ -135,16 +138,54 @@ class SalesController extends Controller
 
     public function store(Request $request)
     { 
-        $request->validate([
+        $validated = $request->validate([
             'date_time' => 'required',
             'vehicle_id' => 'required',
             'transporter' => 'required',
             'tare_weight' => 'required',
             'contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
             'driver_contact_number' => 'required|digits:10|regex:/^[0-9+\-\s]+$/',
+            'driver_id' => 'nullable',
         ]);
         
-        Sales::create($request->all());
+        // Process the driver_id to extract the original ID if it's a combined ID
+        if (isset($validated['driver_id'])) {
+            $driverId = $validated['driver_id'];
+            
+            // If it's a user driver, create or get the corresponding driver entry
+            if (strpos($driverId, 'user_') === 0) {
+                $userId = str_replace('user_', '', $driverId);
+                $user = \App\Models\User::find($userId);
+                
+                if ($user) {
+                    // Check if a driver entry already exists for this user
+                    $existingDriver = \App\Models\Driver::where('user_id', $userId)->first();
+                    
+                    if ($existingDriver) {
+                        // Use existing driver entry
+                        $validated['driver_id'] = $existingDriver->id;
+                    } else {
+                        // Create a new driver entry for this user
+                        $driverEntry = \App\Models\Driver::create([
+                            'name' => $user->name,
+                            'driver' => 'Krishna Employee',
+                            'contact_number' => $user->contact_number ?? '',
+                            'table_type' => 'sales',
+                            'user_id' => $userId
+                        ]);
+                        
+                        $validated['driver_id'] = $driverEntry->id;
+                    }
+                }
+            }
+            // If it's a regular driver, extract the ID
+            elseif (strpos($driverId, 'driver_') === 0) {
+                $originalId = str_replace('driver_', '', $driverId);
+                $validated['driver_id'] = $originalId;
+            }
+        }
+        
+        Sales::create($validated);
         return redirect()->route(Auth::user()->can('pending-load-sales') ? 'sales.pendingLoad' : 'home')
             ->with('success', 'Sales created successfully.');
     }
@@ -225,7 +266,7 @@ class SalesController extends Controller
         $places = Places::where('table_type', 'sales')->get();
         $parties = Party::where('table_type', 'sales')->get();
         $royalties = Royalty::where('table_type', 'sales')->get();
-        $drivers  = Driver::where('table_type', 'sales')->get();
+        $drivers  = $this->getCombinedDrivers('sales');
         $employees = User::all();
         return view('sales.edit-sales', compact('sales', 'vehicles', 'materials', 'loadings', 'places', 'parties', 'royalties', 'drivers', 'employees'));    
     }
@@ -249,7 +290,7 @@ class SalesController extends Controller
             'royalty_id' => 'nullable|exists:royalties,id',
             'royalty_number' => 'required_with:royalty_id',
             'royalty_tone' => 'required_with:royalty_id',
-            'driver_id' => 'required|exists:drivers,id',
+            'driver_id' => 'required',
             'carting_id' => 'required',
             'rate' => 'nullable|numeric',
             'gst' => 'nullable|numeric',
@@ -264,6 +305,44 @@ class SalesController extends Controller
         }
 
         $validated['status'] = '2'; // Set status to 2 for completed sales that need audit
+        
+        // Process the driver_id to extract the original ID if it's a combined ID
+        if (isset($validated['driver_id'])) {
+            $driverId = $validated['driver_id'];
+            
+            // If it's a user driver, create or get the corresponding driver entry
+            if (strpos($driverId, 'user_') === 0) {
+                $userId = str_replace('user_', '', $driverId);
+                $user = \App\Models\User::find($userId);
+                
+                if ($user) {
+                    // Check if a driver entry already exists for this user
+                    $existingDriver = \App\Models\Driver::where('user_id', $userId)->first();
+                    
+                    if ($existingDriver) {
+                        // Use existing driver entry
+                        $validated['driver_id'] = $existingDriver->id;
+                    } else {
+                        // Create a new driver entry for this user
+                        $driverEntry = \App\Models\Driver::create([
+                            'name' => $user->name,
+                            'driver' => 'Krishna Employee',
+                            'contact_number' => $user->contact_number ?? '',
+                            'table_type' => 'sales',
+                            'user_id' => $userId
+                        ]);
+                        
+                        $validated['driver_id'] = $driverEntry->id;
+                    }
+                }
+            }
+            // If it's a regular driver, extract the ID
+            elseif (strpos($driverId, 'driver_') === 0) {
+                $originalId = str_replace('driver_', '', $driverId);
+                $validated['driver_id'] = $originalId;
+            }
+        }
+        
         Sales::findOrFail($id)->update($validated);
 
         // Save ID in session for PDF auto-download

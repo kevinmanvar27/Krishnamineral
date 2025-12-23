@@ -835,6 +835,33 @@
 
                             <div class="header-notifications-list"></div>
                             <div class="header-message-list"></div>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class='bx bx-bell'></i>
+                                    @if(auth()->user()->unreadNotifications->count() > 0)
+                                        <span class="alert-count">{{ auth()->user()->unreadNotifications->count() }}</span>
+                                    @endif
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-large">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center" href="{{ route('notifications.index') }}">
+                                            <i class="bx bx-bell"></i>
+                                            <span>View All Notifications</span>
+                                        </a>
+                                    </li>
+                                    @if(auth()->user()->unreadNotifications->count() > 0)
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('notifications.markAllAsRead') }}" onclick="event.preventDefault(); document.getElementById('mark-all-as-read-form').submit();">
+                                                <i class="bx bx-check-double"></i>
+                                                <span>Mark All as Read</span>
+                                            </a>
+                                            <form id="mark-all-as-read-form" action="{{ route('notifications.markAllAsRead') }}" method="POST" class="d-none">
+                                                @csrf
+                                            </form>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </li>
 						</ul>
 					</div>
 					<div class="user-box dropdown px-3">

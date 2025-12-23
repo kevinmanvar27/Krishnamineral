@@ -303,6 +303,27 @@
                                                 <input type="time" name="shift_end_time" class="form-control" id="shift_end_time" value="{{ old('shift_end_time', $user->shift_end_time) }}">
                                             </div>
                                         </div>
+
+                                        {{-- Work Timing (Initiate Checking) --}}
+                                        <hr class="mt-3">
+                                        <h5>Work Timing (Initiate Checking)</h5>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="work_timing_enabled" id="work_timing_no" value="0" {{ old('work_timing_enabled', $user->work_timing_enabled) == '0' ? 'checked' : (old('work_timing_enabled', $user->work_timing_enabled) !== '1' ? 'checked' : '') }}>
+                                            <label class="form-check-label" for="work_timing_no">NO</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="work_timing_enabled" id="work_timing_yes" value="1" {{ old('work_timing_enabled', $user->work_timing_enabled) == '1' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="work_timing_yes">YES</label>
+                                        </div>
+                                        <div id="workTimingFields" class="d-none mt-3">
+                                            <div class="row">
+                                                <div class="col-lg-6 mb-3">
+                                                    <label for="work_timing_initiate_checking" class="form-label">Minutes Threshold</label>
+                                                    <input type="number" name="work_timing_initiate_checking" class="form-control" id="work_timing_initiate_checking" value="{{ old('work_timing_initiate_checking', $user->work_timing_initiate_checking) }}" placeholder="e.g., 30 (minutes after which to alert)">
+                                                    @error('work_timing_initiate_checking')<div class="text-danger">{{ $message }}</div>@enderror
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
 
@@ -668,6 +689,22 @@
                     } else {
                         $(this).closest('.col-md-4').find('.attendance-time-fields').addClass('d-none');
                     }
+                }
+            });
+
+            // -------------------- Work Timing Fields Toggle --------------------
+            $('input[name="work_timing_enabled"]').on('change', function () {
+                if ($(this).val() === '1') {
+                    $('#workTimingFields').removeClass('d-none').addClass('d-block');
+                } else {
+                    $('#workTimingFields').removeClass('d-block').addClass('d-none');
+                }
+            });
+            
+            // Initialize the work timing fields visibility on page load
+            $(document).ready(function() {
+                if ($('#work_timing_yes').is(':checked')) {
+                    $('#workTimingFields').removeClass('d-none').addClass('d-block');
                 }
             });
 
