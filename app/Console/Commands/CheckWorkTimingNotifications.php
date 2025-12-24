@@ -28,10 +28,12 @@ class CheckWorkTimingNotifications extends Command
         $currentTime = now();
         
         // Get all users with work timing enabled
+        // Only check users who are currently logged in (have an active session_id)
         $users = \App\Models\User::where('work_timing_enabled', true)
                      ->whereNotNull('work_timing_initiate_checking')
                      ->where('task_completed', false)
                      ->whereNotNull('task_start_time')
+                     ->whereNotNull('session_id')  // Only users who are currently logged in
                      ->get();
         
         $notifiedCount = 0;

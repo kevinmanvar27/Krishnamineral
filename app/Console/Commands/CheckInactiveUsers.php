@@ -35,12 +35,14 @@ class CheckInactiveUsers extends Command
         $this->info('Starting check for inactive users...');
         
         // Get all users with work timing enabled and a threshold set
+        // Only check users who are currently logged in (have an active session_id)
         $users = User::where('work_timing_enabled', true)
                      ->whereNotNull('work_timing_initiate_checking')
                      ->where('work_timing_initiate_checking', '>', 0)
+                     ->whereNotNull('session_id')  // Only users who are currently logged in
                      ->get();
         
-        $this->info("Found {$users->count()} users with work timing enabled.");
+        $this->info("Found {$users->count()} users with work timing enabled and currently logged in.");
         
         $inactiveCount = 0;
         

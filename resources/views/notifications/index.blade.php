@@ -26,7 +26,7 @@
                         <div class="col-xxl-12">
                             <div class="card stretch stretch-full">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">Driver Inactive Notifications</h5>
+                                    <h5 class="card-title mb-0">Inactive Notifications</h5>
                                     <div>
                                         @if(auth()->user()->unreadNotifications->count() > 0)
                                             <form method="POST" action="{{ route('notifications.markAllAsRead') }}" style="display: inline;">

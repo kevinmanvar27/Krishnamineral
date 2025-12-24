@@ -12,14 +12,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Change work_timing_initiate_checking to integer for minutes
-            $table->dropColumn('work_timing_initiate_checking');
-            $table->integer('work_timing_initiate_checking')->nullable()->after('work_timing_enabled');
-            
-            // Add task tracking fields
-            $table->timestamp('task_start_time')->nullable()->after('work_timing_initiate_checking');
-            $table->boolean('task_completed')->default(false)->after('task_start_time');
-            $table->string('task_description')->nullable()->after('task_completed');
+
+            // Change column type ONLY if it exists
+            if (Schema::hasColumn('users', 'work_timing_initiate_checking')) {
+                $table->integer('work_timing_initiate_checking')
+                      ->nullable()
+                      ->change();
+            }
+
+            // Add task tracking fields (NO `after()` to avoid SQL error)
+            if (!Schema::hasColumn('users', 'task_start_time')) {
+                $table->timestamp('task_start_time')->nullable();
+            }
+
+            if (!Schema::hasColumn('users', 'task_completed')) {
+                $table->boolean('task_completed')->default(false);
+            }
+
+            if (!Schema::hasColumn('users', 'task_description')) {
+                $table->string('task_description')->nullable();
+            }
         });
     }
 
@@ -29,9 +41,24 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['task_start_time', 'task_completed', 'task_description']);
-            $table->dropColumn('work_timing_initiate_checking');
-            $table->string('work_timing_initiate_checking', 255)->nullable()->after('work_timing_enabled');
+
+            if (Schema::hasColumn('users', 'task_start_time')) {
+                $table->dropColumn('task_start_time');
+            }
+
+            if (Schema::hasColumn('users', 'task_completed')) {
+                $table->dropColumn('task_completed');
+            }
+
+            if (Schema::hasColumn('users', 'task_description')) {
+                $table->dropColumn('task_description');
+            }
+
+            if (Schema::hasColumn('users', 'work_timing_initiate_checking')) {
+                $table->string('work_timing_initiate_checking')
+                      ->nullable()
+                      ->change();
+            }
         });
     }
 };
