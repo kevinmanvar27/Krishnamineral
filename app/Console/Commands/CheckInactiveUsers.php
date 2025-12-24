@@ -52,10 +52,11 @@ class CheckInactiveUsers extends Command
             // First, check if user has attendance marked as present for today
             $todayAttendance = \App\Models\Attendance::where('employee_id', $user->id)
                                    ->whereDate('date', now()->toDateString())
+                                   ->where('type_attendance', 1)  // Only consider 'present' status
                                    ->first();
             
             // Only proceed with inactive check if user has attendance marked as present today
-            if (!$todayAttendance || $todayAttendance->status !== 'present') {
+            if (!$todayAttendance) {
                 $this->info("User {$user->name} does not have attendance marked as present for today. Skipping inactive check.");
                 continue;
             }
