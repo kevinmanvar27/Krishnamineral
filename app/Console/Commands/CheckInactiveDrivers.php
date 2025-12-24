@@ -82,7 +82,7 @@ class CheckInactiveDrivers extends Command
                             
                 if ($shouldSendNotification) {
                     // Check if a similar notification was already sent recently
-                    $existingNotification = $this->checkExistingNotification($purchase->driver->id, $purchase->id);
+                    $existingNotification = $this->checkExistingNotification($purchase->driver->id, $purchase->id, $threshold);
                                 
                     if (!$existingNotification) {
                         // Send notification to super admins
@@ -179,7 +179,7 @@ class CheckInactiveDrivers extends Command
                                     
                     if ($shouldSendNotification) {
                         // Check if a similar notification was already sent recently
-                        $existingNotification = $this->checkExistingNotification($driver->id, $purchase->id);
+                        $existingNotification = $this->checkExistingNotification($driver->id, $purchase->id, $threshold);
                                         
                         if (!$existingNotification) {
                             // Send notification to super admins
@@ -223,27 +223,33 @@ class CheckInactiveDrivers extends Command
      * Check if a similar notification was already sent in the last 5 minutes
      * to prevent duplicate notifications
      */
-    private function checkExistingNotification($driverId, $purchaseId)
+    private function checkExistingNotification($driverId, $purchaseId, $threshold = null)
     {
         // Check if a notification for this specific driver and purchase was sent in the last 5 minutes
         $recentTime = now()->subMinutes(5);
-        
+            
         // Get all super admins and check their notifications
         $superAdmins = User::role('super-admin')->get();
-        
+            
         foreach ($superAdmins as $admin) {
-            $existingNotification = $admin->notifications()
+            $query = $admin->notifications()
                 ->where('created_at', '>', $recentTime)
                 ->where('type', DriverInactiveNotification::class)
                 ->whereJsonContains('data->driver_id', $driverId)
-                ->whereJsonContains('data->purchase_id', $purchaseId)
-                ->first();
+                ->whereJsonContains('data->purchase_id', $purchaseId);
+                    
+            // If threshold is provided, also check for the threshold to avoid duplicates for the same threshold
+            if ($threshold !== null) {
+                $query = $query->whereJsonContains('data->threshold', $threshold);
+            }
+                
+            $existingNotification = $query->first();
                 
             if ($existingNotification) {
                 return true;
             }
         }
-        
+            
         return false;
     }
 }

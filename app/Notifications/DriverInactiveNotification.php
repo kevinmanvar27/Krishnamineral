@@ -55,7 +55,8 @@ class DriverInactiveNotification extends Notification
             'driver_id' => $this->driver->id,
             'driver_name' => $this->driver->name,
             'message' => 'Driver ' . $this->driver->name . ' assigned to purchase #' . $this->purchase->id . ' has been inactive for more than ' . $this->threshold . ' minute' . ($this->threshold > 1 ? 's' : '') . '.',
-            'type' => 'driver_inactive'
+            'type' => 'driver_inactive',
+            'threshold' => $this->threshold
         ];
     }
 }

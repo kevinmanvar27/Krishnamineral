@@ -81,7 +81,7 @@ class CheckInactiveUsers extends Command
                 $this->info("User {$user->name} has been inactive for {$inactiveMinutes} minutes (threshold: {$user->work_timing_initiate_checking} minutes)");
                 
                 // Check if a similar notification was already sent recently
-                $existingNotification = $this->checkExistingNotification($user->id);
+                $existingNotification = $this->checkExistingNotification($user->id, $user->work_timing_initiate_checking);
                 
                 if (!$existingNotification) {
                     // Send notification to super admins
@@ -119,26 +119,27 @@ class CheckInactiveUsers extends Command
      * Check if a similar notification was already sent in the last 5 minutes
      * to prevent duplicate notifications
      */
-    private function checkExistingNotification($userId)
+    private function checkExistingNotification($userId, $threshold)
     {
-        // Check if a notification for this specific user was sent in the last 5 minutes
+        // Check if a notification for this specific user and threshold was sent in the last 5 minutes
         $recentTime = now()->subMinutes(5);
-        
+            
         // Get all super admins and check their notifications
         $superAdmins = User::role('super-admin')->get();
-        
+            
         foreach ($superAdmins as $admin) {
             $existingNotification = $admin->notifications()
                 ->where('created_at', '>', $recentTime)
                 ->where('type', UserInactiveNotification::class)
                 ->whereJsonContains('data->user_id', $userId)
+                ->whereJsonContains('data->threshold_minutes', $threshold)
                 ->first();
                 
             if ($existingNotification) {
                 return true;
             }
         }
-        
+            
         return false;
     }
 }
