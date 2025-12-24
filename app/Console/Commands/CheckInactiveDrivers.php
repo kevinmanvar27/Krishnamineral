@@ -67,7 +67,8 @@ class CheckInactiveDrivers extends Command
                 
                 if (!$existingNotification) {
                     // Send notification to super admins
-                    $superAdmins = User::role('super-admin')->get();
+                    // $superAdmins = User::role('super-admin')->get();
+                    $superAdmins = User::where('user_type', 1)->get();
                     $this->info("Found {$superAdmins->count()} super admins.");
                     
                     if ($superAdmins->count() > 0) {

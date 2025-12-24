@@ -49,6 +49,17 @@ class CheckInactiveUsers extends Command
         foreach ($users as $user) {
             $this->info("Checking user: {$user->name} (Threshold: {$user->work_timing_initiate_checking} minutes)");
             
+            // First, check if user has attendance marked as present for today
+            $todayAttendance = \App\Models\Attendance::where('employee_id', $user->id)
+                                   ->whereDate('date', now()->toDateString())
+                                   ->first();
+            
+            // Only proceed with inactive check if user has attendance marked as present today
+            if (!$todayAttendance || $todayAttendance->status !== 'present') {
+                $this->info("User {$user->name} does not have attendance marked as present for today. Skipping inactive check.");
+                continue;
+            }
+            
             // Check if user has been inactive beyond their threshold
             // This includes users who have never had any activity recorded
             $isInactive = false;
@@ -74,7 +85,8 @@ class CheckInactiveUsers extends Command
                 
                 if (!$existingNotification) {
                     // Send notification to super admins
-                    $superAdmins = User::role('super-admin')->get();
+                    // $superAdmins = User::role('super-admin')->get();
+                    $superAdmins = User::where('user_type', 1)->get();
                     $this->info("Found {$superAdmins->count()} super admins.");
                     
                     if ($superAdmins->count() > 0) {
