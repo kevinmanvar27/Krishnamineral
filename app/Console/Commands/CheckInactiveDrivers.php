@@ -62,39 +62,59 @@ class CheckInactiveDrivers extends Command
             $this->info("Driver is inactive for configured threshold: " . ($isInactive ? 'Yes' : 'No'));
             
             if ($isInactive) {
-                // Check if a similar notification was already sent recently
-                $existingNotification = $this->checkExistingNotification($purchase->driver->id, $purchase->id);
-                
-                if (!$existingNotification) {
-                    // Send notification to super admins
-                    // $superAdmins = User::role('super-admin')->get();
-                    $superAdmins = User::where('user_type', 1)->get();
-                    $this->info("Found {$superAdmins->count()} super admins.");
-                    
-                    if ($superAdmins->count() > 0) {
-                        try {
-                            // Get the threshold for this driver
-                            $threshold = 1;
-                            if ($purchase->driver->user_id) {
-                                $user = User::find($purchase->driver->user_id);
-                                if ($user && $user->work_timing_initiate_checking !== null) {
-                                    $threshold = $user->work_timing_initiate_checking;
-                                }
-                            }
-                                                    
-                            Notification::send($superAdmins, new DriverInactiveNotification($purchase, $purchase->driver, $threshold));
-                            $inactiveCount++;
+                // Check if driver is linked to a user and if that user has attendance marked as present for today
+                $shouldSendNotification = true;
+                if ($purchase->driver->user_id) {
+                    $user = User::find($purchase->driver->user_id);
+                    if ($user) {
+                        // Check if user has attendance marked as present for today
+                        $todayAttendance = \App\Models\Attendance::where('employee_id', $user->id)
+                                               ->whereDate('date', now()->toDateString())
+                                               ->first();
+                                    
+                        // Only proceed if user has attendance marked as present today
+                        if (!$todayAttendance || $todayAttendance->status !== 'present') {
+                            $this->info("Driver {$purchase->driver->name} is linked to user {$user->name} who does not have attendance marked as present for today. Skipping notification.");
+                            $shouldSendNotification = false;
+                        }
+                    }
+                }
                             
-                            // Log the notification
-                            $this->info("Notification sent for driver: {$purchase->driver->name} (Purchase #{$purchase->id})");
-                        } catch (\Exception $e) {
-                            $this->error("Failed to send notification: " . $e->getMessage());
+                if ($shouldSendNotification) {
+                    // Check if a similar notification was already sent recently
+                    $existingNotification = $this->checkExistingNotification($purchase->driver->id, $purchase->id);
+                                
+                    if (!$existingNotification) {
+                        // Send notification to super admins
+                        // $superAdmins = User::role('super-admin')->get();
+                        $superAdmins = User::where('user_type', 1)->get();
+                        $this->info("Found {$superAdmins->count()} super admins.");
+                                    
+                        if ($superAdmins->count() > 0) {
+                            try {
+                                // Get the threshold for this driver
+                                $threshold = 1;
+                                if ($purchase->driver->user_id) {
+                                    $user = User::find($purchase->driver->user_id);
+                                    if ($user && $user->work_timing_initiate_checking !== null) {
+                                        $threshold = $user->work_timing_initiate_checking;
+                                    }
+                                }
+                                            
+                                Notification::send($superAdmins, new DriverInactiveNotification($purchase, $purchase->driver, $threshold));
+                                $inactiveCount++;
+                                            
+                                // Log the notification
+                                $this->info("Notification sent for driver: {$purchase->driver->name} (Purchase #{$purchase->id})");
+                            } catch (\Exception $e) {
+                                $this->error("Failed to send notification: " . $e->getMessage());
+                            }
+                        } else {
+                            $this->info("No super admins found. Notification not sent.");
                         }
                     } else {
-                        $this->info("No super admins found. Notification not sent.");
+                        $this->info("Notification already sent for driver: {$purchase->driver->name} (Purchase #{$purchase->id}). Skipping.");
                     }
-                } else {
-                    $this->info("Notification already sent for driver: {$purchase->driver->name} (Purchase #{$purchase->id}). Skipping.");
                 }
             } else {
                 $this->info("Driver is still active. No notification needed.");
@@ -139,38 +159,58 @@ class CheckInactiveDrivers extends Command
                 $this->info("Driver is inactive for more than configured threshold: " . ($isInactive ? 'Yes' : 'No'));
                 
                 if ($isInactive) {
-                    // Check if a similar notification was already sent recently
-                    $existingNotification = $this->checkExistingNotification($driver->id, $purchase->id);
-                    
-                    if (!$existingNotification) {
-                        // Send notification to super admins
-                        $superAdmins = User::role('super-admin')->get();
-                        $this->info("Found {$superAdmins->count()} super admins.");
-                        
-                        if ($superAdmins->count() > 0) {
-                            try {
-                                // Get the threshold for this driver
-                                $threshold = 1;
-                                if ($driver->user_id) {
-                                    $user = User::find($driver->user_id);
-                                    if ($user && $user->work_timing_initiate_checking !== null) {
-                                        $threshold = $user->work_timing_initiate_checking;
+                    // Check if driver is linked to a user and if that user has attendance marked as present for today
+                    $shouldSendNotification = true;
+                    if ($driver->user_id) {
+                        $user = User::find($driver->user_id);
+                        if ($user) {
+                            // Check if user has attendance marked as present for today
+                            $todayAttendance = \App\Models\Attendance::where('employee_id', $user->id)
+                                                   ->whereDate('date', now()->toDateString())
+                                                   ->first();
+                                            
+                            // Only proceed if user has attendance marked as present today
+                            if (!$todayAttendance || $todayAttendance->status !== 'present') {
+                                $this->info("User-linked driver {$driver->name} is linked to user {$user->name} who does not have attendance marked as present for today. Skipping notification.");
+                                $shouldSendNotification = false;
+                            }
+                        }
+                    }
+                                    
+                    if ($shouldSendNotification) {
+                        // Check if a similar notification was already sent recently
+                        $existingNotification = $this->checkExistingNotification($driver->id, $purchase->id);
+                                        
+                        if (!$existingNotification) {
+                            // Send notification to super admins
+                            $superAdmins = User::role('super-admin')->get();
+                            $this->info("Found {$superAdmins->count()} super admins.");
+                                            
+                            if ($superAdmins->count() > 0) {
+                                try {
+                                    // Get the threshold for this driver
+                                    $threshold = 1;
+                                    if ($driver->user_id) {
+                                        $user = User::find($driver->user_id);
+                                        if ($user && $user->work_timing_initiate_checking !== null) {
+                                            $threshold = $user->work_timing_initiate_checking;
+                                        }
                                     }
+                                                    
+                                    Notification::send($superAdmins, new DriverInactiveNotification($purchase, $driver, $threshold));
+                                    $inactiveCount++;
+                                                    
+                                    // Log the notification
+                                    $this->info("Notification sent for user-linked driver: {$driver->name} (Purchase #{$purchase->id})");
+                                } catch (\Exception $e) {
+                                    $this->error("Failed to send notification: " . $e->getMessage());
                                 }
-                                                            
-                                Notification::send($superAdmins, new DriverInactiveNotification($purchase, $driver, $threshold));
-                                $inactiveCount++;
-                                
-                                // Log the notification
-                                $this->info("Notification sent for user-linked driver: {$driver->name} (Purchase #{$purchase->id})");
-                            } catch (\Exception $e) {
-                                $this->error("Failed to send notification: " . $e->getMessage());
+                            } else {
+                                $this->info("No super admins found. Notification not sent.");
                             }
                         } else {
-                            $this->info("No super admins found. Notification not sent.");
+                            $this->info("Notification already sent for user-linked driver: {$driver->name} (Purchase #{$purchase->id}). Skipping.");
                         }
-                    } else {
-                        $this->info("Notification already sent for user-linked driver: {$driver->name} (Purchase #{$purchase->id}). Skipping.");
                     }
                 } else {
                     $this->info("User-linked driver is still active. No notification needed.");
